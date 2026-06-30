@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>美业SAAS - 订单详情</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+  :root {
+    --primary: #00A86B;
+    --primary-light: #C8F0DE;
+    --primary-dark: #008F5B;
+    --accent: #2D8B5E;
+    --bg: #F0F7F3;
+    --bg-warm: #E8F5EE;
+    --card: #FFFFFF;
+    --card-hover: #F5FBF8;
+    --text-primary: #1A2E23;
+    --text-secondary: #5A7A6A;
+    --text-muted: #8FA89A;
+    --text-light: #C0D4C8;
+    --border: #DCE8E2;
+    --border-light: #EDF4F0;
+    --success: #34C759;
+    --success-bg: #E8F8EA;
+    --warning: #FF9500;
+    --warning-bg: #FFF3E0;
+    --info: #5AC8FA;
+    --info-bg: #E3F2FD;
+    --danger: #FF3B30;
+    --danger-bg: #FFE8E8;
+    --shadow-sm: 0 1px 3px rgba(26,46,35,0.04);
+    --shadow-md: 0 4px 12px rgba(26,46,35,0.06);
+    --shadow-lg: 0 8px 30px rgba(26,46,35,0.08);
+    --shadow-xl: 0 16px 50px rgba(26,46,35,0.12);
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Noto Sans SC', 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .phone-frame {
+    width: 390px;
+    height: 844px;
+    margin: 20px auto;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 0 2px #D0DDD6, var(--shadow-xl), 0 30px 80px rgba(26,46,35,0.15);
+  }
+
+  /* ===== Status Bar ===== */
+  .status-bar {
+    height: 54px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 32px 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: var(--bg);
+  }
+  .status-bar .icons { display: flex; gap: 6px; align-items: center; }
+  .status-bar svg { width: 18px; height: 18px; }
+
+  /* ===== Page ===== */
+  .page {
+    display: block !important;
+    height: calc(844px - 54px - 72px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 54px;
+  }
+
+  /* ===== Header ===== */
+  .detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--bg);
+    position: relative;
+    z-index: 50;
+  }
+  .detail-back {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: var(--card);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    border: none;
+    color: var(--text-primary);
+  }
+  .detail-back svg { width: 18px; height: 18px; }
+  .detail-title { font-size: 17px; font-weight: 600; color: var(--text-primary); }
+  .detail-header-right { width: 36px; }
+
+  /* ===== Project Card ===== */
+  .project-card {
+    margin: 16px 16px 12px;
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .project-header {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  .project-avatar {
+    width: 64px; height: 64px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--primary-light), var(--bg-warm));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .project-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .project-info { flex: 1; }
+  .project-name { font-size: 17px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+  .project-price-row { display: flex; align-items: baseline; gap: 8px; }
+  .project-price-label { font-size: 12px; color: var(--text-muted); }
+  .project-price { font-size: 24px; font-weight: 700; color: var(--danger); font-family: 'DM Sans', sans-serif; }
+  .project-meta-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 4px;
+  }
+  .project-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .project-meta-item svg { width: 14px; height: 14px; }
+
+  /* ===== Detail Section ===== */
+  .detail-section {
+    margin: 0 16px 12px;
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .detail-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .detail-section-title svg { width: 16px; height: 16px; color: var(--primary); }
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { font-size: 13px; color: var(--text-secondary); }
+  .detail-value { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .detail-value.highlight { color: var(--primary); font-weight: 600; }
+  .detail-value.time { color: var(--warning); font-weight: 600; }
+
+  /* ===== Requirements ===== */
+  .requirement-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .req-tag {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--bg-warm);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+  }
+  .req-tag.important {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border-color: var(--danger-bg);
+  }
+
+  /* ===== Store Info ===== */
+  .store-card {
+    margin: 0 16px 16px;
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .store-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .store-avatar {
+    width: 48px; height: 48px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .store-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .store-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+  .store-address {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-light);
+  }
+  .store-address svg { width: 16px; height: 16px; color: var(--primary); flex-shrink: 0; margin-top: 1px; }
+
+  /* ===== Action Buttons ===== */
+  .detail-actions {
+    display: flex;
+    gap: 12px;
+    padding: 0 16px 20px;
+  }
+  .btn-action {
+    flex: 1;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-align: center;
+    font-family: inherit;
+    transition: .2s;
+  }
+  .btn-action:active { transform: scale(0.97); }
+  .btn-action-secondary {
+    background: var(--card);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+  .btn-action-primary {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,168,107,0.3);
+  }
+
+  /* ===== PRD 左侧说明布局 ===== */
+  body.prd-layout {
+    overflow: auto;
+    background: #e8e8e8;
+    min-height: 100vh;
+  }
+  body.prd-layout .phone-frame {
+    margin: 20px;
+    flex-shrink: 0;
+  }
+  .prd-container {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+  .prd-comments {
+    width: 420px;
+    max-height: 812px;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.10);
+    flex-shrink: 0;
+  }
+  .prd-comments::-webkit-scrollbar { display: none; }
+  .prd-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #00A86B;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .prd-title .prd-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .prd-section { margin-bottom: 20px; }
+  .prd-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #00A86B;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .prd-section-title::before {
+    content: '';
+    width: 4px;
+    height: 16px;
+    background: #00A86B;
+    border-radius: 2px;
+  }
+  .prd-text { font-size: 13px; color: #666; line-height: 1.8; }
+  .prd-text p { margin-bottom: 4px; }
+  .prd-highlight { background: #E8F5E9; padding: 2px 6px; border-radius: 4px; color: #00A86B; font-weight: 500; }
+  .prd-btn {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: .2s;
+  }
+  .prd-btn-edit { background: #00A86B; color: #fff; }
+  .prd-btn-edit:hover { background: #008F5B; }
+  .prd-btn-save { background: #1677ff; color: #fff; }
+  .prd-btn-save:hover { background: #0958d9; }
+  .prd-text[contenteditable="true"] {
+    background: #fffbe6;
+    border: 1px dashed #ffd666;
+    border-radius: 8px;
+    padding: 8px 12px;
+    outline: none;
+  }
+  .prd-text[contenteditable="true"]:focus {
+    border-color: #00A86B;
+    background: #f6ffed;
+  }
+  @media (max-width: 940px) {
+    body.prd-layout { padding: 12px; }
+    .prd-container { flex-direction: column; align-items: center; gap: 16px; }
+    .prd-comments { width: 100%; max-width: 390px; max-height: none; }
+    body.prd-layout .phone-frame { margin: 0; }
+  }
+</style>
+</head>
+<body class="prd-layout">
+<div class="prd-container">
+
+<!-- ===== PRD 左侧说明 ===== -->
+<div class="prd-comments">
+  <div class="prd-title">
+    订单详情页 — 产品需求说明（PRD）
+    <div class="prd-actions">
+      <button class="prd-btn prd-btn-edit" id="prdEditBtn" onclick="togglePrdEdit()">编辑</button>
+      <button class="prd-btn prd-btn-save" id="prdSaveBtn" onclick="savePrdContent()" style="display:none">确定</button>
+    </div>
+  </div>
+  <div class="prd-section">
+    <div class="prd-section-title">一、文档信息</div>
+    <div class="prd-text">
+      <p><strong>文档名称：</strong>SP端订单详情页产品需求文档</p>
+      <p><strong>适用端：</strong>SP端APP / 所有角色</p>
+      <p><strong>需求类型：</strong>核心功能</p>
+      <p><strong>关联页面：</strong>订单列表页、接单广场</p>
+    </div>
+  </div>
+  <div class="prd-section">
+    <div class="prd-section-title">二、模块概述</div>
+    <div class="prd-text">
+      <p>订单详情页展示单个订单的完整信息，包括项目信息、服务时间、项目要求和店铺信息。服务商可在此页面查看订单详情并执行相关操作。</p>
+    </div>
+  </div>
+  <div class="prd-section">
+    <div class="prd-section-title">三、功能需求</div>
+    <div class="prd-text">
+      <p><strong>3.1 项目信息</strong></p>
+      <p>· 项目头像：展示服务项目封面图</p>
+      <p>· 项目名称：如"染发（含护理）"</p>
+      <p>· 到手金额：服务商实际获得的金额</p>
+      <p>· 服务时长：预计服务所需时间</p>
+    </div>
+    <div class="prd-text">
+      <p><strong>3.2 服务时间</strong></p>
+      <p>· 具体服务日期和时间</p>
+      <p>· 预约到店时间提醒</p>
+    </div>
+    <div class="prd-text">
+      <p><strong>3.3 项目要求</strong></p>
+      <p>· 客户特殊要求标签展示</p>
+      <p>· 服务注意事项</p>
+    </div>
+    <div class="prd-text">
+      <p><strong>3.4 店铺信息</strong></p>
+      <p>· 店铺头像和名称</p>
+      <p>· 店铺详细地址</p>
+      <p>· 导航到店功能</p>
+    </div>
+  </div>
+  <div class="prd-section">
+    <div class="prd-section-title">四、交互规则</div>
+    <div class="prd-text">
+      <p>· 点击返回按钮回到订单列表</p>
+      <p>· 底部操作按钮根据订单状态变化</p>
+      <p>· 店铺地址点击唤起地图导航</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 手机原型 ===== -->
+<div class="phone-frame" id="phoneFrame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="page" id="page-order-detail">
+    <!-- Header -->
+    <div class="detail-header">
+      <button class="detail-back" onclick="window.history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="detail-title">订单详情</div>
+      <div class="detail-header-right"></div>
+    </div>
+
+    <!-- 项目与店铺信息卡 -->
+    <div class="project-card">
+      <!-- 项目信息 -->
+      <div class="project-header">
+        <div class="project-avatar" style="font-size:14px;font-weight:600;color:var(--primary);">染发</div>
+        <div class="project-info">
+          <div class="project-name">染发（含护理）</div>
+          <div class="project-price-row">
+            <span class="project-price-label">到手价</span>
+            <span class="project-price">¥388</span>
+          </div>
+          <div class="project-meta-row">
+            <div class="project-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              约120分钟
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 分割线 -->
+      <div style="height:1px;background:var(--border-light);margin:14px 0;"></div>
+      <!-- 店铺信息 -->
+      <div class="store-header" style="margin-bottom:0;">
+        <div class="store-avatar" style="font-size:14px;font-weight:600;color:#fff;">店铺</div>
+        <div>
+          <div class="store-name">美丽人生造型沙龙（天河店）</div>
+          <div class="store-address" style="padding-top:4px;border-top:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>广州市天河区体育西路189号城建大厦2楼203室</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Time -->
+    <div class="detail-section">
+      <div class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        服务时间
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">预约日期</span>
+        <span class="detail-value">2026年6月28日 星期六</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">到店时间</span>
+        <span class="detail-value time">14:30</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">服务时长</span>
+        <span class="detail-value">约120分钟</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">预计结束</span>
+        <span class="detail-value">16:30</span>
+      </div>
+    </div>
+
+    <!-- Requirements -->
+    <div class="detail-section">
+      <div class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        项目要求
+      </div>
+      <div class="requirement-tags">
+        <span class="req-tag">不要漂发</span>
+        <span class="req-tag">需要头皮护理</span>
+        <span class="req-tag important">对染发剂过敏史</span>
+        <span class="req-tag">希望颜色偏深</span>
+        <span class="req-tag">完成后需要造型</span>
+      </div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--border-light);">
+        <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">备注</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.7;">客户上次染发是3个月前，颜色已褪成棕黄色。本次希望染成深棕色，要求使用植物染发剂。客户头皮较敏感，操作时请注意力度，避免抓伤。完成后请帮忙简单吹干造型。</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ===== PRD 编辑功能 =====
+  var prdEditMode = false;
+  var prdStorageKey = 'prd_order_detail';
+
+  (function() {
+    var saved = localStorage.getItem(prdStorageKey);
+    if (saved) {
+      try {
+        var data = JSON.parse(saved);
+        var texts = document.querySelectorAll('.prd-text');
+        texts.forEach(function(el, idx) {
+          if (data[idx] !== undefined) el.innerHTML = data[idx];
+        });
+      } catch(e) {}
+    }
+  })();
+
+  function togglePrdEdit() {
+    prdEditMode = !prdEditMode;
+    var texts = document.querySelectorAll('.prd-text');
+    var editBtn = document.getElementById('prdEditBtn');
+    var saveBtn = document.getElementById('prdSaveBtn');
+    if (prdEditMode) {
+      texts.forEach(function(el) { el.setAttribute('contenteditable', 'true'); });
+      editBtn.style.display = 'none';
+      saveBtn.style.display = 'inline-block';
+    } else {
+      texts.forEach(function(el) { el.setAttribute('contenteditable', 'false'); });
+      editBtn.style.display = 'inline-block';
+      saveBtn.style.display = 'none';
+    }
+  }
+
+  function savePrdContent() {
+    var texts = document.querySelectorAll('.prd-text');
+    var data = [];
+    texts.forEach(function(el) { data.push(el.innerHTML); });
+    localStorage.setItem(prdStorageKey, JSON.stringify(data));
+    togglePrdEdit();
+    alert('PRD 已保存');
+  }
+</script>
+
+</body>
+</html>
