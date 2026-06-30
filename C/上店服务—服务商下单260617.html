@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>美业预约系统 - 用户端原型</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #e8e8e8; min-height: 100vh; padding: 20px; }
+
+.container { display: flex; gap: 30px; justify-content: center; align-items: flex-start; max-width: 1400px; margin: 0 auto; }
+.phone-frame { width: 375px; height: 812px; background: #1a1a1a; border-radius: 44px; padding: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; overflow: hidden; flex-shrink: 0; }
+
+/* 注释面板 */
+.comments { width: 400px; background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-height: 812px; overflow-y: auto; }
+.comments-title { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #00A86B; }
+.comment-section { margin-bottom: 20px; }
+.comment-section-title { font-size: 14px; font-weight: 600; color: #00A86B; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.comment-section-title::before { content: ''; width: 4px; height: 16px; background: #00A86B; border-radius: 2px; }
+.comment-text { font-size: 13px; color: #666; line-height: 1.8; }
+.comment-text p { margin-bottom: 8px; }
+.comment-text ul { margin-left: 16px; margin-bottom: 8px; }
+.comment-text li { margin-bottom: 4px; }
+.comment-highlight { background: #E8F5E9; padding: 2px 6px; border-radius: 4px; color: #00A86B; font-weight: 500; }
+
+@media(max-width: 900px) {
+  .container { flex-direction: column; align-items: center; }
+  .comments { width: 100%; max-width: 375px; max-height: none; }
+}
+
+/* 手机外框 */
+.phone-frame {
+  width: 375px; height: 812px; background: #1a1a1a; border-radius: 44px; padding: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; overflow: hidden;
+}
+.phone-screen {
+  width: 100%; height: 100%; background: #f5f5f5; border-radius: 34px; overflow: hidden; position: relative; display: flex; flex-direction: column;
+}
+
+/* 状态栏 */
+.status-bar {
+  height: 44px; background: #00A86B; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; color: white; font-size: 12px; flex-shrink: 0;
+}
+.status-bar .time { font-weight: 600; }
+.status-bar .icons { display: flex; gap: 4px; align-items: center; }
+
+/* 导航栏 */
+.nav-bar {
+  height: 44px; background: #00A86B; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; color: white; flex-shrink: 0; position: relative;
+}
+.nav-bar .back { font-size: 20px; cursor: pointer; width: 32px; display: flex; align-items: center; }
+.nav-bar .title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 16px; font-weight: 600; }
+.nav-bar .actions { display: flex; gap: 16px; font-size: 18px; }
+
+/* 页面容器 */
+.page-container { flex: 1; overflow: hidden; position: relative; }
+.page {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f5f5f5;
+  overflow-y: auto; overflow-x: hidden; transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s;
+  -webkit-overflow-scrolling: touch;
+}
+.page.hidden { transform: translateX(100%); opacity: 0; pointer-events: none; z-index: 0; }
+.page:not(.hidden) { z-index: 1; }
+
+/* 横幅 */
+.banner { width: 100%; height: 180px; background: linear-gradient(135deg, #e0e0e0, #d0d0d0); display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px; flex-shrink: 0; }
+
+/* 服务商信息卡 */
+.provider-card {
+  background: white; margin: -20px 12px 0; border-radius: 12px; padding: 16px; position: relative; z-index: 2;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.provider-header { display: flex; gap: 12px; align-items: flex-start; }
+.provider-avatar { width: 56px; height: 56px; border-radius: 50%; background: #e0e0e0; flex-shrink: 0; overflow: hidden; }
+.provider-info { flex: 1; }
+.provider-name { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 4px; }
+.provider-rating { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+.stars { color: #FFB800; font-size: 12px; letter-spacing: 1px; }
+.rating-num { font-size: 12px; color: #333; font-weight: 600; }
+.provider-status { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.status-tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.status-tag.closed { background: #f0f0f0; color: #999; }
+.status-tag.open { background: #E8F5E9; color: #4CAF50; }
+.status-hours { font-size: 12px; color: #999; }
+.provider-tags { display: flex; gap: 8px; margin-bottom: 8px; }
+.tag { display: inline-block; padding: 3px 10px; background: #E8F4F8; color: #00A86B; border-radius: 12px; font-size: 11px; }
+.provider-address { font-size: 12px; color: #999; display: flex; align-items: center; gap: 4px; }
+.provider-address .distance { color: #00A86B; margin-left: auto; white-space: nowrap; }
+
+/* Tab导航 */
+.tabs { display: flex; background: white; border-bottom: 1px solid #f0f0f0; margin-top: 12px; position: sticky; top: 0; z-index: 10; }
+.tab-item { flex: 1; text-align: center; padding: 12px 0; font-size: 14px; color: #999; cursor: pointer; position: relative; transition: color 0.2s; }
+.tab-item.active { color: #00A86B; font-weight: 600; }
+.tab-item.active::after { content: ''; position: absolute; bottom: 0; left: 30%; right: 30%; height: 2px; background: #00A86B; border-radius: 1px; }
+
+/* 分类+项目列表 */
+.content-area { display: flex; min-height: 400px; }
+.category-sidebar { width: 80px; background: #f5f5f5; flex-shrink: 0; }
+.category-item { padding: 14px 8px; text-align: center; font-size: 12px; color: #666; cursor: pointer; position: relative; transition: all 0.2s; }
+.category-item.active { background: white; color: #00A86B; font-weight: 600; }
+.category-item.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 20px; background: #00A86B; border-radius: 0 2px 2px 0; }
+.service-list { flex: 1; padding: 8px 12px; }
+.service-card {
+  background: white; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; gap: 10px; cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s; border: 2px solid transparent;
+}
+.service-card:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.service-img { width: 80px; height: 80px; border-radius: 8px; background: #e0e0e0; flex-shrink: 0; overflow: hidden; }
+.service-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+.service-name { font-size: 14px; font-weight: 600; color: #333; }
+.service-duration { font-size: 12px; color: #999; }
+.service-price { display: flex; align-items: baseline; gap: 6px; }
+.price-current { font-size: 16px; font-weight: 700; color: #F96167; }
+.price-original { font-size: 11px; color: #ccc; text-decoration: line-through; }
+.price-discount { font-size: 10px; color: #F96167; background: #fff0f0; padding: 1px 4px; border-radius: 3px; }
+.service-add { width: 28px; height: 28px; background: #00A86B; border-radius: 50%; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; align-self: center; transition: background 0.2s; }
+.service-add:active { background: #008f5a; }
+
+.safe-area { height: 20px; flex-shrink: 0; }
+.page::-webkit-scrollbar { display: none; }
+.page { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ==================== 订单确认弹窗 ==================== */
+.modal-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); z-index: 100; opacity: 0; visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+.modal-overlay.show { opacity: 1; visibility: visible; }
+
+.modal-sheet {
+  position: absolute; bottom: 0; left: 0; width: 100%;
+  background: white; border-radius: 20px 20px 0 0;
+  transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  z-index: 101; max-height: 90%; overflow-y: auto;
+}
+.modal-overlay.show .modal-sheet { transform: translateY(0); }
+.modal-sheet::-webkit-scrollbar { display: none; }
+
+/* 弹窗头部 */
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 16px 0; position: sticky; top: 0; background: white; z-index: 10;
+}
+.modal-title { font-size: 16px; font-weight: 600; color: #333; }
+.modal-close {
+  width: 28px; height: 28px; border-radius: 50%; background: #f5f5f5;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  font-size: 14px; color: #999;
+}
+
+/* 服务信息卡片 */
+.order-product-card {
+  margin: 12px 16px; padding: 14px; background: white;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.order-product-img {
+  width: 70px; height: 70px; border-radius: 8px; background: #e0e0e0; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 10px; color: #bbb;
+  overflow: hidden;
+}
+.order-product-img img { width: 100%; height: 100%; object-fit: cover; }
+.order-product-info { flex: 1; }
+.order-product-name { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 6px; line-height: 1.4; }
+.order-product-price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
+.order-product-original { font-size: 12px; color: #999; text-decoration: line-through; }
+.order-product-current { font-size: 16px; font-weight: 600; color: #333; }
+.order-product-qty { font-size: 12px; color: #999; }
+.order-product-provider { font-size: 12px; color: #666; display: flex; align-items: center; gap: 4px; }
+.order-product-provider .provider-label { color: #999; }
+.order-product-duration { font-size: 12px; color: #666; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+.order-product-duration .dur-label { color: #999; }
+
+/* 分隔线 */
+.m-divider { height: 8px; background: #f5f5f5; }
+
+/* 服务时间行 */
+.service-time-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 16px; background: white;
+}
+.service-time-label { font-size: 14px; color: #333; }
+.service-time-value {
+  font-size: 14px; color: #333; display: flex; align-items: center; gap: 4px;
+  cursor: pointer;
+}
+.service-time-value .arrow { color: #ccc; font-size: 14px; }
+.service-time-value.unselected { color: #999; }
+
+/* 时间选择展开区域 */
+.time-picker-expand {
+  padding: 0 16px 14px; background: white;
+  display: none;
+}
+.time-picker-expand.show { display: block; }
+.time-picker-title { font-size: 13px; color: #666; margin-bottom: 10px; }
+.date-scroll {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
+}
+.date-scroll::-webkit-scrollbar { display: none; }
+.date-chip {
+  min-width: 56px; padding: 8px 6px; border-radius: 8px; background: #f5f5f5;
+  text-align: center; cursor: pointer; border: 1.5px solid transparent;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.date-chip.active { background: #fff0f0; border-color: #F96167; }
+.date-chip .dc-weekday { font-size: 11px; color: #999; }
+.date-chip .dc-date { font-size: 14px; font-weight: 600; color: #333; margin-top: 2px; }
+.date-chip.active .dc-weekday { color: #F96167; }
+.date-chip.active .dc-date { color: #F96167; }
+
+/* 时间网格 */
+.time-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  margin-top: 12px;
+}
+.time-slot {
+  padding: 10px 6px; border-radius: 8px; background: #f5f5f5;
+  text-align: center; cursor: pointer; border: 1.5px solid transparent;
+  transition: all 0.2s;
+}
+.time-slot.available { }
+.time-slot.available:active { background: #fff0f0; }
+.time-slot.selected { background: #F96167; border-color: #F96167; }
+.time-slot.unavailable { background: #fafafa; opacity: 0.5; cursor: not-allowed; }
+.time-slot .ts-time { font-size: 14px; font-weight: 600; color: #333; }
+.time-slot.selected .ts-time { color: white; }
+.time-slot.unavailable .ts-time { color: #ccc; }
+.time-slot .ts-status { font-size: 10px; color: #999; margin-top: 1px; }
+.time-slot.selected .ts-status { color: rgba(255,255,255,0.8); }
+.time-slot.unavailable .ts-status { color: #ccc; }
+
+/* ========== 选择店铺区域 ========== */
+.shop-picker-expand {
+  padding: 0 16px 14px; background: white;
+  display: none;
+}
+.shop-picker-expand.show { display: block; }
+
+/* 店铺卡片横向滚动容器 */
+.shop-card-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.shop-card-scroll::-webkit-scrollbar { display: none; }
+
+/* 店铺卡片 - 横向卡片样式 */
+.shop-card {
+  flex-shrink: 0;
+  width: 160px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid #e5e5e5;
+}
+.shop-card:active { transform: scale(0.98); }
+.shop-card.selected { border-color: #00A86B; background: #f0faf6; }
+.shop-card .shop-img {
+  width: 100%;
+  height: 80px;
+  border-radius: 8px;
+  background: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #bbb;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.shop-card .shop-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.shop-card .shop-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.shop-card .shop-stars { color: #FFB800; font-size: 10px; }
+.shop-card .shop-rating { font-size: 11px; color: #333; font-weight: 500; }
+.shop-card .shop-distance { font-size: 11px; color: #00A86B; font-weight: 500; }
+.shop-card .shop-hours { font-size: 10px; color: #999; margin-bottom: 4px; }
+
+/* 技师挂靠标签 */
+.shop-card .tech-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  background: #FFF3E0;
+  color: #FF8C00;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+/* 店铺标签 */
+.shop-card .shop-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.shop-card .shop-tag { font-size: 9px; padding: 1px 4px; background: #f0f0f0; border-radius: 6px; color: #666; }
+
+/* 店铺数量提示 */
+.shop-count-hint {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 8px;
+}
+.shop-count-hint strong { color: #00A86B; }
+
+/* 加载更多按钮 */
+.load-more-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  background: #f5f5f5;
+  border: 1px dashed #ddd;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #666;
+}
+.load-more-btn:active { background: #e8e8e8; }
+.load-more-btn .arrow { transition: transform 0.2s; }
+.load-more-btn.expanded .arrow { transform: rotate(180deg); }
+
+/* 订单备注 */
+.remark-section { padding: 14px 16px 0; }
+.remark-label { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 10px; }
+.remark-input {
+  width: 100%; min-height: 56px; padding: 12px; border: 1px solid #e5e5e5;
+  border-radius: 8px; font-size: 13px; color: #333; resize: none;
+  background: #fafafa; transition: border-color 0.2s;
+}
+.remark-input:focus { outline: none; border-color: #F96167; background: white; }
+.remark-input::placeholder { color: #bbb; }
+
+/* 价格明细 */
+.price-detail-section { padding: 14px 16px; }
+.price-detail-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid #f5f5f5;
+}
+.price-detail-row:last-child { border-bottom: none; }
+.pdl-label { font-size: 13px; color: #333; }
+.pdl-value { font-size: 13px; color: #333; }
+.pdl-value.red { color: #F96167; }
+.pdl-value .discount-tag {
+  display: inline-block; background: #FFF3E0; color: #FF8C00; font-size: 10px;
+  padding: 1px 4px; border-radius: 3px; margin-left: 4px; vertical-align: middle;
+}
+.pdl-value .coupon-arrow { color: #ccc; margin-left: 4px; font-size: 14px; vertical-align: middle; }
+.pdl-value .coupon-none { color: #999; font-size: 12px; }
+.price-detail-row.total-row { border-bottom: none; padding-top: 12px; border-top: 1px solid #f0f0f0; }
+.price-detail-row.total-row .pdl-label { font-size: 14px; font-weight: 600; color: #333; }
+.price-detail-row.total-row .pdl-value { font-size: 18px; font-weight: 700; color: #F96167; }
+
+/* 支付方式 */
+.payment-section { padding: 0 16px 14px; }
+.payment-section-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 10px; }
+.payment-list { display: flex; flex-direction: column; }
+.payment-item {
+  display: flex; align-items: center; gap: 12px; padding: 13px 0;
+  border-bottom: 1px solid #f5f5f5; cursor: pointer;
+}
+.payment-item:last-child { border-bottom: none; }
+.pay-icon {
+  width: 32px; height: 32px; border-radius: 6px; display: flex;
+  align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+}
+.pay-icon.balance-icon { background: linear-gradient(135deg, #FFD700, #FFA500); color: white; font-size: 14px; font-weight: 700; }
+.pay-icon.redpack-icon { background: linear-gradient(135deg, #FF6B6B, #FF4757); color: white; font-size: 14px; }
+.pay-icon.wechat-icon { background: #07C160; color: white; font-size: 14px; }
+.pay-icon.alipay-icon { background: #1677FF; color: white; font-size: 14px; }
+.pay-info { flex: 1; }
+.pay-name { font-size: 14px; color: #333; }
+.pay-desc { font-size: 12px; color: #999; margin-top: 1px; }
+.pay-radio {
+  width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ddd;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all 0.2s;
+}
+.payment-item.active .pay-radio { border-color: #07C160; }
+.payment-item.active .pay-radio::after {
+  content: ''; width: 10px; height: 10px; border-radius: 50%;
+  background: #07C160;
+}
+
+/* 协议行 */
+.agreement-row {
+  display: flex; align-items: center; gap: 6px; padding: 10px 16px;
+  font-size: 12px; color: #666;
+}
+.agree-checkbox {
+  width: 16px; height: 16px; border-radius: 3px; border: 1.5px solid #ddd;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.agree-checkbox.checked { background: #07C160; border-color: #07C160; }
+.agree-checkbox.checked::after {
+  content: ''; width: 4px; height: 7px; border: 1.5px solid white;
+  border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px);
+}
+.agreement-link { color: #576B95; }
+
+/* 底部操作栏 */
+.modal-bottom-bar {
+  position: sticky; bottom: 0; background: white;
+  padding: 10px 16px 24px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+.bottom-bar-row { display: flex; align-items: center; }
+.bottom-price-area { flex: 1; }
+.bottom-total-label { font-size: 12px; color: #999; }
+.bottom-total-amount { font-size: 24px; font-weight: 700; color: #F96167; }
+.bottom-saved { font-size: 11px; color: #999; margin-top: 1px; }
+.bottom-saved .saved-amount { color: #F96167; }
+.bottom-actions { display: flex; align-items: center; gap: 10px; }
+.btn-ask-pay {
+  padding: 12px 14px; background: white; border: 1px solid #ddd;
+  border-radius: 22px; font-size: 13px; color: #666; cursor: pointer;
+  display: flex; align-items: center; gap: 4px; white-space: nowrap;
+}
+.btn-ask-pay:active { background: #f5f5f5; }
+.btn-pay-now {
+  padding: 12px 20px; background: linear-gradient(135deg, #FF4757, #FF6B81);
+  border: none; border-radius: 22px; color: white; font-size: 15px;
+  font-weight: 600; cursor: pointer; position: relative; white-space: nowrap;
+}
+.btn-pay-now:active { opacity: 0.9; }
+.btn-add-cart {
+  padding: 12px 14px; background: #00A86B; border: none;
+  border-radius: 22px; color: white; font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap; display: none;
+}
+.btn-add-cart.show { display: block; }
+.btn-add-cart:active { background: #008f5a; }
+.btn-pay-now .invite-tag {
+  position: absolute; top: -8px; right: -8px;
+  background: linear-gradient(135deg, #FF8C00, #FFA500);
+  color: white; font-size: 9px; padding: 2px 6px; border-radius: 8px;
+  white-space: nowrap; display: flex; align-items: center; gap: 2px;
+}
+.btn-pay-now .invite-tag .zap { font-size: 10px; }
+
+/* ==================== 项目详情页 ==================== */
+.service-detail-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f5f5f5; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; z-index: 2; }
+.service-detail-page.hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
+.service-detail-page::-webkit-scrollbar { display: none; }
+
+/* 详情页头部大图 */
+.detail-hero { position: relative; height: 280px; background: linear-gradient(135deg, #ddd, #ccc); display: flex; align-items: center; justify-content: center; }
+.detail-hero-img { width: 100%; height: 100%; object-fit: cover; }
+.detail-back-btn { position: absolute; top: 44px; left: 16px; width: 36px; height: 36px; background: rgba(0,0,0,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; cursor: pointer; z-index: 10; }
+.detail-top-actions { position: absolute; top: 44px; right: 16px; display: flex; gap: 12px; z-index: 10; }
+.detail-top-btn { width: 36px; height: 36px; background: rgba(0,0,0,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; cursor: pointer; }
+
+/* 绿色价格区域 */
+.detail-price-banner { background: linear-gradient(135deg, #00A86B, #008F5B); padding: 16px; color: white; }
+.detail-price-main { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+.detail-price-big { font-size: 32px; font-weight: 700; }
+.detail-price-unit { font-size: 16px; }
+.detail-price-tag { font-size: 14px; opacity: 0.9; }
+.detail-price-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+.detail-price-tag-item { display: flex; align-items: center; gap: 4px; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 16px; font-size: 12px; }
+.detail-price-tag-item.white { background: white; color: #00A86B; }
+
+/* 详情内容区域 */
+.detail-content-area { padding: 16px; background: white; }
+.detail-service-name { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px; }
+.detail-info-list { margin-bottom: 20px; }
+.detail-info-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 13px; }
+.detail-info-row .label { color: #999; flex-shrink: 0; }
+.detail-info-row .value { color: #666; }
+
+/* 服务商选择区域 */
+.detail-provider-section { margin-top: 20px; }
+.detail-provider-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 12px; }
+.detail-provider-list { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+.detail-provider-list::-webkit-scrollbar { display: none; }
+.detail-provider-item { min-width: 80px; text-align: center; cursor: pointer; }
+.detail-provider-avatar { width: 64px; height: 64px; border-radius: 12px; background: #e0e0e0; margin: 0 auto 8px; overflow: hidden; position: relative; }
+.detail-provider-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.detail-provider-check { position: absolute; bottom: 4px; right: 4px; width: 18px; height: 18px; background: #00A86B; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; }
+.detail-provider-name { font-size: 13px; color: #333; }
+
+/* 底部预约栏 */
+.detail-bottom-bar { position: sticky; bottom: 0; background: white; padding: 12px 16px 24px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 12px; }
+.detail-bottom-price { flex: 1; }
+.detail-bottom-label { font-size: 12px; color: #999; }
+.detail-bottom-amount { font-size: 20px; font-weight: 700; color: #F96167; }
+.btn-detail-book { flex: 0 0 140px; padding: 14px 0; background: linear-gradient(135deg, #FF4757, #FF6B81); border: none; border-radius: 24px; color: white; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; }
+.btn-detail-book:active { opacity: 0.9; }
+
+/* ========== Toast提示 ========== */
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+  text-align: center;
+  max-width: 280px;
+}
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- 注释面板 -->
+<div class="comments">
+  <div class="comments-title">📋 用户端下单 — 产品需求说明（PRD）</div>
+
+  <!-- ===== 一、文档信息 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">一、文档信息</div>
+    <div class="comment-text">
+      <p><strong>文档名称：</strong>用户端下单模块产品需求文档</p>
+      <p><strong>适用端：</strong>C端用户APP</p>
+      <p><strong>需求类型：</strong>功能迭代</p>
+    </div>
+  </div>
+
+  <!-- ===== 二、模块概述 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">二、模块概述</div>
+    <div class="comment-text">
+      <p>为用户提供从服务商入口选择项目、确认店铺、选择服务时间并完成支付的预约链路。</p>
+    </div>
+  </div>
+
+  <!-- ===== 三、用户路径 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">三、用户路径</div>
+    <div class="comment-text">
+      <p><strong>主路径：</strong></p>
+      <ul>
+        <li>服务商详情页 → 项目详情页 → 订单确认弹窗 → 支付成功</li>
+      </ul>
+      <p><strong>页面流转说明：</strong></p>
+      <ul>
+        <li><strong>服务商详情页：</strong>展示技师信息、服务项目列表</li>
+        <li><strong>项目详情页：</strong>展示项目详情、价格、服务商选择、立即预约按钮</li>
+        <li><strong>订单确认弹窗：</strong>底部弹窗形式，包含服务信息、服务商信息、店铺选择、时间选择、价格明细、支付方式、底部操作栏。支持两种入口：项目详情页【立即预约】入口、项目卡片【+】入口</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 四、功能需求 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">四、功能需求</div>
+    <div class="comment-text">
+      <p><strong>4.1 订单确认弹窗</strong></p>
+      <ul>
+        <li><strong>弹窗形式：</strong>底部滑出弹窗（Sheet），占屏幕高度90%，圆角20px</li>
+        <li><strong>入口区分：</strong>从项目详情页【立即预约】进入时，底部展示【找人付】+【立即支付】；从项目卡片【+】进入时，底部新增【加入购物车】按钮，并保留【找人付】+【立即支付】</li>
+        <li><strong>服务项目信息：</strong>展示项目名称、原价、折后价、服务时长</li>
+        <li><strong>服务商选择：</strong>展示项目上挂靠的服务商，没有则提示"暂无可用服务商"，展示头像、名字、评分，默认选中第一个，单选</li>
+        <li><strong>店铺选择：</strong>以纵向卡片形式展示，<span class="comment-highlight">默认显示3个店铺卡片</span>。<span class="comment-highlight">优先展示技师挂靠的店铺</span>，其余按照距离优先排序。<span class="comment-highlight">距离超过30公里的店铺不予展示</span>。若店铺数量超过3个，底部展示【加载更多】按钮，点击展开全部店铺。</li>
+        <li><strong>服务时间：</strong>点击展开日期选择（横向滚动，今天/明天+未来5天）和时间网格（9:00-21:00，每格30分钟，展示可预约/已约满状态），单选</li>
+        <li><strong>订单备注：</strong>多行文本输入，最多200字，选填</li>
+        <li><strong>价格明细：</strong>项目金额、优惠金额、消费券、实付款</li>
+        <li><strong>支付方式：</strong>余额支付、微信支付（默认选中）、红包支付、支付宝支付，单选</li>
+        <li><strong>协议勾选：</strong>默认勾选"我已阅读并同意《下单须知》"</li>
+        <li><strong>底部操作栏：</strong>普通预约入口展示【找人付】+【立即支付】；项目卡片【+】入口展示【找人付】+【加入购物车】+【立即支付】，【立即支付】保留"邀请助力"角标</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 五、交互规则 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">五、交互规则</div>
+    <div class="comment-text">
+      <p><strong>5.1 页面切换</strong></p>
+      <ul>
+        <li>服务商页 → 项目详情页：右滑进入动画</li>
+        <li>项目详情页 → 服务商页：左滑返回</li>
+        <li>点击立即预约：从底部滑出订单确认弹窗，底部展示【找人付】+【立即支付】</li>
+        <li>点击项目卡片【+】：从底部滑出订单确认弹窗，底部展示【找人付】+【加入购物车】+【立即支付】</li>
+        <li>点击弹窗外区域/关闭按钮：弹窗下滑关闭</li>
+      </ul>
+      <p><strong>5.2 状态管理</strong></p>
+      <ul>
+        <li>服务商选择：项目详情页和订单弹窗同步选中状态</li>
+        <li>店铺选择：横向卡片形式，支持滑动切换，单选；技师挂靠店铺置顶展示</li>
+        <li>时间选择：日期和时间必须同时选择才视为有效</li>
+        <li>支付方式：微信支付为默认选中</li>
+        <li>协议勾选：未勾选时禁止提交订单，提示"请阅读并同意《下单须知》"</li>
+      </ul>
+      <p><strong>5.3 数据校验</strong></p>
+      <ul>
+        <li>提交订单前校验：服务时间已选、服务店铺已选、协议已勾选</li>
+        <li><strong>校验不通过时：</strong>以Toast提示用户错误原因，展示时长3秒
+          <br>• 服务时间未选："请选择服务时间"
+          <br>• 服务店铺未选："请选择服务店铺"
+          <br>• 协议未勾选："请阅读并同意《下单须知》"
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 六、异常与边界 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">六、异常与边界</div>
+    <div class="comment-text">
+      <ul>
+        <li><strong>无可服务店铺：</strong>技师无可接单店铺时，提示"该技师暂无可服务店铺"，按钮置灰不可点击</li>
+        <li><strong>网络异常：</strong>提交订单时网络断开，保存订单选择草稿</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="phone-frame">
+<div class="phone-screen">
+
+<!-- 状态栏 -->
+<div class="status-bar">
+  <span class="time">09:13</span>
+  <span class="icons">5G WiFi 30%</span>
+</div>
+
+<!-- 页面容器 -->
+<div class="page-container">
+
+<!-- ==================== 页面1: 服务商页 ==================== -->
+<div class="page" id="page-provider">
+  <div class="nav-bar">
+    <div class="back" onclick="goBack()">&#8592;</div>
+    <div class="title">服务商详情</div>
+    <div class="actions">
+      <span>&#128722;</span>
+      <span>&#9733;</span>
+      <span>&#8599;</span>
+      <span>&#8942;</span>
+    </div>
+  </div>
+
+  <div class="banner">
+    <div style="text-align:center;color:#999;font-size:13px;">
+      <div style="font-size:40px;margin-bottom:6px;">&#128131;</div>
+      服务商封面图
+    </div>
+  </div>
+
+  <div class="provider-card">
+    <div class="provider-header">
+      <div class="provider-avatar">
+        <div style="width:100%;height:100%;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:24px;color:#bbb;">&#128100;</div>
+      </div>
+      <div class="provider-info">
+        <div class="provider-name">东风</div>
+        <div class="provider-rating">
+          <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          <span class="rating-num">4.7</span>
+        </div>
+        <div class="provider-status">
+          <span class="status-tag closed">休息中</span>
+          <span class="status-hours">08:41-12:41</span>
+        </div>
+        <div class="provider-tags">
+          <span class="tag">SPA</span>
+          <span class="tag">按摩</span>
+        </div>
+        <div class="provider-address">
+          <span>&#128205; 广西壮族自治区南宁市青秀区津头街道...</span>
+          <span class="distance">距您403m | &#128205;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab-item active">项目</div>
+    <div class="tab-item">精选作品</div>
+    <div class="tab-item">评价(100+)</div>
+    <div class="tab-item">服务商介绍</div>
+  </div>
+
+  <div class="content-area">
+    <div class="category-sidebar">
+      <div class="category-item active" onclick="switchCategory(this)">测试</div>
+      <div class="category-item" onclick="switchCategory(this)">按摩足浴</div>
+    </div>
+    <div class="service-list">
+      <div class="service-card" onclick="goServiceDetail('测试多人','约200分钟',240,300)">
+        <div class="service-img">
+          <div style="width:100%;height:100%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:11px;color:#bbb;">服务图片</div>
+        </div>
+        <div class="service-info">
+          <div class="service-name">测试多人</div>
+          <div class="service-duration">约200分钟</div>
+          <div class="service-price">
+            <span class="price-current">¥240</span>
+            <span class="price-original">¥300</span>
+            <span class="price-discount">折后价</span>
+          </div>
+        </div>
+        <div class="service-add" onclick="event.stopPropagation();openOrderFromCard('测试多人','约200分钟',240,300)">+</div>
+      </div>
+
+      <div class="service-card" onclick="goServiceDetail('泡脚','约30分钟',48,98)">
+        <div class="service-img">
+          <div style="width:100%;height:100%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:11px;color:#bbb;">服务图片</div>
+        </div>
+        <div class="service-info">
+          <div class="service-name">泡脚</div>
+          <div class="service-duration">约30分钟</div>
+          <div class="service-price">
+            <span class="price-current">¥48</span>
+            <span class="price-original">¥98</span>
+            <span class="price-discount">折后价</span>
+          </div>
+        </div>
+        <div class="service-add" onclick="event.stopPropagation();openOrderFromCard('泡脚','约30分钟',48,98)">+</div>
+      </div>
+      
+      <div class="service-card" onclick="goServiceDetail('精油全身按摩','约90分钟',198,388)">
+        <div class="service-img">
+          <div style="width:100%;height:100%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:11px;color:#bbb;">服务图片</div>
+        </div>
+        <div class="service-info">
+          <div class="service-name">精油全身按摩</div>
+          <div class="service-duration">约90分钟</div>
+          <div class="service-price">
+            <span class="price-current">¥198</span>
+            <span class="price-original">¥388</span>
+            <span class="price-discount">折后价</span>
+          </div>
+        </div>
+        <div class="service-add" onclick="event.stopPropagation();openOrderFromCard('精油全身按摩','约90分钟',198,388)">+</div>
+      </div>
+    </div>
+  </div>
+  <div class="safe-area"></div>
+</div>
+
+</div><!-- page-container end -->
+
+<!-- ==================== 页面2: 项目详情页 ==================== -->
+<div class="service-detail-page hidden" id="page-service-detail">
+  <div class="detail-hero">
+    <div style="text-align:center;color:#999;font-size:13px;">
+      <div style="font-size:50px;margin-bottom:6px;">&#128135;</div>
+      服务详情图
+    </div>
+    <div class="detail-back-btn" onclick="backToProvider()">&#8592;</div>
+    <div class="detail-top-actions">
+      <div class="detail-top-btn">&#128722;</div>
+      <div class="detail-top-btn">&#9733;</div>
+      <div class="detail-top-btn">&#8942;</div>
+    </div>
+  </div>
+  
+  <!-- 绿色价格区域 -->
+  <div class="detail-price-banner">
+    <div class="detail-price-main">
+      <span class="detail-price-big" id="detail-price">¥240</span>
+      <span class="detail-price-tag">折后价</span>
+    </div>
+    <div class="detail-price-tags">
+      <div class="detail-price-tag-item">
+        <span>&#128181;</span>
+        <span>邀请好友踢一脚 立减10%</span>
+      </div>
+      <div class="detail-price-tag-item white">
+        <span>原价¥<span id="detail-original">300</span></span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="detail-content-area">
+    <div class="detail-service-name" id="detail-name">测试多人</div>
+    
+    <div class="detail-info-list">
+      <div class="detail-info-row">
+        <span class="label">须知</span>
+        <span class="value">需预约 · 周一至周日全天可用</span>
+      </div>
+      <div class="detail-info-row">
+        <span class="label">保障</span>
+        <span class="value">随时退 · 收费透明 · 需预约 · 永久有效</span>
+      </div>
+      <div class="detail-info-row">
+        <span class="label">服务</span>
+        <span class="value" id="detail-duration">服务时长约200分钟</span>
+      </div>
+    </div>
+    
+    <!-- 服务商区域 -->
+    <div class="detail-provider-section">
+      <div class="detail-provider-title">服务商</div>
+      <div class="detail-provider-list">
+        <div class="detail-provider-item" onclick="selectDetailProvider(this, '东风')">
+          <div class="detail-provider-avatar">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23f0d9b5' width='80' height='80'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23d4a574'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='18' fill='%23d4a574'/%3E%3C/svg%3E">
+            <div class="detail-provider-check">&#10003;</div>
+          </div>
+          <div class="detail-provider-name">东风</div>
+        </div>
+        <div class="detail-provider-item" onclick="selectDetailProvider(this, '李师傅')">
+          <div class="detail-provider-avatar">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23d5e8d4' width='80' height='80'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23a8c5a8'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='18' fill='%23a8c5a8'/%3E%3C/svg%3E">
+          </div>
+          <div class="detail-provider-name">李师傅</div>
+        </div>
+        <div class="detail-provider-item" onclick="selectDetailProvider(this, '王师傅')">
+          <div class="detail-provider-avatar">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23d5d5e8' width='80' height='80'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23a8a8c5'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='18' fill='%23a8a8c5'/%3E%3C/svg%3E">
+          </div>
+          <div class="detail-provider-name">王师傅</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div style="height:80px;"></div>
+  
+  <div class="detail-bottom-bar">
+    <div class="detail-bottom-price">
+      <div class="detail-bottom-label">优惠价</div>
+      <div class="detail-bottom-amount" id="detail-bottom-price">¥240</div>
+    </div>
+    <div class="btn-detail-book" onclick="bookFromDetail()">立即预约</div>
+  </div>
+</div>
+
+<!-- ==================== 订单确认弹窗 ==================== -->
+<div class="modal-overlay" id="order-modal" onclick="closeModalOutside(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <!-- 头部 -->
+    <div class="modal-header">
+      <div class="modal-title">确认订单</div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    
+    <!-- 服务项目信息 -->
+    <div class="order-product-card">
+      <div class="order-product-img">服务图</div>
+      <div class="order-product-info">
+        <div class="order-product-name" id="modal-service-name">测试多人</div>
+        <div class="order-product-price-row">
+          <span class="order-product-original" id="modal-price-original">¥300</span>
+          <span class="order-product-current" id="modal-price-current">¥240</span>
+          <span class="order-product-qty">x1</span>
+        </div>
+        <div class="order-product-provider">
+          <span class="provider-label">服务商：</span>
+          <span id="modal-provider">东风</span>
+        </div>
+        <div class="order-product-duration">
+          <span class="dur-label">约</span>
+          <span id="modal-duration">200分钟</span>
+          <span style="color:#ccc;font-size:12px;">▾</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 服务时间行 -->
+    <div class="service-time-row" onclick="toggleTimePicker()">
+      <span class="service-time-label">服务时间</span>
+      <span class="service-time-value unselected" id="service-time-display">
+        请选择时间 <span class="arrow">›</span>
+      </span>
+    </div>
+    
+    <!-- 时间选择展开区域 -->
+    <div class="time-picker-expand" id="time-picker-expand">
+      <div class="time-picker-title">选择日期</div>
+      <div class="date-scroll" id="date-scroll"></div>
+      <div class="time-picker-title" style="margin-top:12px;">选择时间</div>
+      <div class="time-grid" id="time-grid"></div>
+    </div>
+    
+    <!-- 选择店铺行 -->
+    <div class="service-time-row" onclick="toggleShopPicker()">
+      <span class="service-time-label">选择店铺</span>
+      <span class="service-time-value unselected" id="shop-display">
+        请选择店铺 <span class="arrow">›</span>
+      </span>
+    </div>
+    
+    <!-- 店铺选择展开区域 - 横向卡片 -->
+    <div class="shop-picker-expand" id="shop-picker-expand">
+      <div class="shop-count-hint" id="shop-count-hint">共<strong id="shop-total-count">0</strong>家店铺可选</div>
+      <div class="shop-card-scroll" id="shop-card-scroll"></div>
+      <div class="load-more-btn" id="load-more-btn" onclick="loadMoreShops()" style="display:none;">
+        <span>加载更多</span>
+        <span class="arrow">▼</span>
+      </div>
+    </div>
+    
+    <!-- 订单备注 -->
+    <div class="remark-section">
+      <div class="remark-label">订单备注</div>
+      <textarea class="remark-input" id="order-remark" placeholder="请输入备注信息（选填）" maxlength="200"></textarea>
+    </div>
+    
+    <div class="m-divider"></div>
+    
+    <!-- 价格明细 -->
+    <div class="price-detail-section">
+      <div class="price-detail-row">
+        <span class="pdl-label">项目金额</span>
+        <span class="pdl-value" id="modal-item-amount">¥300</span>
+      </div>
+      <div class="price-detail-row">
+        <span class="pdl-label">优惠金额</span>
+        <span class="pdl-value red" id="modal-discount">-¥60<span class="discount-tag">折</span></span>
+      </div>
+      <div class="price-detail-row">
+        <span class="pdl-label">消费红包</span>
+        <span class="pdl-value"><span class="coupon-none">暂无可用消费券</span><span class="coupon-arrow">›</span></span>
+      </div>
+      <div class="price-detail-row total-row">
+        <span class="pdl-label">实付款</span>
+        <span class="pdl-value" id="modal-total">¥240</span>
+      </div>
+    </div>
+    
+    <div class="m-divider"></div>
+    
+    <!-- 支付方式 -->
+    <div class="payment-section">
+      <div class="payment-section-title">支付方式</div>
+      <div class="payment-list">
+        <div class="payment-item" onclick="selectPayment(this, 'balance')">
+          <div class="pay-icon balance-icon">¥</div>
+          <div class="pay-info">
+            <div class="pay-name">余额支付</div>
+            <div class="pay-desc">可用余额 ¥19,748.91</div>
+          </div>
+          <div class="pay-radio"></div>
+        </div>
+        <div class="payment-item" onclick="selectPayment(this, 'redpack')">
+          <div class="pay-icon redpack-icon">🧧</div>
+          <div class="pay-info">
+            <div class="pay-name">红包支付</div>
+            <div class="pay-desc">可用红包 ¥487,560.86</div>
+          </div>
+          <div class="pay-radio"></div>
+        </div>
+        <div class="payment-item active" onclick="selectPayment(this, 'wechat')">
+          <div class="pay-icon wechat-icon">微</div>
+          <div class="pay-info">
+            <div class="pay-name">微信支付</div>
+          </div>
+          <div class="pay-radio"></div>
+        </div>
+        <div class="payment-item" onclick="selectPayment(this, 'alipay')">
+          <div class="pay-icon alipay-icon">支</div>
+          <div class="pay-info">
+            <div class="pay-name">支付宝支付</div>
+          </div>
+          <div class="pay-radio"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 协议 -->
+    <div class="agreement-row">
+      <div class="agree-checkbox checked" id="agreement-check" onclick="toggleAgreement()"></div>
+      <span>我已阅读并同意</span>
+      <span class="agreement-link">《下单须知》</span>
+    </div>
+    
+    <!-- 底部操作栏 -->
+    <div class="modal-bottom-bar">
+      <div class="bottom-bar-row">
+        <div class="bottom-price-area">
+          <span class="bottom-total-amount" id="footer-amount">¥240</span>
+          <div class="bottom-saved">共减<span class="saved-amount" id="footer-saved">¥60</span></div>
+        </div>
+        <div class="bottom-actions">
+          <div class="btn-ask-pay" onclick="alert('找人付功能')">
+            <span style="font-size:16px;">💬</span> 找人付
+          </div>
+          <button class="btn-add-cart" id="btn-add-cart" onclick="addToCart()">加入购物车</button>
+          <div class="btn-pay-now" onclick="submitOrder()">
+            立即支付
+            <span class="invite-tag"><span class="zap">⚡</span> 邀请助力</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- phone-screen end -->
+</div><!-- phone-frame end -->
+
+<!-- Toast提示 -->
+<div class="toast" id="toast"></div>
+
+</div><!-- end container -->
+
+<script>
+// ========== 店铺数据 ==========
+const allShops = [
+  { id: 1, name: '东风养生馆（旗舰店）', rating: 4.9, distance: '403m', hours: '09:00-22:00', tags: ['免费WiFi', '免费停车'], isTechLinked: true },
+  { id: 2, name: '东风养生馆（分店A）', rating: 4.7, distance: '1.2km', hours: '10:00-21:00', tags: ['免费WiFi'], isTechLinked: false },
+  { id: 3, name: '东风SPA会所', rating: 4.5, distance: '2.5km', hours: '09:00-23:00', tags: ['免费WiFi', '充电宝'], isTechLinked: false },
+  { id: 4, name: '东风养生馆（分店B）', rating: 4.6, distance: '3.1km', hours: '09:00-21:00', tags: ['免费WiFi'], isTechLinked: false },
+  { id: 5, name: '东风美容SPA', rating: 4.8, distance: '4.2km', hours: '10:00-22:00', tags: ['免费WiFi', '免费停车', '茶歇'], isTechLinked: false }
+];
+const DEFAULT_SHOW_COUNT = 3;
+let currentDisplayCount = DEFAULT_SHOW_COUNT;
+let shopsToDisplay = [];
+
+// ========== 状态管理 ==========
+const state = {
+  selectedService: null,
+  selectedDate: null,
+  selectedTime: null,
+  selectedShop: null,
+  selectedPayment: 'wechat',
+  agreementChecked: true,
+  entryFromCard: false,
+  currentPage: 'page-provider'
+};
+
+// ========== 当前选中的服务（用于详情页） ==========
+let currentServiceDetail = { name: '', duration: '', price: 0, originalPrice: 0 };
+
+// ========== 进入项目详情页 ==========
+function goServiceDetail(name, duration, price, originalPrice) {
+  currentServiceDetail = { name, duration, price, originalPrice };
+  
+  // 更新详情页内容
+  document.getElementById('detail-name').textContent = name;
+  document.getElementById('detail-price').textContent = `¥${price}`;
+  document.getElementById('detail-original').textContent = originalPrice;
+  document.getElementById('detail-duration').textContent = '服务时长约' + duration.replace('约','').replace('分钟','') + '分钟';
+  document.getElementById('detail-bottom-price').textContent = `¥${price}`;
+  
+  // 默认选中东风
+  document.querySelectorAll('.detail-provider-item').forEach(e => {
+    e.querySelector('.detail-provider-check')?.remove();
+  });
+  const firstProvider = document.querySelector('.detail-provider-item');
+  if (firstProvider) {
+    const check = document.createElement('div');
+    check.className = 'detail-provider-check';
+    check.innerHTML = '&#10003;';
+    firstProvider.querySelector('.detail-provider-avatar').appendChild(check);
+  }
+  
+  // 切换到详情页
+  document.getElementById('page-service-detail').classList.remove('hidden');
+}
+
+// ========== 返回服务商页 ==========
+function backToProvider() {
+  document.getElementById('page-service-detail').classList.add('hidden');
+}
+
+// ========== 详情页选择服务商 ==========
+function selectDetailProvider(el, providerName) {
+  document.querySelectorAll('.detail-provider-item').forEach(e => {
+    e.querySelector('.detail-provider-check')?.remove();
+  });
+  const check = document.createElement('div');
+  check.className = 'detail-provider-check';
+  check.innerHTML = '&#10003;';
+  el.querySelector('.detail-provider-avatar').appendChild(check);
+  state.selectedService = { ...currentServiceDetail, provider: providerName };
+}
+
+// ========== 从详情页立即预约 ==========
+function bookFromDetail() {
+  const { name, duration, price, originalPrice } = currentServiceDetail;
+  
+  // 获取选中的服务商
+  const selectedProviderEl = document.querySelector('.detail-provider-item .detail-provider-check');
+  const providerName = selectedProviderEl ? selectedProviderEl.closest('.detail-provider-item').querySelector('.detail-provider-name').textContent : '东风';
+  
+  // 进入订单确认流程
+  selectService(name, duration, price, originalPrice, providerName, false);
+}
+
+// ========== 项目卡片+按钮进入确认订单 ==========
+function openOrderFromCard(name, duration, price, originalPrice) {
+  currentServiceDetail = { name, duration, price, originalPrice };
+  selectService(name, duration, price, originalPrice, '东风', true);
+}
+
+// ========== 选择服务项目 ==========
+function selectService(name, duration, price, originalPrice, providerName, fromCard = false) {
+  state.selectedService = { name, duration, price, originalPrice, provider: providerName || '东风' };
+  state.entryFromCard = fromCard;
+  state.selectedDate = null;
+  state.selectedTime = null;
+  state.selectedShop = null;
+  
+  // 更新弹窗内容
+  document.getElementById('modal-service-name').textContent = name;
+  document.getElementById('modal-price-original').textContent = `¥${originalPrice}`;
+  document.getElementById('modal-price-current').textContent = `¥${price}`;
+  document.getElementById('modal-duration').textContent = duration.replace('约','');
+  document.getElementById('modal-provider').textContent = state.selectedService.provider;
+  
+  // 更新价格明细
+  const discount = originalPrice - price;
+  document.getElementById('modal-item-amount').textContent = `¥${originalPrice}`;
+  document.getElementById('modal-discount').innerHTML = `-¥${discount}<span class="discount-tag">折</span>`;
+  document.getElementById('modal-total').textContent = `¥${price}`;
+  document.getElementById('footer-amount').textContent = `¥${price}`;
+  document.getElementById('footer-saved').textContent = `¥${discount}`;
+  
+  // 根据入口控制加入购物车按钮
+  document.getElementById('btn-add-cart').classList.toggle('show', fromCard);
+
+  // 重置时间显示
+  document.getElementById('service-time-display').innerHTML = '请选择时间 <span class="arrow">›</span>';
+  document.getElementById('service-time-display').classList.add('unselected');
+  document.getElementById('time-picker-expand').classList.remove('show');
+  
+  // 重置店铺显示
+  document.getElementById('shop-display').innerHTML = '请选择店铺 <span class="arrow">›</span>';
+  document.getElementById('shop-display').classList.add('unselected');
+  document.getElementById('shop-picker-expand').classList.remove('show');
+  
+  // 重置加载更多状态
+  currentDisplayCount = DEFAULT_SHOW_COUNT;
+  document.getElementById('load-more-btn').classList.remove('expanded');
+  document.getElementById('load-more-btn').querySelector('.arrow').style.transform = '';
+  
+  // 生成日期、时间和店铺
+  generateDates();
+  generateTimeGrid();
+  generateShops();
+  
+  // 显示弹窗
+  showModal();
+}
+
+// ========== 生成日期 ==========
+function generateDates() {
+  const container = document.getElementById('date-scroll');
+  const weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    const dayLabel = i === 0 ? '今天' : (i === 1 ? '明天' : weekdays[d.getDay()]);
+    const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+    const dateKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    html += `<div class="date-chip" data-date="${dateKey}" data-label="${dayLabel}" onclick="selectDate(this)">
+      <div class="dc-weekday">${dayLabel}</div>
+      <div class="dc-date">${dateStr}</div>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+// ========== 生成时间网格 ==========
+function generateTimeGrid() {
+  const container = document.getElementById('time-grid');
+  const unavailable = [2, 5, 8, 11, 14, 17, 20, 23];
+  let html = '';
+  let slotIndex = 0;
+  for (let h = 9; h <= 21; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      const timeStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+      const isUnavail = unavailable.includes(slotIndex);
+      const cls = isUnavail ? 'unavailable' : 'available';
+      const label = isUnavail ? '已约满' : '可预约';
+      html += `<div class="time-slot ${cls}" data-time="${timeStr}" onclick="selectTimeSlot(this)">
+        <div class="ts-time">${timeStr}</div>
+        <div class="ts-status">${label}</div>
+      </div>`;
+      slotIndex++;
+    }
+  }
+  container.innerHTML = html;
+}
+
+// ========== 生成店铺列表 - 横向卡片形式 ==========
+function generateShops() {
+  const container = document.getElementById('shop-card-scroll');
+  const totalCount = document.getElementById('shop-total-count');
+  
+  // 更新店铺总数
+  totalCount.textContent = allShops.length;
+  
+  // 排序：技师挂靠店铺置顶
+  shopsToDisplay = [...allShops].sort((a, b) => {
+    if (a.isTechLinked && !b.isTechLinked) return -1;
+    if (!a.isTechLinked && b.isTechLinked) return 1;
+    return parseFloat(a.distance) - parseFloat(b.distance);
+  });
+  
+  // 渲染店铺卡片
+  renderShopCards();
+  
+  // 控制加载更多按钮显示
+  const loadMoreBtn = document.getElementById('load-more-btn');
+  if (allShops.length > DEFAULT_SHOW_COUNT) {
+    loadMoreBtn.style.display = 'flex';
+    loadMoreBtn.classList.remove('expanded');
+    loadMoreBtn.querySelector('.arrow').style.transform = '';
+  } else {
+    loadMoreBtn.style.display = 'none';
+  }
+  
+  // 默认选中第一个（技师挂靠店铺）
+  if (shopsToDisplay.length > 0) {
+    state.selectedShop = shopsToDisplay[0];
+    updateShopDisplay();
+    // 高亮第一个卡片
+    setTimeout(() => {
+      const firstCard = container.querySelector('.shop-card');
+      if (firstCard) {
+        container.querySelectorAll('.shop-card').forEach(c => c.classList.remove('selected'));
+        firstCard.classList.add('selected');
+      }
+    }, 50);
+  }
+}
+
+// ========== 渲染店铺卡片 ==========
+function renderShopCards() {
+  const container = document.getElementById('shop-card-scroll');
+  const displayShops = shopsToDisplay.slice(0, currentDisplayCount);
+  
+  let html = '';
+  displayShops.forEach((shop, idx) => {
+    const fullStars = Math.floor(shop.rating);
+    const emptyStars = 5 - fullStars;
+    const starsHtml = '★'.repeat(fullStars) + '☆'.repeat(emptyStars);
+    const tagsHtml = shop.tags.map(t => `<span class="shop-tag">${t}</span>`).join('');
+    
+    html += `<div class="shop-card" onclick="selectShop(this, ${shop.id})" data-id="${shop.id}">
+      ${shop.isTechLinked ? '<div class="tech-tag">技师挂靠</div>' : ''}
+      <div class="shop-img">店铺图</div>
+      <div class="shop-name">${shop.name}</div>
+      <div class="shop-meta">
+        <span class="shop-stars">${starsHtml}</span>
+        <span class="shop-rating">${shop.rating}</span>
+        <span class="shop-distance">${shop.distance}</span>
+      </div>
+      <div class="shop-hours">⏰ ${shop.hours}</div>
+      <div class="shop-tags">${tagsHtml}</div>
+    </div>`;
+  });
+  
+  container.innerHTML = html;
+}
+
+// ========== 加载更多店铺 ==========
+function loadMoreShops() {
+  const loadMoreBtn = document.getElementById('load-more-btn');
+  
+  if (currentDisplayCount < shopsToDisplay.length) {
+    // 展开更多
+    currentDisplayCount = shopsToDisplay.length;
+    loadMoreBtn.classList.add('expanded');
+    loadMoreBtn.querySelector('.arrow').style.transform = 'rotate(180deg)';
+    loadMoreBtn.querySelector('span:first-child').textContent = '收起';
+    renderShopCards();
+    
+    // 恢复选中状态
+    const selectedId = state.selectedShop?.id;
+    if (selectedId) {
+      setTimeout(() => {
+        const card = document.querySelector(`.shop-card[data-id="${selectedId}"]`);
+        if (card) {
+          document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+        }
+      }, 50);
+    }
+  } else {
+    // 收起
+    currentDisplayCount = DEFAULT_SHOW_COUNT;
+    loadMoreBtn.classList.remove('expanded');
+    loadMoreBtn.querySelector('.arrow').style.transform = '';
+    loadMoreBtn.querySelector('span:first-child').textContent = '加载更多';
+    renderShopCards();
+    
+    // 恢复选中状态
+    const selectedId = state.selectedShop?.id;
+    if (selectedId) {
+      setTimeout(() => {
+        const card = document.querySelector(`.shop-card[data-id="${selectedId}"]`);
+        if (card) {
+          document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+        }
+      }, 50);
+    }
+  }
+}
+
+// ========== 切换店铺选择器展开 ==========
+function toggleShopPicker() {
+  const expand = document.getElementById('shop-picker-expand');
+  expand.classList.toggle('show');
+}
+
+// ========== 选择店铺 ==========
+function selectShop(el, shopId) {
+  document.querySelectorAll('.shop-card').forEach(item => item.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedShop = shopsToDisplay.find(s => s.id === shopId);
+  updateShopDisplay();
+}
+
+// ========== 更新店铺显示 ==========
+function updateShopDisplay() {
+  if (state.selectedShop) {
+    const display = document.getElementById('shop-display');
+    display.innerHTML = `${state.selectedShop.name} <span class="arrow">›</span>`;
+    display.classList.remove('unselected');
+  }
+}
+
+// ========== 切换时间选择器展开 ==========
+function toggleTimePicker() {
+  const expand = document.getElementById('time-picker-expand');
+  expand.classList.toggle('show');
+}
+
+// ========== 选择日期 ==========
+function selectDate(el) {
+  document.querySelectorAll('.date-chip').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+  state.selectedDate = { date: el.dataset.date, label: el.dataset.label };
+  updateTimeDisplay();
+}
+
+// ========== 选择时间段 ==========
+function selectTimeSlot(el) {
+  if (el.classList.contains('unavailable')) return;
+  document.querySelectorAll('.time-slot.selected').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedTime = el.dataset.time;
+  updateTimeDisplay();
+}
+
+// ========== 更新时间显示 ==========
+function updateTimeDisplay() {
+  if (state.selectedDate && state.selectedTime) {
+    const display = document.getElementById('service-time-display');
+    display.innerHTML = `${state.selectedDate.date} ${state.selectedTime} (${state.selectedDate.label}) <span class="arrow">›</span>`;
+    display.classList.remove('unselected');
+  }
+}
+
+// ========== Toast提示 ==========
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+// ========== 弹窗控制 ==========
+function showModal() {
+  document.getElementById('order-modal').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('order-modal').classList.remove('show');
+}
+function closeModalOutside(e) {
+  if (e.target.id === 'order-modal') closeModal();
+}
+
+// ========== 支付方式 ==========
+function selectPayment(el, method) {
+  document.querySelectorAll('.payment-item').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  state.selectedPayment = method;
+}
+
+// ========== 协议 ==========
+function toggleAgreement() {
+  state.agreementChecked = !state.agreementChecked;
+  document.getElementById('agreement-check').classList.toggle('checked', state.agreementChecked);
+}
+
+// ========== 加入购物车 ==========
+function addToCart() {
+  if (!state.selectedService) return;
+  alert(`已加入购物车！\n\n服务：${state.selectedService.name}\n服务商：${state.selectedService.provider || '东风'}\n金额：¥${state.selectedService.price}`);
+  closeModal();
+}
+
+// ========== 提交订单 ==========
+function submitOrder() {
+  if (!state.selectedDate || !state.selectedTime) {
+    showToast('请选择服务时间');
+    return;
+  }
+  if (!state.selectedShop) {
+    showToast('请选择服务店铺');
+    return;
+  }
+  if (!state.agreementChecked) {
+    showToast('请阅读并同意《下单须知》');
+    return;
+  }
+  const payNames = { balance:'余额支付', redpack:'红包支付', wechat:'微信支付', alipay:'支付宝支付' };
+  alert(`订单提交成功！\n\n服务：${state.selectedService.name}\n服务商：${state.selectedService.provider || '东风'}\n时间：${state.selectedDate.date} ${state.selectedTime}\n店铺：${state.selectedShop.name}\n距离：${state.selectedShop.distance}\n支付：${payNames[state.selectedPayment]}\n金额：¥${state.selectedService.price}`);
+  closeModal();
+}
+
+// ========== 其他 ==========
+function goBack() {}
+function switchCategory(el) {
+  el.parentElement.querySelectorAll('.category-item').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>订单状态提醒</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#e8e8e8;min-height:100vh;padding:20px}
+
+/* 布局容器 */
+.container{display:flex;gap:30px;justify-content:center;align-items:flex-start;max-width:1400px;margin:0 auto}
+
+/* 注释面板 */
+.comments{width:400px;background:#fff;border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.1);max-height:812px;overflow-y:auto}
+.comments-title{font-size:18px;font-weight:700;color:#333;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #00A86B}
+.comment-section{margin-bottom:20px}
+.comment-section-title{font-size:14px;font-weight:600;color:#00A86B;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.comment-section-title::before{content:'';width:4px;height:16px;background:#00A86B;border-radius:2px}
+.comment-text{font-size:13px;color:#666;line-height:1.8}
+.comment-text p{margin-bottom:8px}
+.comment-text ul{margin-left:16px;margin-bottom:8px}
+.comment-text li{margin-bottom:4px}
+.comment-highlight{background:#E8F5E9;padding:2px 6px;border-radius:4px;color:#00A86B;font-weight:500}
+
+@media(max-width:900px){
+.container{flex-direction:column;align-items:center}
+.comments{width:100%;max-width:375px;max-height:none}
+}
+
+/* APP展示框 */
+.phone{width:375px;height:812px;background:#111;border-radius:44px;padding:10px;box-shadow:0 20px 60px rgba(0,0,0,.35);position:relative;flex-shrink:0}
+.screen{width:100%;height:100%;background:#f5f5f5;border-radius:36px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+/* 状态栏 */
+.sbar{height:44px;background:#00A86B;display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#fff;font-size:12px;flex-shrink:0}
+.sbar .t{font-weight:600}
+.sbar .r{display:flex;gap:4px;align-items:center}
+
+/* 导航栏 */
+.nav{height:44px;background:#00A86B;display:flex;align-items:center;justify-content:space-between;padding:0 16px;color:#fff;flex-shrink:0;position:relative}
+.nav .bk{font-size:22px;cursor:pointer;width:32px;display:flex;align-items:center}
+.nav .tt{position:absolute;left:50%;transform:translateX(-50%);font-size:16px;font-weight:600}
+.nav .ac{display:flex;gap:16px;font-size:18px}
+
+/* 页面主体 */
+.page{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+.page::-webkit-scrollbar{display:none}
+
+/* 顶部状态区 */
+.notice-icon-wrap{text-align:center;padding:40px 20px 20px}
+.notice-icon{width:80px;height:80px;background:#FFF3F3;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px;color:#F96167}
+.notice-title{font-size:20px;font-weight:700;color:#333;margin-bottom:8px}
+.notice-subtitle{font-size:14px;color:#999}
+
+/* 卡片 */
+.notice-card{background:#fff;border-radius:16px;margin:0 12px 16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.notice-card-title{font-size:16px;font-weight:700;color:#333;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.notice-card-title .dot{width:8px;height:8px;background:#F96167;border-radius:50%}
+.notice-msg{font-size:14px;color:#666;line-height:1.8;margin-bottom:16px}
+.notice-msg strong{color:#333}
+
+/* 订单信息 */
+.notice-order-info{background:#f8f8f8;border-radius:12px;padding:14px;margin-bottom:16px}
+.notice-order-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px}
+.notice-order-row .label{color:#999}
+.notice-order-row .value{color:#333;font-weight:500}
+.notice-order-row .value.price{color:#F96167;font-weight:700}
+
+/* 技师列表 */
+.tech-list-title{font-size:15px;font-weight:600;color:#333;margin-bottom:12px}
+.tech-option{display:flex;align-items:center;gap:12px;padding:14px;background:#f8f8f8;border-radius:12px;margin-bottom:10px;cursor:pointer;transition:all .2s;border:2px solid transparent}
+.tech-option:active{background:#f0f0f0}
+.tech-option.selected{background:#f0faf6;border-color:#00A86B}
+.tech-option-avatar{width:48px;height:48px;border-radius:50%;background:#e0e0e0;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px}
+.tech-option-info{flex:1}
+.tech-option-name{font-size:15px;font-weight:600;color:#333;margin-bottom:3px}
+.tech-option-meta{font-size:12px;color:#999}
+.tech-option-meta .stars{color:#FFB800;margin-right:6px}
+.tech-option-check{width:24px;height:24px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.tech-option.selected .tech-option-check{background:#00A86B;border-color:#00A86B;color:#fff;font-size:14px}
+
+/* 底部按钮 */
+.notice-actions{display:flex;gap:12px;margin-top:20px}
+.notice-btn{flex:1;padding:14px 0;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;border:none}
+.notice-btn-primary{background:linear-gradient(135deg,#FF4757,#FF6B81);color:#fff}
+.notice-btn-primary:active{opacity:.9}
+.notice-btn-secondary{background:#fff;color:#666;border:1px solid #ddd}
+.notice-btn-secondary:active{background:#f5f5f5}
+
+/* 退款提示 */
+.refund-hint{text-align:center;padding:20px;font-size:13px;color:#999}
+.refund-hint a{color:#00A86B;text-decoration:none}
+
+/* 可点击行 */
+.notice-order-row-link{cursor:pointer}
+.notice-order-row-link:active{background:#f0f0f0;border-radius:8px}
+.value-link{color:#00A86B!important}
+
+/* 技师名可点击 */
+.tech-option-name{cursor:pointer;color:#00A86B}
+.tech-option-name:active{text-decoration:underline}
+
+.safe{height:20px}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- 注释面板 -->
+<div class="comments">
+  <div class="comments-title">📋 订单状态提醒 — 产品需求说明（PRD）</div>
+
+  <!-- ===== 一、文档信息 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">一、文档信息</div>
+    <div class="comment-text">
+      <p><strong>文档名称：</strong>订单状态提醒模块产品需求文档</p>
+      <p><strong>适用端：</strong>C端用户APP</p>
+      <p><strong>需求类型：</strong>功能迭代</p>
+    </div>
+  </div>
+
+  <!-- ===== 二、模块概述 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">二、模块概述</div>
+    <div class="comment-text">
+      <p>当用户已预约的服务商状态发生变化时，系统主动推送通知，引导用户更换服务商或申请退款，保障服务连续性。</p>
+    </div>
+  </div>
+
+  <!-- ===== 三、用户路径 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">三、用户路径</div>
+    <div class="comment-text">
+      <p><strong>主路径：</strong></p>
+      <ul>
+        <li>我的 → 预约提醒 → 订单状态提醒 → 更换服务商 / 退款</li>
+      </ul>
+      <p><strong>页面流转说明：</strong></p>
+      <ul>
+        <li><strong>预约提醒：</strong>我的页面中黄色警示卡片，点击跳转至订单状态提醒</li>
+        <li><strong>订单状态提醒：</strong>展示变更提醒、订单信息、推荐技师列表，底部提供确认更换和点击退款操作</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 四、功能需求 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">四、功能需求</div>
+    <div class="comment-text">
+      <p><strong>4.1 订单状态提醒页</strong></p>
+      <ul>
+        <li><strong>页面形式：</strong>全屏页面，顶部导航栏显示"订单状态提醒"</li>
+        <li><strong>顶部状态区：</strong>铃铛图标 + "订单状态有更新"标题</li>
+        <li><strong>变更提醒卡片：</strong>展示变更提醒文案 + 订单信息（服务项目、预约时间、订单金额、商户地址）</li>
+        <li><strong>商户地址：</strong>点击可跳转地图导航</li>
+        <li><strong>推荐技师卡片：</strong>展示可更换的技师列表，包含头像、姓名（可点击跳转精选作品页）、评分，单选</li>
+        <li><strong>底部操作栏：</strong>【点击退款】+【确认更换】，点击均触发二次确认弹窗</li>
+      </ul>
+      <p><strong>4.2 技师推荐规则</strong></p>
+      <ul>
+        <li>优先选取用户选定店铺中<span class="comment-highlight">挂靠的技师</span>（同一商户下可服务的技师）</li>
+        <li>其次推荐店铺<span class="comment-highlight">附近的技师</span></li>
+        <li>最后根据<span class="comment-highlight">评分排序</span></li>
+        <li>每次最多推荐<span class="comment-highlight">3位</span>技师</li>
+      </ul>
+      <p><strong>4.3 技师选择</strong></p>
+      <ul>
+        <li>技师列表默认选中第一个</li>
+        <li>点击技师项切换选中状态</li>
+        <li>选中项显示绿色边框和对勾</li>
+      </ul>
+      <p><strong>4.4 无技师时的处理</strong></p>
+      <ul>
+        <li>若无推荐技师，变更提醒卡片文案更新为：<span class="comment-highlight">"您预约的陈师傅状态有变，暂无其他匹配服务商，可直接点击下方按钮退款。"</span></li>
+        <li>隐藏"为您推荐的其他技师"卡片</li>
+        <li>隐藏"确认更换"按钮</li>
+        <li>保留"点击退款"按钮</li>
+      </ul>
+      <p><strong>4.5 二次确认</strong></p>
+      <ul>
+        <li><strong>确认更换：</strong>弹窗展示服务项目、预约时间、服务商，确认后提示"已为您更换"</li>
+        <li><strong>点击退款：</strong>弹窗提示退款到账时间，确认后提示"退款成功"</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 五、交互规则 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">五、交互规则</div>
+    <div class="comment-text">
+      <p><strong>5.1 页面切换</strong></p>
+      <ul>
+        <li>我的 → 订单状态提醒：点击预约提醒卡片跳转</li>
+        <li>订单状态提醒 → 返回：点击左上角返回按钮</li>
+        <li>订单状态提醒 → 精选作品：点击技师姓名跳转</li>
+        <li>订单状态提醒 → 地图：点击商户地址跳转</li>
+      </ul>
+      <p><strong>5.2 状态管理</strong></p>
+      <ul>
+        <li>技师选择：默认选中第一个，切换时更新选中状态</li>
+        <li>二次确认：确认更换/退款前必须弹出确认对话框</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 六、异常与边界 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">六、异常与边界</div>
+    <div class="comment-text">
+      <ul>
+        <li><strong>无推荐技师：</strong>技师列表为空时，隐藏推荐卡片，仅展示退款入口</li>
+        <li><strong>网络异常：</strong>提交更换/退款时网络断开，提示"网络异常，请稍后重试"</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- APP展示框 -->
+<div class="phone">
+<div class="screen">
+
+<div class="sbar"><span class="t">09:13</span><span class="r">5G WiFi 30%</span></div>
+
+<div class="nav">
+  <div class="bk" onclick="history.back()">&#8592;</div>
+  <div class="tt">订单状态提醒</div>
+  <div class="ac"><span>&#8942;</span></div>
+</div>
+
+<div class="page">
+
+  <div class="notice-icon-wrap">
+    <div class="notice-icon">&#128276;</div>
+    <div class="notice-title">订单状态有更新</div>
+  </div>
+
+  <div class="notice-card">
+    <div class="notice-card-title"><span class="dot"></span>变更提醒</div>
+    <div class="notice-msg">
+      您预约的陈师傅状态有变，已为您匹配其他服务商，下方可直接点击更换。
+    </div>
+    <div class="notice-order-info">
+      <div class="notice-order-row"><span class="label">服务项目</span><span class="value">7度空间</span></div>
+      <div class="notice-order-row"><span class="label">预约时间</span><span class="value">今天 14:00</span></div>
+      <div class="notice-order-row"><span class="label">订单金额</span><span class="value price">¥7777</span></div>
+      <div class="notice-order-row notice-order-row-link" onclick="openMap()">
+        <span class="label">商户地址</span>
+        <span class="value value-link">广西壮族自治区玉林市北流市城南街道二路 ↗</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice-card">
+    <div class="notice-card-title"><span class="dot"></span>为您推荐的其他技师</div>
+
+    <div class="tech-option selected" onclick="selectTech(this,0)">
+      <div class="tech-option-avatar">&#128104;</div>
+      <div class="tech-option-info">
+        <div class="tech-option-name" onclick="goToWorks(event,0)">刘师傅</div>
+        <div class="tech-option-meta"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>5.0</div>
+      </div>
+      <div class="tech-option-check">&#10003;</div>
+    </div>
+
+    <div class="tech-option" onclick="selectTech(this,1)">
+      <div class="tech-option-avatar">&#128105;</div>
+      <div class="tech-option-info">
+        <div class="tech-option-name" onclick="goToWorks(event,1)">张技师</div>
+        <div class="tech-option-meta"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>4.9</div>
+      </div>
+      <div class="tech-option-check"></div>
+    </div>
+
+    <div class="tech-option" onclick="selectTech(this,2)">
+      <div class="tech-option-avatar">&#128104;</div>
+      <div class="tech-option-info">
+        <div class="tech-option-name" onclick="goToWorks(event,2)">赵师傅</div>
+        <div class="tech-option-meta"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>4.8</div>
+      </div>
+      <div class="tech-option-check"></div>
+    </div>
+
+    <div class="notice-actions">
+      <button class="notice-btn notice-btn-secondary" onclick="requestRefund()">点击退款</button>
+      <button class="notice-btn notice-btn-primary" onclick="rebookTech()">确认更换</button>
+    </div>
+  </div>
+
+  <div class="refund-hint">
+    若距离预约时间2小时前无操作，将原路退款
+  </div>
+  <div class="safe"></div>
+</div>
+
+</div><!-- screen end -->
+</div><!-- phone end -->
+
+</div><!-- container end -->
+
+<script>
+let selectedTechId = 0;
+// hasRecommendedTech: 设为 false 可模拟无推荐技师场景
+const hasRecommendedTech = true;
+
+function initPage() {
+  if (!hasRecommendedTech) {
+    // 隐藏推荐技师卡片
+    const techCard = document.querySelector('.notice-card:last-child');
+    if (techCard) {
+      const title = techCard.querySelector('.notice-card-title');
+      if (title && title.textContent.includes('推荐')) {
+        techCard.style.display = 'none';
+      }
+    }
+    // 让退款按钮占满宽度
+    document.querySelector('.notice-btn-secondary').style.display = 'none';
+  }
+}
+
+function selectTech(el, id) {
+  document.querySelectorAll('.tech-option').forEach(opt => {
+    opt.classList.remove('selected');
+    opt.querySelector('.tech-option-check').innerHTML = '';
+  });
+  el.classList.add('selected');
+  el.querySelector('.tech-option-check').innerHTML = '&#10003;';
+  selectedTechId = id;
+}
+
+function goToWorks(e, id) {
+  e.stopPropagation();
+  const techNames = ['刘师傅', '张技师', '赵师傅'];
+  window.location.href = '精选作品页.html?tech=' + encodeURIComponent(techNames[id]);
+}
+
+function openMap() {
+  alert('正在打开地图导航...\n地址：广西壮族自治区玉林市北流市城南街道二路');
+}
+
+function rebookTech() {
+  const techNames = ['刘师傅', '张技师', '赵师傅'];
+  const techName = techNames[selectedTechId];
+  if (confirm(`服务项目：7度空间\n预约时间：2026年6月15日 13:00\n服务商：${techName}\n\n是否确认更新订单？`)) {
+    alert(`已为您更换为${techName}。\n\n请按原预约时间到店，我们期待为您服务。`);
+  }
+}
+
+function requestRefund() {
+  if (confirm(`是否确认退款？\n退款将原路返回，预计1-3个工作日到账。`)) {
+    alert('退款成功。');
+  }
+}
+
+initPage();
+</script>
+
+</body>
+</html>
