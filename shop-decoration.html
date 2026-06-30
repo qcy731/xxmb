@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#07c160">
+    <title>美业管家 - 店铺装修</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .page-bg {
+            min-height: 100vh;
+            background: #e8e8e8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 
+                0 50px 100px rgba(0,0,0,0.3),
+                inset 0 0 0 2px #333,
+                inset 0 0 0 4px #1a1a1a;
+            position: relative;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .phone-home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: #333;
+            border-radius: 3px;
+            z-index: 10;
+        }
+
+        .screen-content {
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        .screen-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .app-body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            min-height: 100%;
+            padding-bottom: 90px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* 安卓状态栏 */
+        .status-bar {
+            background: #07c160;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            color: #fff;
+            font-size: 12px;
+        }
+
+        /* 顶部标题栏 */
+        .app-bar {
+            background: #07c160;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .app-bar-back {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .app-bar-title {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .app-bar-right {
+            width: 32px;
+        }
+
+        /* ===== 卡片通用样式 ===== */
+        .card {
+            background: #fff;
+            margin: 12px;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .card-title-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .help-btn {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #07c160;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: background-color 0.2s ease;
+        }
+
+        .help-btn:hover {
+            background: #06a654;
+        }
+
+        .help-icon {
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 16px;
+        }
+
+        /* ===== 上传区域 ===== */
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+            background: #fafafa;
+        }
+
+        .upload-area:hover {
+            border-color: #07c160;
+            background: #f0f9f3;
+        }
+
+        .upload-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        /* ===== 预览区域 ===== */
+        .preview-area {
+            margin-top: 12px;
+            display: none;
+        }
+
+        .preview-area.show {
+            display: block;
+        }
+
+        .preview-img {
+            width: 100%;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .preview-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .preview-btn {
+            font-size: 13px;
+            color: #07c160;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .preview-btn.delete {
+            color: #ff4d4f;
+        }
+
+        /* ===== 示意图区域 ===== */
+        .demo-area {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .demo-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .demo-label::before {
+            content: '';
+            width: 3px;
+            height: 14px;
+            background: #07c160;
+            border-radius: 2px;
+        }
+
+        /* 门店入口示意图 */
+        .demo-storefront {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .demo-storefront-img {
+            width: 100%;
+            height: 120px;
+            background: #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .demo-storefront-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .demo-storefront-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #07c160;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .demo-store-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .demo-store-desc {
+            font-size: 12px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        /* 头图示意图 */
+        .demo-header {
+            background: #f9f9f9;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .demo-header-banner {
+            width: 100%;
+            height: 100px;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 13px;
+            overflow: hidden;
+        }
+
+        .demo-header-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .demo-header-body {
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 相册示意图 */
+        .demo-album {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .demo-album-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .demo-album-item {
+            aspect-ratio: 1;
+            background: #e0e0e0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 12px;
+            overflow: hidden;
+        }
+
+        .demo-album-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .demo-album-item.video::after {
+            content: '▶';
+            position: absolute;
+            font-size: 20px;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* ===== 相册上传列表 ===== */
+        .album-upload-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .album-upload-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            background: #f5f5f5;
+        }
+
+        .album-upload-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .album-upload-item .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .album-upload-add {
+            aspect-ratio: 1;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: #fafafa;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .album-upload-add:hover {
+            border-color: #07c160;
+            background: #f0f9f3;
+        }
+
+        .album-upload-add .add-icon {
+            font-size: 24px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .album-upload-add .add-text {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* ===== 底部保存按钮 ===== */
+        .bottom-actions {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 12px 16px;
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 22px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-primary {
+            background: #07c160;
+            color: #fff;
+        }
+
+        .btn-default {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            height: 56px;
+            display: flex;
+            border-top: 1px solid #e5e5e5;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            height: 100%;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+            text-decoration: none;
+        }
+
+        .nav-icon {
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+
+        .nav-text {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #07c160;
+        }
+
+        .nav-item.active .nav-text {
+            color: #07c160;
+            font-weight: 600;
+        }
+    
+        /* ===== PRD 左侧说明布局 ===== */
+        body.prd-layout {
+            overflow: auto;
+            background: #e8e8e8;
+            min-height: 100vh;
+        }
+        body.prd-layout .page-bg {
+            margin: 20px;
+            flex-shrink: 0;
+        }
+        .prd-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+        .comments {
+            width: 400px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.1);
+            max-height: 812px;
+            overflow-y: auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            flex-shrink: 0;
+        }
+        .comments::-webkit-scrollbar { width: 6px; }
+        .comments::-webkit-scrollbar-thumb { background: #d8d8d8; border-radius: 10px; }
+        .comments-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #00A86B;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .comment-section { margin-bottom: 20px; }
+        .comment-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00A86B;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .comment-section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: #00A86B;
+            border-radius: 2px;
+        }
+        .comment-text { font-size: 13px; color: #666; line-height: 1.8; }
+        .comment-text p { margin-bottom: 8px; }
+        .comment-text ul { margin-left: 16px; margin-bottom: 8px; }
+        .comment-text li { margin-bottom: 4px; }
+        .comment-highlight {
+            background: #E8F5E9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #00A86B;
+            font-weight: 500;
+        }
+        .prd-actions { display: flex; gap: 8px; }
+        .prd-btn {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: .2s;
+        }
+        .prd-btn-edit { background: #00A86B; color: #fff; }
+        .prd-btn-edit:hover { background: #008F5B; }
+        .prd-btn-save { background: #1677ff; color: #fff; }
+        .prd-btn-save:hover { background: #0958d9; }
+        .comment-text[contenteditable="true"] {
+            background: #fffbe6;
+            border: 1px dashed #ffd666;
+            border-radius: 8px;
+            padding: 8px 12px;
+            outline: none;
+        }
+        .comment-text[contenteditable="true"]:focus {
+            border-color: #00A86B;
+            background: #f6ffed;
+        }
+        @media (max-width: 940px) {
+            body.prd-layout { padding: 12px; }
+            .prd-container { flex-direction: column; align-items: center; gap: 16px; }
+            .comments { width: 100%; max-width: 390px; max-height: none; }
+            body.prd-layout .page-bg { margin: 0; }
+        }
+
+</style>
+</head>
+<body class="prd-layout">
+    <div class="prd-container">
+<!-- ===== PRD 左侧说明 ===== -->
+<div class="comments">
+  <div class="comments-title">
+    📋 店铺装修页 — 产品需求说明（PRD）
+    <div class="prd-actions">
+      <button class="prd-btn prd-btn-edit" id="prdEditBtn" onclick="togglePrdEdit()">编辑</button>
+      <button class="prd-btn prd-btn-save" id="prdSaveBtn" onclick="savePrdContent()" style="display:none">确定</button>
+    </div>
+  </div>
+
+  <div class="comment-section">
+    <div class="comment-section-title">一、文档信息</div>
+    <div class="comment-text">
+      <p><strong>文档名称：</strong>B端商户店铺装修页产品需求文档</p>
+      <p><strong>适用端：</strong>B端商户APP</p>
+      <p><strong>需求类型：</strong>店铺管理</p>
+      <p><strong>关联页面：</strong>店铺装修页，店铺形象素材管理</p>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">二、模块概述</div>
+    <div class="comment-text">
+      <p>店铺装修页是商户上传和管理店铺形象素材的页面，包括商户头像、商铺头图、商家相册/视频。</p>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">三、用户路径</div>
+    <div class="comment-text">
+      <p><strong>主路径：</strong></p>
+      <ul>
+        <li>功能页点击"店铺装修" → 进入店铺装修页</li>
+      </ul>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">四、功能需求</div>
+    <div class="comment-text">
+      <p><strong>4.1 商户头像</strong></p>
+      <ul>
+        <li>上传方形尺寸图片，最多1张</li>
+        <li>展示在门店入口位置</li>
+        <li>支持查看示意图</li>
+      </ul>
+      <p><strong>4.2 商铺头图</strong></p>
+      <ul>
+        <li>建议尺寸750*400，可上传多张</li>
+        <li>展示在店铺页面顶部</li>
+        <li>支持查看示意图</li>
+      </ul>
+      <p><strong>4.3 商家相册/视频</strong></p>
+      <ul>
+        <li>可上传多张图片及多个视频</li>
+        <li>展示在店铺详情页</li>
+        <li>支持查看示意图</li>
+      </ul>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">五、交互规则</div>
+    <div class="comment-text">
+      <ul>
+        <li>点击添加按钮调起文件选择</li>
+        <li>支持预览和删除已上传素材</li>
+        <li>上传后示意图实时更新</li>
+        <li>底部保存/取消按钮</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-bg">
+        <div class="phone-frame">
+            <div class="phone-notch"></div>
+            
+            <div class="phone-screen">
+                <div class="phone-home-indicator"></div>
+                
+                <div class="screen-content">
+                    <div class="app-body">
+                        <!-- 安卓状态栏 -->
+                        <div class="status-bar" aria-hidden="true">
+                            <span>9:56</span>
+                            <span>📶 📻 🔋</span>
+                        </div>
+
+                        <!-- 顶部标题栏 -->
+                        <header class="app-bar">
+                            <button class="app-bar-back" onclick="location.href='shop-settings.html'" aria-label="返回">‹</button>
+                            <span class="app-bar-title">店铺装修</span>
+                            <span class="app-bar-right"></span>
+                        </header>
+
+                        <!-- ===== 商户头像 ===== -->
+                        <div class="card">
+                            <div class="card-title-row">
+                                <span class="card-title">商户头像</span>
+                                <button class="help-btn" onclick="toggleDemo('storefrontDemo')" aria-label="查看示意图">
+                                    <span class="help-icon">?</span>
+                                </button>
+                            </div>
+                            <div class="card-subtitle">展示在门店入口位置，建议使用方形尺寸，最多上传1张。</div>
+                            
+                            <div class="album-upload-list" id="storefrontList">
+                                <div class="album-upload-add" onclick="document.getElementById('storefrontInput').click()">
+                                    <span class="add-icon">+</span>
+                                    <span class="add-text">添加</span>
+                                </div>
+                            </div>
+                            <input type="file" id="storefrontInput" class="upload-input" accept="image/*" multiple>
+
+                            <!-- 示意图（默认收起） -->
+                            <div class="demo-area" id="storefrontDemo" style="display: none;">
+                                <div class="demo-label">示意图：展示位置</div>
+                                <div class="demo-storefront">
+                                    <div class="demo-storefront-img" id="demoStorefrontImg">
+                                        <span>商户头像展示区域</span>
+                                    </div>
+                                    <div class="demo-storefront-info">
+                                        <div class="demo-avatar">💇</div>
+                                        <div>
+                                            <div class="demo-store-name">美丽人生美发沙龙</div>
+                                            <div class="demo-store-desc">09:00-22:00 | 营业中</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ===== 商铺头图 ===== -->
+                        <div class="card">
+                            <div class="card-title-row">
+                                <span class="card-title">商铺头图</span>
+                                <button class="help-btn" onclick="toggleDemo('headerDemo')" aria-label="查看示意图">
+                                    <span class="help-icon">?</span>
+                                </button>
+                            </div>
+                            <div class="card-subtitle">展示在店铺页面顶部，建议尺寸750*400，可上传多张。</div>
+                            
+                            <div class="album-upload-list" id="headerList">
+                                <div class="album-upload-add" onclick="document.getElementById('headerInput').click()">
+                                    <span class="add-icon">+</span>
+                                    <span class="add-text">添加</span>
+                                </div>
+                            </div>
+                            <input type="file" id="headerInput" class="upload-input" accept="image/*" multiple>
+
+                            <!-- 示意图（默认收起） -->
+                            <div class="demo-area" id="headerDemo" style="display: none;">
+                                <div class="demo-label">示意图：展示位置</div>
+                                <div class="demo-header">
+                                    <div class="demo-header-banner" id="demoHeaderImg">
+                                        <span>头图展示区域</span>
+                                    </div>
+                                    <div class="demo-header-body">
+                                        <div class="demo-avatar">💇</div>
+                                        <div>
+                                            <div class="demo-store-name">美丽人生美发沙龙</div>
+                                            <div class="demo-store-desc">北京市朝阳区xxx街道</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ===== 商家相册/视频 ===== -->
+                        <div class="card">
+                            <div class="card-title-row">
+                                <span class="card-title">商家相册 / 视频</span>
+                                <button class="help-btn" onclick="toggleDemo('albumDemo')" aria-label="查看示意图">
+                                    <span class="help-icon">?</span>
+                                </button>
+                            </div>
+                            <div class="card-subtitle">展示在店铺详情页，可上传多张图及多个视频。</div>
+                            
+                            <div class="album-upload-list" id="albumList">
+                                <div class="album-upload-add" onclick="document.getElementById('albumInput').click()">
+                                    <span class="add-icon">+</span>
+                                    <span class="add-text">添加</span>
+                                </div>
+                            </div>
+                            <input type="file" id="albumInput" class="upload-input" accept="image/*,video/*" multiple>
+
+                            <!-- 示意图（默认收起） -->
+                            <div class="demo-area" id="albumDemo" style="display: none;">
+                                <div class="demo-label">示意图：展示位置</div>
+                                <div class="demo-album">
+                                    <div class="demo-album-grid" id="demoAlbumGrid">
+                                        <div class="demo-album-item"><span>图1</span></div>
+                                        <div class="demo-album-item"><span>图2</span></div>
+                                        <div class="demo-album-item"><span>图3</span></div>
+                                        <div class="demo-album-item"><span>图4</span></div>
+                                        <div class="demo-album-item"><span>图5</span></div>
+                                        <div class="demo-album-item video" style="position:relative;"><span>视频</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 底部占位 -->
+                        <div style="height: 20px;"></div>
+
+                        <!-- ===== 底部保存按钮 ===== -->
+                        <div class="bottom-actions">
+                            <button class="btn btn-default" onclick="history.back()">取消</button>
+                            <button class="btn btn-primary" onclick="saveDecoration()">保存</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换示意图显示/隐藏
+        function toggleDemo(id) {
+            var demo = document.getElementById(id);
+            if (demo.style.display === 'none') {
+                demo.style.display = 'block';
+            } else {
+                demo.style.display = 'none';
+            }
+        }
+
+        // 商户头像上传（单图）
+        var storefrontFiles = [];
+        document.getElementById('storefrontInput').addEventListener('change', function(e) {
+            var files = Array.from(e.target.files);
+            var list = document.getElementById('storefrontList');
+            
+            files.slice(0, 1).forEach(function(file) {
+                storefrontFiles = [file];
+                list.querySelectorAll('.album-upload-item').forEach(function(item) { item.remove(); });
+                
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var item = document.createElement('div');
+                    item.className = 'album-upload-item';
+                    item.innerHTML = '<img src="' + event.target.result + '" alt=""><button class="remove-btn" onclick="removeStorefrontItem(this)">×</button>';
+                    list.insertBefore(item, list.lastElementChild);
+                    
+                    updateDemoStorefront();
+                    list.lastElementChild.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function updateDemoStorefront() {
+            var demo = document.getElementById('demoStorefrontImg');
+            var html = '';
+            storefrontFiles.forEach(function(src) {
+                html += '<img src="' + src + '" alt="商户头像" style="width:100%;height:100%;object-fit:cover;">';
+            });
+            demo.innerHTML = html || '<span>商户头像展示区域</span>';
+        }
+
+        function removeStorefrontItem(btn) {
+            var item = btn.parentElement;
+            var index = Array.from(item.parentElement.children).indexOf(item);
+            storefrontFiles.splice(index, 1);
+            item.remove();
+            document.getElementById('storefrontList').lastElementChild.style.display = 'flex';
+            updateDemoStorefront();
+        }
+
+        // 商铺头图上传（多图）
+        var headerFiles = [];
+        document.getElementById('headerInput').addEventListener('change', function(e) {
+            var files = Array.from(e.target.files);
+            var list = document.getElementById('headerList');
+            
+            files.forEach(function(file) {
+                if (headerFiles.length >= 5) return;
+                headerFiles.push(file);
+                
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var item = document.createElement('div');
+                    item.className = 'album-upload-item';
+                    item.innerHTML = '<img src="' + event.target.result + '" alt=""><button class="remove-btn" onclick="removeHeaderItem(this)">×</button>';
+                    list.insertBefore(item, list.lastElementChild);
+                    
+                    // 更新示意图 - 横向滚动展示
+                    updateDemoHeader();
+                    
+                    // 隐藏添加按钮如果已满
+                    if (headerFiles.length >= 5) {
+                        list.lastElementChild.style.display = 'none';
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function updateDemoHeader() {
+            var demo = document.getElementById('demoHeaderImg');
+            var html = '';
+            headerFiles.forEach(function(src, i) {
+                html += '<img src="' + src + '" alt="头图' + (i+1) + '" style="width:20%;height:100%;object-fit:cover;">';
+            });
+            demo.innerHTML = html || '<span>头图展示区域</span>';
+        }
+
+        function removeHeaderItem(btn) {
+            var item = btn.parentElement;
+            var index = Array.from(item.parentElement.children).indexOf(item);
+            headerFiles.splice(index, 1);
+            item.remove();
+            document.getElementById('headerList').lastElementChild.style.display = 'flex';
+            updateDemoHeader();
+        }
+
+        // 相册上传（原有功能）
+        var albumFiles = [];
+        document.getElementById('albumInput').addEventListener('change', function(e) {
+            var files = Array.from(e.target.files);
+            var albumList = document.getElementById('albumList');
+            var demoAlbumGrid = document.getElementById('demoAlbumGrid');
+            
+            files.forEach(function(file) {
+                if (albumFiles.length >= 9) return;
+                albumFiles.push(file);
+                
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    // 添加到上传列表
+                    var item = document.createElement('div');
+                    item.className = 'album-upload-item';
+                    item.innerHTML = '<img src="' + event.target.result + '" alt=""><button class="remove-btn" onclick="removeAlbumItem(this)">×</button>';
+                    albumList.insertBefore(item, albumList.lastElementChild);
+                    
+                    // 更新示意图
+                    var demoItems = demoAlbumGrid.querySelectorAll('.demo-album-item');
+                    for (var i = 0; i < demoItems.length; i++) {
+                        if (demoItems[i].querySelector('span')) {
+                            demoItems[i].innerHTML = '<img src="' + event.target.result + '" alt="">';
+                            if (file.type.startsWith('video')) {
+                                demoItems[i].classList.add('video');
+                                demoItems[i].style.position = 'relative';
+                            }
+                            break;
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // 隐藏添加按钮如果已满
+            if (albumFiles.length >= 9) {
+                albumList.lastElementChild.style.display = 'none';
+            }
+        });
+
+        function removeAlbumItem(btn) {
+            var item = btn.parentElement;
+            var index = Array.from(item.parentElement.children).indexOf(item);
+            albumFiles.splice(index, 1);
+            item.remove();
+            
+            // 显示添加按钮
+            document.getElementById('albumList').lastElementChild.style.display = 'flex';
+            
+            // 重置示意图
+            var demoAlbumGrid = document.getElementById('demoAlbumGrid');
+            demoAlbumGrid.innerHTML = 
+                '<div class="demo-album-item"><span>图1</span></div>' +
+                '<div class="demo-album-item"><span>图2</span></div>' +
+                '<div class="demo-album-item"><span>图3</span></div>' +
+                '<div class="demo-album-item"><span>图4</span></div>' +
+                '<div class="demo-album-item"><span>图5</span></div>' +
+                '<div class="demo-album-item video" style="position:relative;"><span>视频</span></div>';
+        }
+
+        function saveDecoration() {
+            alert('保存成功！');
+        }
+    
+
+        // ===== PRD 编辑功能 =====
+        var prdEditMode = false;
+        var prdStorageKey = 'prd_shop_decoration_v1';
+
+        (function restorePrd() {
+            var saved = localStorage.getItem(prdStorageKey);
+            if (saved) {
+                try {
+                    var data = JSON.parse(saved);
+                    var texts = document.querySelectorAll('.comment-text');
+                    texts.forEach(function(el, idx) {
+                        if (data[idx] !== undefined) el.innerHTML = data[idx];
+                    });
+                } catch(e) {}
+            }
+        })();
+
+        function togglePrdEdit() {
+            prdEditMode = !prdEditMode;
+            var texts = document.querySelectorAll('.comment-text');
+            var editBtn = document.getElementById('prdEditBtn');
+            var saveBtn = document.getElementById('prdSaveBtn');
+            if (prdEditMode) {
+                texts.forEach(function(el) { el.setAttribute('contenteditable', 'true'); });
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-block';
+            } else {
+                texts.forEach(function(el) { el.setAttribute('contenteditable', 'false'); });
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+            }
+        }
+
+        function savePrdContent() {
+            var texts = document.querySelectorAll('.comment-text');
+            var data = [];
+            texts.forEach(function(el) { data.push(el.innerHTML); });
+            localStorage.setItem(prdStorageKey, JSON.stringify(data));
+            togglePrdEdit();
+            alert('PRD 已保存');
+        }
+    </script>
+
+</div>
+
+</body>
+</html>

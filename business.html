@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#07c160">
+    <title>美业管家 - 经营</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 页面背景 */
+        .page-bg {
+            min-height: 100vh;
+            background: #e8e8e8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        /* 手机框架 */
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow:
+                0 50px 100px rgba(0,0,0,0.3),
+                inset 0 0 0 2px #333,
+                inset 0 0 0 4px #1a1a1a;
+            position: relative;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .phone-home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: #333;
+            border-radius: 3px;
+            z-index: 10;
+        }
+
+        .screen-content {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ===== APP内容样式 ===== */
+        .app-body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            padding-bottom: 70px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* 安卓状态栏 */
+        .status-bar {
+            background: #07c160;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            color: #fff;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .status-time {
+            font-weight: 500;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        /* 顶部标题栏 */
+        .app-bar {
+            background: #07c160;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        /* ===== 顶部Tab ===== */
+        .top-tabs {
+            display: flex;
+            background: #fff;
+            border-bottom: 1px solid #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .top-tab {
+            flex: 1;
+            text-align: center;
+            padding: 14px 8px;
+            font-size: 15px;
+            color: #666;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .top-tab.active {
+            color: #07c160;
+            font-weight: 600;
+        }
+
+        .top-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: #07c160;
+            border-radius: 2px;
+        }
+
+        /* ===== 时间筛选 ===== */
+        .time-filter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #fff;
+            border-bottom: 1px solid #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .time-options {
+            display: flex;
+            gap: 8px;
+        }
+
+        .time-option {
+            padding: 6px 14px;
+            font-size: 13px;
+            color: #666;
+            background: #f5f5f5;
+            border: 1px solid #e5e5e5;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .time-option.active {
+            background: #07c160;
+            color: #fff;
+            border-color: #07c160;
+        }
+
+        .time-custom {
+            font-size: 13px;
+            color: #07c160;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        /* ===== 数据面板 ===== */
+        .data-panel {
+            background: #fff;
+            margin: 10px 16px 0;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .panel-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .panel-item {
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .panel-item.full-width {
+            grid-column: span 2;
+        }
+
+        .panel-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 6px;
+        }
+
+        .panel-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .panel-value.highlight {
+            color: #07c160;
+        }
+
+        /* ===== 详情卡片区域 ===== */
+        .detail-section {
+            background: #fff;
+            margin: 10px 16px 0;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .detail-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .detail-total {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .detail-total span {
+            color: #07c160;
+            font-weight: 600;
+        }
+
+        /* 详情卡片 */
+        .detail-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 12px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .card-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .card-type {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .card-count {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .card-amount {
+            font-size: 16px;
+            font-weight: 600;
+            color: #07c160;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ===== 项目排行条形图 ===== */
+        .project-section {
+            background: #fff;
+            margin: 6px 16px 0;
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+
+        .project-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bar-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .bar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bar-name {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .bar-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .bar-meta span {
+            color: #07c160;
+            font-weight: 600;
+        }
+
+        .bar-track {
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: #07c160;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .bar-fill.orange { background: #ff9500; }
+        .bar-fill.blue { background: #007aff; }
+        .bar-fill.purple { background: #af52de; }
+        .bar-fill.red { background: #ff3b30; }
+        .bar-fill.teal { background: #5ac8fa; }
+
+        /* ===== 服务商列表 ===== */
+        .provider-section {
+            background: #fff;
+            margin: 6px 16px 0;
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+
+        .provider-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .provider-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .provider-tab {
+            padding: 6px 16px;
+            font-size: 13px;
+            color: #666;
+            background: #f5f5f5;
+            border: 1px solid #e5e5e5;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .provider-tab.active {
+            background: #07c160;
+            color: #fff;
+            border-color: #07c160;
+        }
+
+        .provider-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .provider-item {
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .provider-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .provider-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .provider-type-tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #e8f8ee;
+            color: #07c160;
+        }
+
+        .provider-type-tag.floating {
+            background: #fff3e0;
+            color: #ff9500;
+        }
+
+        .provider-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .provider-stat {
+            text-align: center;
+        }
+
+        .provider-stat-label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .provider-stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .provider-stat-value.green {
+            color: #07c160;
+        }
+
+        /* Tab内容区 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ===== 底部导航栏 ===== */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            height: 56px;
+            display: flex;
+            border-top: 1px solid #e5e5e5;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            height: 100%;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+            text-decoration: none;
+        }
+
+        .nav-icon {
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+
+        .nav-text {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #07c160;
+        }
+
+        .nav-item.active .nav-text {
+            color: #07c160;
+            font-weight: 600;
+        }
+    
+        /* ===== PRD 左侧说明布局 ===== */
+        body.prd-layout {
+            overflow: auto;
+            background: #e8e8e8;
+            min-height: 100vh;
+        }
+        body.prd-layout .page-bg {
+            margin: 20px;
+            flex-shrink: 0;
+        }
+        .prd-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+        .comments {
+            width: 400px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.1);
+            max-height: 812px;
+            overflow-y: auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            flex-shrink: 0;
+        }
+        .comments::-webkit-scrollbar { width: 6px; }
+        .comments::-webkit-scrollbar-thumb { background: #d8d8d8; border-radius: 10px; }
+        .comments-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #00A86B;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .comment-section { margin-bottom: 20px; }
+        .comment-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00A86B;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .comment-section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: #00A86B;
+            border-radius: 2px;
+        }
+        .comment-text { font-size: 13px; color: #666; line-height: 1.8; }
+        .comment-text p { margin-bottom: 8px; }
+        .comment-text ul { margin-left: 16px; margin-bottom: 8px; }
+        .comment-text li { margin-bottom: 4px; }
+        .comment-highlight {
+            background: #E8F5E9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #00A86B;
+            font-weight: 500;
+        }
+        .prd-actions { display: flex; gap: 8px; }
+        .prd-btn {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: .2s;
+        }
+        .prd-btn-edit { background: #00A86B; color: #fff; }
+        .prd-btn-edit:hover { background: #008F5B; }
+        .prd-btn-save { background: #1677ff; color: #fff; }
+        .prd-btn-save:hover { background: #0958d9; }
+        .comment-text[contenteditable="true"] {
+            background: #fffbe6;
+            border: 1px dashed #ffd666;
+            border-radius: 8px;
+            padding: 8px 12px;
+            outline: none;
+        }
+        .comment-text[contenteditable="true"]:focus {
+            border-color: #00A86B;
+            background: #f6ffed;
+        }
+        @media (max-width: 940px) {
+            body.prd-layout { padding: 12px; }
+            .prd-container { flex-direction: column; align-items: center; gap: 16px; }
+            .comments { width: 100%; max-width: 390px; max-height: none; }
+            body.prd-layout .page-bg { margin: 0; }
+        }
+
+</style>
+</head>
+<body class="prd-layout">
+    <div class="prd-container">
+<!-- ===== PRD 左侧说明 ===== -->
+<div class="comments">
+  <div class="comments-title">
+    📋 经营页 — 产品需求说明（PRD）
+    <div class="prd-actions">
+      <button class="prd-btn prd-btn-edit" id="prdEditBtn" onclick="togglePrdEdit()">编辑</button>
+      <button class="prd-btn prd-btn-save" id="prdSaveBtn" onclick="savePrdContent()" style="display:none">确定</button>
+    </div>
+  </div>
+
+  <div class="comment-section">
+    <div class="comment-section-title">一、文档信息</div>
+    <div class="comment-text">
+      <p><strong>文档名称：</strong>B端商户经营页产品需求文档</p>
+      <p><strong>适用端：</strong>B端商户APP</p>
+      <p><strong>需求类型：</strong>数据展示</p>
+      <p><strong>关联页面：</strong>经营页，展示商户经营数据</p>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">二、模块概述</div>
+    <div class="comment-text">
+      <p>经营页是商户查看经营数据的核心页面，提供总览、项目、服务商三个维度的数据展示，帮助商户了解店铺经营状况。</p>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">三、用户路径</div>
+    <div class="comment-text">
+      <p><strong>主路径：</strong></p>
+      <ul>
+        <li>底部Tab点击"经营" → 进入经营页</li>
+      </ul>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">四、功能需求</div>
+    <div class="comment-text">
+      <p><strong>4.1 总览Tab</strong></p>
+      <ul>
+        <li>时间筛选：今日/近7日/近30日/自定义</li>
+        <li>数据面板：展示总收入、下单金额、核销金额</li>
+        <li>核销详情：线上/线下订单金额和数量</li>
+        <li>订单详情：店铺来源/服务商来源金额和数量</li>
+      </ul>
+      <p><strong>4.2 项目Tab</strong></p>
+      <ul>
+        <li>项目销量排行条形图</li>
+        <li>展示各项目订单数和营业额</li>
+      </ul>
+      <p><strong>4.3 服务商Tab</strong></p>
+      <ul>
+        <li>常驻服务商/独立服务商切换</li>
+        <li>展示各服务商订单数、营业额、佣金、带来收益</li>
+      </ul>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">五、交互规则</div>
+    <div class="comment-text">
+      <ul>
+        <li>顶部Tab切换展示不同维度数据</li>
+        <li>时间筛选切换后数据实时更新</li>
+        <li>条形图按销量降序排列</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-bg">
+        <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+                <div class="phone-home-indicator"></div>
+                <div class="screen-content">
+                    <div class="app-body">
+                        <!-- 安卓状态栏 -->
+                        <div class="status-bar" aria-hidden="true">
+                            <span class="status-time">9:56</span>
+                            <span class="status-icons">📶 📻 🔋</span>
+                        </div>
+
+                        <!-- 顶部标题栏 -->
+                        <header class="app-bar">
+                            <h1 style="font-size: inherit; font-weight: inherit; color: inherit;">经营</h1>
+                        </header>
+
+                        <!-- ===== 顶部Tab ===== -->
+                        <div class="top-tabs">
+                            <button class="top-tab active">总览</button>
+                            <button class="top-tab">项目</button>
+                            <button class="top-tab">服务商</button>
+                        </div>
+
+                        <!-- ===== 时间筛选 ===== -->
+                        <div class="time-filter">
+                            <div class="time-options">
+                                <button class="time-option active">今日</button>
+                                <button class="time-option">近7日</button>
+                                <button class="time-option">近30日</button>
+                            </div>
+                            <button class="time-custom">
+                                自定义
+                                <span>▼</span>
+                            </button>
+                        </div>
+
+                        <!-- ===== 数据面板 ===== -->
+                        <section class="data-panel" aria-label="数据面板">
+                            <div class="panel-title">数据面板</div>
+                            <div class="panel-grid">
+                                <div class="panel-item full-width">
+                                    <div class="panel-label">总收入</div>
+                                    <div class="panel-value highlight">¥ 12,580.00</div>
+                                </div>
+                                <div class="panel-item">
+                                    <div class="panel-label">下单金额</div>
+                                    <div class="panel-value">¥ 8,560.00</div>
+                                </div>
+                                <div class="panel-item">
+                                    <div class="panel-label">核销金额</div>
+                                    <div class="panel-value">¥ 6,320.00</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- ===== 核销详情 ===== -->
+                        <section class="detail-section" aria-label="核销详情">
+                            <div class="detail-header">
+                                <div class="detail-title">核销详情</div>
+                                <div class="detail-total">合计 <span>¥ 6,320.00</span></div>
+                            </div>
+                            <div class="detail-cards">
+                                <div class="detail-card">
+                                    <div class="card-left">
+                                        <div class="card-icon bg-blue">🌐</div>
+                                        <div class="card-info">
+                                            <span class="card-type">线上</span>
+                                            <span class="card-count">订单数 45</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-amount">¥ 4,580.00</div>
+                                </div>
+                                <div class="detail-card">
+                                    <div class="card-left">
+                                        <div class="card-icon bg-green">🏪</div>
+                                        <div class="card-info">
+                                            <span class="card-type">线下</span>
+                                            <span class="card-count">订单数 28</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-amount">¥ 1,740.00</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- ===== 订单详情 ===== -->
+                        <section class="detail-section" aria-label="订单详情">
+                            <div class="detail-header">
+                                <div class="detail-title">订单详情</div>
+                                <div class="detail-total">合计 <span>¥ 8,560.00</span></div>
+                            </div>
+                            <div class="detail-cards">
+                                <div class="detail-card">
+                                    <div class="card-left">
+                                        <div class="card-icon bg-orange">🏪</div>
+                                        <div class="card-info">
+                                            <span class="card-type">店铺来源</span>
+                                            <span class="card-count">订单数 32</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-amount">¥ 5,280.00</div>
+                                </div>
+                                <div class="detail-card">
+                                    <div class="card-left">
+                                        <div class="card-icon bg-purple">🏢</div>
+                                        <div class="card-info">
+                                            <span class="card-type">服务商来源</span>
+                                            <span class="card-count">订单数 41</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-amount">¥ 3,280.00</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- ===== 项目排行（默认隐藏） ===== -->
+                        <div class="tab-content" id="projectContent">
+                            <section class="project-section" aria-label="项目销量排行">
+                                <div class="project-title">项目销量排行</div>
+                                <div class="bar-chart">
+                                    <div class="bar-item">
+                                        <div class="bar-header">
+                                            <span class="bar-name">总监洗剪吹造型</span>
+                                            <div class="bar-meta">
+                                                <span>156单</span>
+                                                <span>¥ 15,600</span>
+                                            </div>
+                                        </div>
+                                        <div class="bar-track">
+                                            <div class="bar-fill" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-header">
+                                            <span class="bar-name">染烫套餐</span>
+                                            <div class="bar-meta">
+                                                <span>89单</span>
+                                                <span>¥ 26,700</span>
+                                            </div>
+                                        </div>
+                                        <div class="bar-track">
+                                            <div class="bar-fill orange" style="width: 75%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-header">
+                                            <span class="bar-name">头皮深层护理</span>
+                                            <div class="bar-meta">
+                                                <span>67单</span>
+                                                <span>¥ 13,400</span>
+                                            </div>
+                                        </div>
+                                        <div class="bar-track">
+                                            <div class="bar-fill blue" style="width: 55%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-header">
+                                            <span class="bar-name">头皮抗衰养护</span>
+                                            <div class="bar-meta">
+                                                <span>45单</span>
+                                                <span>¥ 9,000</span>
+                                            </div>
+                                        </div>
+                                        <div class="bar-track">
+                                            <div class="bar-fill purple" style="width: 40%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-header">
+                                            <span class="bar-name">无痕接发</span>
+                                            <div class="bar-meta">
+                                                <span>23单</span>
+                                                <span>¥ 11,500</span>
+                                            </div>
+                                        </div>
+                                        <div class="bar-track">
+                                            <div class="bar-fill red" style="width: 25%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-header">
+                                            <span class="bar-name">美甲美睫</span>
+                                            <div class="bar-meta">
+                                                <span>18单</span>
+                                                <span>¥ 3,600</span>
+                                            </div>
+                                        </div>
+                                        <div class="bar-track">
+                                            <div class="bar-fill teal" style="width: 18%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- ===== 服务商列表（默认隐藏） ===== -->
+                        <div class="tab-content" id="providerContent">
+                            <section class="provider-section" aria-label="服务商列表">
+                                <div class="provider-title">服务商列表</div>
+                                <div class="provider-tabs">
+                                    <button class="provider-tab active" data-type="resident">常驻服务商</button>
+                                    <button class="provider-tab" data-type="floating">独立服务商</button>
+                                </div>
+                                <div class="provider-list" id="residentList">
+                                    <div class="provider-item">
+                                        <div class="provider-header">
+                                            <span class="provider-name">美业服务商A</span>
+                                        </div>
+                                        <div class="provider-stats">
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">订单数</div>
+                                                <div class="provider-stat-value">128</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">营业额</div>
+                                                <div class="provider-stat-value">¥25.6k</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">佣金</div>
+                                                <div class="provider-stat-value">¥3.8k</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">带来收益</div>
+                                                <div class="provider-stat-value green">¥21.8k</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="provider-item">
+                                        <div class="provider-header">
+                                            <span class="provider-name">美业服务商B</span>
+                                        </div>
+                                        <div class="provider-stats">
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">订单数</div>
+                                                <div class="provider-stat-value">96</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">营业额</div>
+                                                <div class="provider-stat-value">¥19.2k</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">佣金</div>
+                                                <div class="provider-stat-value">¥2.9k</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">带来收益</div>
+                                                <div class="provider-stat-value green">¥16.3k</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="provider-item">
+                                        <div class="provider-header">
+                                            <span class="provider-name">美业服务商C</span>
+                                        </div>
+                                        <div class="provider-stats">
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">订单数</div>
+                                                <div class="provider-stat-value">74</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">营业额</div>
+                                                <div class="provider-stat-value">¥14.8k</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">佣金</div>
+                                                <div class="provider-stat-value">¥2.2k</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">带来收益</div>
+                                                <div class="provider-stat-value green">¥12.6k</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="provider-list" id="floatingList" style="display: none;">
+                                    <div class="provider-item">
+                                        <div class="provider-header">
+                                            <span class="provider-name">流动服务商X</span>
+                                        </div>
+                                        <div class="provider-stats">
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">订单数</div>
+                                                <div class="provider-stat-value">45</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">营业额</div>
+                                                <div class="provider-stat-value">¥9.0k</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">佣金</div>
+                                                <div class="provider-stat-value">¥1.4k</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">带来收益</div>
+                                                <div class="provider-stat-value green">¥7.6k</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="provider-item">
+                                        <div class="provider-header">
+                                            <span class="provider-name">流动服务商Y</span>
+                                        </div>
+                                        <div class="provider-stats">
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">订单数</div>
+                                                <div class="provider-stat-value">32</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">营业额</div>
+                                                <div class="provider-stat-value">¥6.4k</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">佣金</div>
+                                                <div class="provider-stat-value">¥960</div>
+                                            </div>
+                                            <div class="provider-stat">
+                                                <div class="provider-stat-label">带来收益</div>
+                                                <div class="provider-stat-value green">¥5.4k</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- 底部安全间距 -->
+                        <div style="height: 8px;"></div>
+
+                        <!-- ===== 底部导航栏 ===== -->
+                        <nav class="bottom-nav" aria-label="主导航">
+                            <a href="index.html" class="nav-item" aria-label="首页">
+                                <span class="nav-icon" aria-hidden="true">🏠</span>
+                                <span class="nav-text">首页</span>
+                            </a>
+                            <a href="features.html" class="nav-item" aria-label="功能">
+                                <span class="nav-icon" aria-hidden="true">📱</span>
+                                <span class="nav-text">功能</span>
+                            </a>
+                            <a href="message.html" class="nav-item" aria-label="消息">
+                                <span class="nav-icon" aria-hidden="true">💬</span>
+                                <span class="nav-text">消息</span>
+                            </a>
+                            
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const topTabs = document.querySelectorAll('.top-tab');
+        const overviewSections = document.querySelectorAll('.data-panel, .detail-section');
+        const projectContent = document.getElementById('projectContent');
+        const providerContent = document.getElementById('providerContent');
+        const providerTabs = document.querySelectorAll('.provider-tab');
+        const residentList = document.getElementById('residentList');
+        const floatingList = document.getElementById('floatingList');
+
+        // 顶部Tab切换
+        topTabs.forEach((tab, index) => {
+            tab.addEventListener('click', function() {
+                // 移除所有active状态
+                topTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                // 隐藏所有内容
+                overviewSections.forEach(s => s.style.display = 'none');
+                projectContent.classList.remove('active');
+                providerContent.classList.remove('active');
+
+                // 显示对应内容
+                if (index === 0) {
+                    // 总览
+                    overviewSections.forEach(s => s.style.display = 'block');
+                } else if (index === 1) {
+                    // 项目
+                    projectContent.classList.add('active');
+                } else if (index === 2) {
+                    // 服务商
+                    providerContent.classList.add('active');
+                }
+            });
+        });
+
+        // 服务商子Tab切换
+        providerTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                providerTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                const type = this.dataset.type;
+                if (type === 'resident') {
+                    residentList.style.display = 'flex';
+                    floatingList.style.display = 'none';
+                } else {
+                    residentList.style.display = 'none';
+                    floatingList.style.display = 'flex';
+                }
+            });
+        });
+    
+
+        // ===== PRD 编辑功能 =====
+        var prdEditMode = false;
+        var prdStorageKey = 'prd_business_v1';
+
+        (function restorePrd() {
+            var saved = localStorage.getItem(prdStorageKey);
+            if (saved) {
+                try {
+                    var data = JSON.parse(saved);
+                    var texts = document.querySelectorAll('.comment-text');
+                    texts.forEach(function(el, idx) {
+                        if (data[idx] !== undefined) el.innerHTML = data[idx];
+                    });
+                } catch(e) {}
+            }
+        })();
+
+        function togglePrdEdit() {
+            prdEditMode = !prdEditMode;
+            var texts = document.querySelectorAll('.comment-text');
+            var editBtn = document.getElementById('prdEditBtn');
+            var saveBtn = document.getElementById('prdSaveBtn');
+            if (prdEditMode) {
+                texts.forEach(function(el) { el.setAttribute('contenteditable', 'true'); });
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-block';
+            } else {
+                texts.forEach(function(el) { el.setAttribute('contenteditable', 'false'); });
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+            }
+        }
+
+        function savePrdContent() {
+            var texts = document.querySelectorAll('.comment-text');
+            var data = [];
+            texts.forEach(function(el) { data.push(el.innerHTML); });
+            localStorage.setItem(prdStorageKey, JSON.stringify(data));
+            togglePrdEdit();
+            alert('PRD 已保存');
+        }
+    </script>
+
+</div>
+
+</body>
+</html>

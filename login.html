@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f5f5">
+    <title>美业管家 - 登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .page-bg {
+            min-height: 100vh;
+            background: #e8e8e8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow:
+                0 50px 100px rgba(0,0,0,0.3),
+                inset 0 0 0 2px #333,
+                inset 0 0 0 4px #1a1a1a;
+            position: relative;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .phone-home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: #333;
+            border-radius: 3px;
+            z-index: 10;
+        }
+
+        .screen-content {
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        .screen-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .app-body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 32px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* 关闭按钮 */
+        .close-btn {
+            position: absolute;
+            top: 32px;
+            left: 16px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        /* Logo */
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #07c160, #05a34a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 48px;
+            box-shadow: 0 8px 24px rgba(7, 193, 96, 0.3);
+        }
+
+        .login-logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffd700;
+            letter-spacing: 2px;
+        }
+
+        /* 一键登录按钮 */
+        .login-btn-primary {
+            width: 100%;
+            height: 48px;
+            background: #07c160;
+            color: #fff;
+            border: none;
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            margin-bottom: 20px;
+            transition: background-color 0.2s ease;
+        }
+
+        .login-btn-primary:hover {
+            background: #06a654;
+        }
+
+        /* 密码登录 */
+        .login-link {
+            font-size: 14px;
+            color: #666;
+            text-decoration: none;
+            cursor: pointer;
+            margin-bottom: 40px;
+        }
+
+        .login-link:hover {
+            color: #333;
+        }
+
+        /* 协议 */
+        .agreement {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 12px;
+            color: #999;
+            line-height: 1.6;
+        }
+
+        .agreement-check {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1.5px solid #ccc;
+            flex-shrink: 0;
+            cursor: pointer;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .agreement-check.checked {
+            background: #07c160;
+            border-color: #07c160;
+        }
+
+        .agreement-check.checked::after {
+            content: '✓';
+            color: #fff;
+            font-size: 10px;
+        }
+
+        .agreement a {
+            color: #07c160;
+            text-decoration: none;
+        }
+    
+        /* ===== PRD 左侧说明布局 ===== */
+        body.prd-layout {
+            overflow: auto;
+            background: #e8e8e8;
+            min-height: 100vh;
+        }
+        body.prd-layout .page-bg {
+            margin: 20px;
+            flex-shrink: 0;
+        }
+        .prd-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+        .comments {
+            width: 400px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.1);
+            max-height: 812px;
+            overflow-y: auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            flex-shrink: 0;
+        }
+        .comments::-webkit-scrollbar { width: 6px; }
+        .comments::-webkit-scrollbar-thumb { background: #d8d8d8; border-radius: 10px; }
+        .comments-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #00A86B;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .comment-section { margin-bottom: 20px; }
+        .comment-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00A86B;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .comment-section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: #00A86B;
+            border-radius: 2px;
+        }
+        .comment-text { font-size: 13px; color: #666; line-height: 1.8; }
+        .comment-text p { margin-bottom: 8px; }
+        .comment-text ul { margin-left: 16px; margin-bottom: 8px; }
+        .comment-text li { margin-bottom: 4px; }
+        .comment-highlight {
+            background: #E8F5E9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #00A86B;
+            font-weight: 500;
+        }
+        .prd-actions { display: flex; gap: 8px; }
+        .prd-btn {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: .2s;
+        }
+        .prd-btn-edit { background: #00A86B; color: #fff; }
+        .prd-btn-edit:hover { background: #008F5B; }
+        .prd-btn-save { background: #1677ff; color: #fff; }
+        .prd-btn-save:hover { background: #0958d9; }
+        .comment-text[contenteditable="true"] {
+            background: #fffbe6;
+            border: 1px dashed #ffd666;
+            border-radius: 8px;
+            padding: 8px 12px;
+            outline: none;
+        }
+        .comment-text[contenteditable="true"]:focus {
+            border-color: #00A86B;
+            background: #f6ffed;
+        }
+        @media (max-width: 940px) {
+            body.prd-layout { padding: 12px; }
+            .prd-container { flex-direction: column; align-items: center; gap: 16px; }
+            .comments { width: 100%; max-width: 390px; max-height: none; }
+            body.prd-layout .page-bg { margin: 0; }
+        }
+
+</style>
+</head>
+<body class="prd-layout">
+    <div class="prd-container">
+<!-- ===== PRD 左侧说明 ===== -->
+<div class="comments">
+  <div class="comments-title">
+    📋 登录页 — 产品需求说明（PRD）
+    <div class="prd-actions">
+      <button class="prd-btn prd-btn-edit" id="prdEditBtn" onclick="togglePrdEdit()">编辑</button>
+      <button class="prd-btn prd-btn-save" id="prdSaveBtn" onclick="savePrdContent()" style="display:none">确定</button>
+    </div>
+  </div>
+
+  <div class="comment-section">
+    <div class="comment-section-title">一、文档信息</div>
+    <div class="comment-text">
+      <p><strong>文档名称：</strong>B端商户登录页产品需求文档</p>
+      <p><strong>适用端：</strong>B端商户APP</p>
+      <p><strong>需求类型：</strong>基础功能</p>
+      <p><strong>关联页面：</strong>登录页，商户进入系统的入口</p>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">二、模块概述</div>
+    <div class="comment-text">
+      <p>登录页是商户进入B端APP的入口，提供一键登录和密码登录两种方式。商户通过验证身份后进入系统首页。</p>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">三、用户路径</div>
+    <div class="comment-text">
+      <p><strong>主路径：</strong></p>
+      <ul>
+        <li>打开APP → 进入登录页 → 选择登录方式 → 验证成功 → 进入首页</li>
+      </ul>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">四、功能需求</div>
+    <div class="comment-text">
+      <p><strong>4.1 一键登录</strong></p>
+      <ul>
+        <li>展示品牌Logo和APP名称</li>
+        <li>提供<span class="comment-highlight">本机号码一键登录</span>按钮</li>
+        <li>点击后调起运营商认证，自动获取手机号登录</li>
+      </ul>
+      <p><strong>4.2 密码登录</strong></p>
+      <ul>
+        <li>提供密码登录入口，跳转密码登录页</li>
+        <li>支持手机号+密码验证</li>
+      </ul>
+      <p><strong>4.3 用户协议</strong></p>
+      <ul>
+        <li>登录前需勾选同意用户协议和隐私政策</li>
+        <li>协议文本可点击跳转详情页</li>
+      </ul>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">五、交互规则</div>
+    <div class="comment-text">
+      <ul>
+        <li>未勾选协议时，登录按钮置灰不可点击</li>
+        <li>登录失败时提示具体错误原因</li>
+        <li>支持关闭登录页退出APP</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-bg">
+        <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+                <div class="phone-home-indicator"></div>
+                <div class="screen-content">
+                    <div class="app-body">
+                        <!-- 关闭按钮 -->
+                        <button class="close-btn" aria-label="关闭">✕</button>
+
+                        <!-- Logo -->
+                        <div class="login-logo">
+                            <span class="login-logo-text">JJJI</span>
+                        </div>
+
+                        <!-- 一键登录 -->
+                        <a href="apply-join.html" class="login-btn-primary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">本机号码一键登录</a>
+
+                        <!-- 密码登录 -->
+                        <a href="index.html" class="login-link" style="text-decoration: none;">密码登录</a>
+
+                        <!-- 协议 -->
+                        <div class="agreement">
+                            <div class="agreement-check" id="agreeCheck" onclick="this.classList.toggle('checked')"></div>
+                            <span>我已阅读并同意<a href="#">《用户隐私协议》</a>与<a href="#">《用户协议》</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    <script>
+        // ===== PRD 编辑功能 =====
+        var prdEditMode = false;
+        var prdStorageKey = 'prd_login_v1';
+
+        (function restorePrd() {
+            var saved = localStorage.getItem(prdStorageKey);
+            if (saved) {
+                try {
+                    var data = JSON.parse(saved);
+                    var texts = document.querySelectorAll('.comment-text');
+                    texts.forEach(function(el, idx) {
+                        if (data[idx] !== undefined) el.innerHTML = data[idx];
+                    });
+                } catch(e) {}
+            }
+        })();
+
+        function togglePrdEdit() {
+            prdEditMode = !prdEditMode;
+            var texts = document.querySelectorAll('.comment-text');
+            var editBtn = document.getElementById('prdEditBtn');
+            var saveBtn = document.getElementById('prdSaveBtn');
+            if (prdEditMode) {
+                texts.forEach(function(el) { el.setAttribute('contenteditable', 'true'); });
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-block';
+            } else {
+                texts.forEach(function(el) { el.setAttribute('contenteditable', 'false'); });
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+            }
+        }
+
+        function savePrdContent() {
+            var texts = document.querySelectorAll('.comment-text');
+            var data = [];
+            texts.forEach(function(el) { data.push(el.innerHTML); });
+            localStorage.setItem(prdStorageKey, JSON.stringify(data));
+            togglePrdEdit();
+            alert('PRD 已保存');
+        }
+    </script>
+
+</body>
+</html>

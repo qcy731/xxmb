@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#07c160">
+    <title>美业管家 - 切换账号</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .page-bg {
+            min-height: 100vh;
+            background: #e8e8e8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow:
+                0 50px 100px rgba(0,0,0,0.3),
+                inset 0 0 0 2px #333,
+                inset 0 0 0 4px #1a1a1a;
+            position: relative;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .phone-home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: #333;
+            border-radius: 3px;
+            z-index: 10;
+        }
+
+        .screen-content {
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        .screen-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .app-body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            min-height: 100%;
+            padding-bottom: 20px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* 安卓状态栏 */
+        .status-bar {
+            background: #fff;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            color: #333;
+            font-size: 12px;
+        }
+
+        /* 顶部标题栏 */
+        .app-bar {
+            background: #fff;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            color: #333;
+            font-size: 18px;
+            font-weight: 500;
+            position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .app-bar-back {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-size: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-right: 12px;
+        }
+
+        .app-bar-title {
+            flex: 1;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .app-bar-right {
+            font-size: 15px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        /* ===== 账号列表 ===== */
+        .account-list {
+            padding: 12px;
+        }
+
+        .account-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .account-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .account-item:last-child {
+            border-bottom: none;
+        }
+
+        .account-item:hover {
+            background: #f9f9f9;
+        }
+
+        .account-item.current {
+            background: #f0f9f0;
+        }
+
+        .account-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .account-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .account-avatar.default {
+            background: #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .account-info {
+            flex: 1;
+        }
+
+        .account-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .account-id {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .account-status {
+            font-size: 13px;
+            color: #07c160;
+        }
+
+        /* 添加账号 */
+        .add-account-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .add-account-item:hover {
+            background: #f9f9f9;
+        }
+
+        .add-account-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #999;
+        }
+
+        .add-account-text {
+            font-size: 15px;
+            color: #333;
+        }
+
+        /* 提示文字 */
+        .account-hint {
+            font-size: 13px;
+            color: #999;
+            text-align: center;
+            margin-top: 16px;
+            padding: 0 12px;
+        }
+
+        /* 底部退出登录按钮 */
+        .logout-section {
+            padding: 16px 12px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .logout-btn {
+            width: 100%;
+            height: 44px;
+            background: #ff4d4f;
+            color: #fff;
+            border: none;
+            border-radius: 22px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 退出登录按钮 */
+        .logout-btn {
+            display: block;
+            width: calc(100% - 24px);
+            margin: 24px auto 0;
+            padding: 14px;
+            background: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            color: #e54d42;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #f9f9f9;
+        }
+    
+        /* ===== PRD 左侧说明布局 ===== */
+        body.prd-layout {
+            overflow: auto;
+            background: #e8e8e8;
+            min-height: 100vh;
+        }
+        body.prd-layout .page-bg {
+            margin: 20px;
+            flex-shrink: 0;
+        }
+        .prd-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+        .comments {
+            width: 400px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.1);
+            max-height: 812px;
+            overflow-y: auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            flex-shrink: 0;
+        }
+        .comments::-webkit-scrollbar { width: 6px; }
+        .comments::-webkit-scrollbar-thumb { background: #d8d8d8; border-radius: 10px; }
+        .comments-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #00A86B;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .comment-section { margin-bottom: 20px; }
+        .comment-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00A86B;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .comment-section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: #00A86B;
+            border-radius: 2px;
+        }
+        .comment-text { font-size: 13px; color: #666; line-height: 1.8; }
+        .comment-text p { margin-bottom: 8px; }
+        .comment-text ul { margin-left: 16px; margin-bottom: 8px; }
+        .comment-text li { margin-bottom: 4px; }
+        .comment-highlight {
+            background: #E8F5E9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #00A86B;
+            font-weight: 500;
+        }
+        .prd-actions { display: flex; gap: 8px; }
+        .prd-btn {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: .2s;
+        }
+        .prd-btn-edit { background: #00A86B; color: #fff; }
+        .prd-btn-edit:hover { background: #008F5B; }
+        .prd-btn-save { background: #1677ff; color: #fff; }
+        .prd-btn-save:hover { background: #0958d9; }
+        .comment-text[contenteditable="true"] {
+            background: #fffbe6;
+            border: 1px dashed #ffd666;
+            border-radius: 8px;
+            padding: 8px 12px;
+            outline: none;
+        }
+        .comment-text[contenteditable="true"]:focus {
+            border-color: #00A86B;
+            background: #f6ffed;
+        }
+        @media (max-width: 940px) {
+            body.prd-layout { padding: 12px; }
+            .prd-container { flex-direction: column; align-items: center; gap: 16px; }
+            .comments { width: 100%; max-width: 390px; max-height: none; }
+            body.prd-layout .page-bg { margin: 0; }
+        }
+
+</style>
+</head>
+<body class="prd-layout">
+<div class="prd-container">
+<!-- ===== PRD 左侧说明 ===== -->
+<div class="comments">
+  <div class="comments-title">
+    📋 切换账号页 — 产品需求说明（PRD）
+    <div class="prd-actions">
+      <button class="prd-btn prd-btn-edit" id="prdEditBtn" onclick="togglePrdEdit()">编辑</button>
+      <button class="prd-btn prd-btn-save" id="prdSaveBtn" onclick="savePrdContent()" style="display:none">确定</button>
+    </div>
+  </div>
+
+  <div class="comment-section">
+    <div class="comment-section-title">一、文档信息</div>
+    <div class="comment-text">
+      <p><strong>文档名称：</strong>B端商户切换账号页产品需求文档</p>
+      <p><strong>适用端：</strong>B端商户APP</p>
+      <p><strong>需求类型：</strong>账号管理</p>
+      <p><strong>关联页面：</strong>切换账号页，多账号管理</p>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">二、模块概述</div>
+    <div class="comment-text">
+      <p>切换账号页是商户在同一设备上管理多个账号的页面，支持切换已添加的账号和添加新账号。</p>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">三、用户路径</div>
+    <div class="comment-text">
+      <p><strong>主路径：</strong></p>
+      <ul>
+        <li>账号设置页点击"切换账号" → 进入切换账号页</li>
+      </ul>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">四、功能需求</div>
+    <div class="comment-text">
+      <p><strong>4.1 账号列表</strong></p>
+      <ul>
+        <li>展示已添加的所有账号</li>
+        <li>当前登录账号高亮显示</li>
+        <li>显示账号名称和脱敏手机号</li>
+      </ul>
+      <p><strong>4.2 账号操作</strong></p>
+      <ul>
+        <li>点击账号切换登录</li>
+        <li>添加新账号</li>
+        <li>管理账号（删除等）</li>
+      </ul>
+      <p><strong>4.3 退出登录</strong></p>
+      <ul>
+        <li>底部退出登录按钮</li>
+      </ul>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">五、交互规则</div>
+    <div class="comment-text">
+      <ul>
+        <li>点击账号后切换至该账号</li>
+        <li>添加账号支持输入新账号登录</li>
+        <li>管理模式下可删除账号</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-bg">
+        <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+                <div class="phone-home-indicator"></div>
+                <div class="screen-content">
+                    <div class="app-body">
+                        <!-- 安卓状态栏 -->
+                        <div class="status-bar" aria-hidden="true">
+                            <span>16:14</span>
+                            <span>📶 📻 🔋</span>
+                        </div>
+
+                        <!-- 顶部标题栏 -->
+                        <header class="app-bar">
+                            <a href="account-settings.html" class="app-bar-back" aria-label="返回">‹</a>
+                            <span class="app-bar-title">切换账号</span>
+                            <span class="app-bar-right" onclick="alert('管理账号')">管理</span>
+                        </header>
+
+                        <!-- 账号列表 -->
+                        <div class="account-list">
+                            <div class="account-card">
+                                <div class="account-item" onclick="alert('切换到 rose')">
+                                    <div class="account-avatar">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=rose&backgroundColor=b6e3f4" alt="rose">
+                                    </div>
+                                    <div class="account-info">
+                                        <div class="account-name">rose</div>
+                                        <div class="account-id">小小账号: 131****8283</div>
+                                    </div>
+                                </div>
+                                <div class="account-item" onclick="alert('切换到 辣了')">
+                                    <div class="account-avatar">
+                                        <img src="https://api.dicebear.com/7.x/food/svg?seed=spicy" alt="辣了">
+                                    </div>
+                                    <div class="account-info">
+                                        <div class="account-name">辣了</div>
+                                        <div class="account-id">小小账号: 188****7635</div>
+                                    </div>
+                                </div>
+                                <div class="account-item" onclick="alert('切换到 東风')">
+                                    <div class="account-avatar">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=eastwind&backgroundColor=ffdfbf" alt="東风">
+                                    </div>
+                                    <div class="account-info">
+                                        <div class="account-name">東风</div>
+                                        <div class="account-id">小小账号: 133****4606</div>
+                                    </div>
+                                </div>
+                                <div class="account-item current" onclick="alert('当前账号')">
+                                    <div class="account-avatar default">👤</div>
+                                    <div class="account-info">
+                                        <div class="account-name">用户3617</div>
+                                        <div class="account-id">小小账号: 185****3617</div>
+                                    </div>
+                                    <span class="account-status">当前登录</span>
+                                </div>
+                                <div class="add-account-item" onclick="alert('添加账号')">
+                                    <div class="add-account-icon">+</div>
+                                    <span class="add-account-text">添加账号</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 提示文字 -->
+                        <div class="account-hint">添加账号后，可在本设备支持切换账号</div>
+
+                        <!-- 底部退出登录按钮 -->
+                        <div class="logout-section">
+                            <button class="logout-btn" onclick="alert('确认退出登录吗？')">退出登录</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    <script>
+        // ===== PRD 编辑功能 =====
+        var prdEditMode = false;
+        var prdStorageKey = 'prd_switch_account_v1';
+
+        (function restorePrd() {
+            var saved = localStorage.getItem(prdStorageKey);
+            if (saved) {
+                try {
+                    var data = JSON.parse(saved);
+                    var texts = document.querySelectorAll('.comment-text');
+                    texts.forEach(function(el, idx) {
+                        if (data[idx] !== undefined) el.innerHTML = data[idx];
+                    });
+                } catch(e) {}
+            }
+        })();
+
+        function togglePrdEdit() {
+            prdEditMode = !prdEditMode;
+            var texts = document.querySelectorAll('.comment-text');
+            var editBtn = document.getElementById('prdEditBtn');
+            var saveBtn = document.getElementById('prdSaveBtn');
+            if (prdEditMode) {
+                texts.forEach(function(el) { el.setAttribute('contenteditable', 'true'); });
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-block';
+            } else {
+                texts.forEach(function(el) { el.setAttribute('contenteditable', 'false'); });
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+            }
+        }
+
+        function savePrdContent() {
+            var texts = document.querySelectorAll('.comment-text');
+            var data = [];
+            texts.forEach(function(el) { data.push(el.innerHTML); });
+            localStorage.setItem(prdStorageKey, JSON.stringify(data));
+            togglePrdEdit();
+            alert('PRD 已保存');
+        }
+    </script>
+
+</body>
+</html>

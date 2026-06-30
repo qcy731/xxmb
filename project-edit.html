@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#07c160">
+    <title>美业管家 - 上传单次项目</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .page-bg {
+            min-height: 100vh;
+            background: #e8e8e8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow:
+                0 50px 100px rgba(0,0,0,0.3),
+                inset 0 0 0 2px #333,
+                inset 0 0 0 4px #1a1a1a;
+            position: relative;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .phone-home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: #333;
+            border-radius: 3px;
+            z-index: 10;
+        }
+
+        .screen-content {
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        .screen-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .app-body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            min-height: 100%;
+            padding-bottom: 90px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* 安卓状态栏 */
+        .status-bar {
+            background: #07c160;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            color: #fff;
+            font-size: 12px;
+        }
+
+        /* 顶部标题栏 */
+        .app-bar {
+            background: #fff;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            color: #333;
+            font-size: 18px;
+            font-weight: 500;
+            position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .app-bar-back {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-size: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-right: 12px;
+        }
+
+        .app-bar-title {
+            flex: 1;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* 顶部Tab */
+        .service-tabs {
+            display: flex;
+            background: #fff;
+            padding: 0 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .service-tab {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 15px;
+            color: #666;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: inherit;
+            position: relative;
+        }
+
+        .service-tab.active {
+            color: #07c160;
+            font-weight: 500;
+        }
+
+        .service-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: #07c160;
+            border-radius: 1px;
+        }
+
+        /* ===== 表单卡片 ===== */
+        .form-card {
+            background: #fff;
+            margin: 12px 16px 0;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 3px;
+            height: 16px;
+            background: #07c160;
+            border-radius: 2px;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .form-row:last-child {
+            border-bottom: none;
+        }
+
+        .form-label {
+            width: 80px;
+            font-size: 14px;
+            color: #333;
+            flex-shrink: 0;
+        }
+
+        .form-input {
+            flex: 1;
+            border: none;
+            font-size: 14px;
+            color: #333;
+            font-family: inherit;
+            outline: none;
+            background: transparent;
+        }
+
+        /* 平台项目分类 */
+        .category-select-wrap {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 8px;
+        }
+
+        .category-level1,
+        .category-level2 {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .category-separator {
+            font-size: 14px;
+            color: #999;
+            flex-shrink: 0;
+        }
+
+        /* 店铺项目分类 */
+        .shop-category-wrap {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 8px;
+        }
+
+        .shop-category-wrap .form-input {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .category-arrow {
+            font-size: 16px;
+            color: #999;
+            flex-shrink: 0;
+        }
+
+        /* 分类选择弹窗 */
+        .category-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .category-modal.show {
+            display: flex;
+        }
+
+        .category-modal-content {
+            background: #fff;
+            width: 100%;
+            max-width: 375px;
+            border-radius: 16px 16px 0 0;
+            padding: 20px 16px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .category-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .category-modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .category-modal-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .category-input-wrap {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .category-input {
+            flex: 1;
+            height: 44px;
+            border: 1px solid #e0e0e0;
+            border-radius: 22px;
+            padding: 0 16px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .category-input:focus {
+            border-color: #07c160;
+        }
+
+        .category-confirm-btn {
+            height: 44px;
+            padding: 0 24px;
+            background: #2d8c6f;
+            color: #fff;
+            border: none;
+            border-radius: 22px;
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .category-history-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .category-tag {
+            padding: 8px 16px;
+            background: #f5f5f5;
+            border-radius: 16px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        .category-tag:hover {
+            background: #e8f5e9;
+            color: #07c160;
+        }
+
+        .form-input::placeholder {
+            color: #ccc;
+        }
+
+        .form-select {
+            flex: 1;
+            border: none;
+            font-size: 14px;
+            color: #ccc;
+            font-family: inherit;
+            outline: none;
+            background: transparent;
+            appearance: none;
+        }
+
+        /* 图片上传 */
+        .image-upload-wrap {
+            padding: 12px 0;
+        }
+
+        .image-upload {
+            width: 80px;
+            height: 80px;
+            border: 1px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #999;
+            font-size: 12px;
+            gap: 4px;
+            background: #fafafa;
+        }
+
+        .image-upload svg {
+            width: 24px;
+            height: 24px;
+            color: #ccc;
+        }
+
+        /* 开关行 */
+        .switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .switch-row:last-child {
+            border-bottom: none;
+        }
+
+        .switch-info {
+            flex: 1;
+        }
+
+        .switch-label {
+            font-size: 14px;
+            color: #333;
+            display: block;
+        }
+
+        .switch-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.on {
+            background: #07c160;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.on::after {
+            transform: translateX(20px);
+        }
+
+        /* 价格区域 */
+        .price-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .price-row:last-child {
+            border-bottom: none;
+        }
+
+        .price-label {
+            width: 80px;
+            font-size: 14px;
+            color: #333;
+            flex-shrink: 0;
+        }
+
+        .price-input-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .price-prefix {
+            font-size: 14px;
+            color: #999;
+            margin-right: 4px;
+        }
+
+        .price-input {
+            flex: 1;
+            border: none;
+            font-size: 14px;
+            color: #333;
+            font-family: inherit;
+            outline: none;
+            background: transparent;
+        }
+
+        /* 独立服务商服务费设置 */
+        .provider-fee-settings {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .fee-section {
+            background: #f8f8f8;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .fee-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .fee-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .fee-input-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .fee-input {
+            width: 80px;
+            height: 48px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            font-family: inherit;
+            outline: none;
+            background: #fff;
+        }
+
+        .fee-input:focus {
+            border-color: #07c160;
+        }
+
+        .fee-unit {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .fee-hint {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+
+        .price-input::placeholder {
+            color: #ccc;
+        }
+
+        .price-unit {
+            font-size: 14px;
+            color: #999;
+            margin-left: 4px;
+        }
+
+        /* 图文描述 */
+        .desc-textarea {
+            width: 100%;
+            border: none;
+            font-size: 14px;
+            color: #333;
+            font-family: inherit;
+            outline: none;
+            resize: none;
+            min-height: 60px;
+            padding: 8px 0;
+        }
+
+        .desc-textarea::placeholder {
+            color: #ccc;
+        }
+
+        /* ===== 底部按钮 ===== */
+        .bottom-actions {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 12px 16px 24px;
+            display: flex;
+            gap: 12px;
+            border-top: 1px solid #f0f0f0;
+            z-index: 100;
+        }
+
+        .btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 22px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-delete {
+            background: #fff;
+            color: #ff3b30;
+            border: 1px solid #ff3b30;
+        }
+
+        .btn-status {
+            background: #07c160;
+            color: #fff;
+        }
+
+        .btn-save {
+            background: #c4956a;
+            color: #fff;
+        }
+    
+        /* ===== PRD 左侧说明布局 ===== */
+        body.prd-layout {
+            overflow: auto;
+            background: #e8e8e8;
+            min-height: 100vh;
+        }
+        body.prd-layout .page-bg {
+            margin: 20px;
+            flex-shrink: 0;
+        }
+        .prd-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+        .comments {
+            width: 400px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.1);
+            max-height: 812px;
+            overflow-y: auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            flex-shrink: 0;
+        }
+        .comments::-webkit-scrollbar { width: 6px; }
+        .comments::-webkit-scrollbar-thumb { background: #d8d8d8; border-radius: 10px; }
+        .comments-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #00A86B;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .comment-section { margin-bottom: 20px; }
+        .comment-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00A86B;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .comment-section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: #00A86B;
+            border-radius: 2px;
+        }
+        .comment-text { font-size: 13px; color: #666; line-height: 1.8; }
+        .comment-text p { margin-bottom: 8px; }
+        .comment-text ul { margin-left: 16px; margin-bottom: 8px; }
+        .comment-text li { margin-bottom: 4px; }
+        .comment-highlight {
+            background: #E8F5E9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #00A86B;
+            font-weight: 500;
+        }
+        .prd-actions { display: flex; gap: 8px; }
+        .prd-btn {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: .2s;
+        }
+        .prd-btn-edit { background: #00A86B; color: #fff; }
+        .prd-btn-edit:hover { background: #008F5B; }
+        .prd-btn-save { background: #1677ff; color: #fff; }
+        .prd-btn-save:hover { background: #0958d9; }
+        .comment-text[contenteditable="true"] {
+            background: #fffbe6;
+            border: 1px dashed #ffd666;
+            border-radius: 8px;
+            padding: 8px 12px;
+            outline: none;
+        }
+        .comment-text[contenteditable="true"]:focus {
+            border-color: #00A86B;
+            background: #f6ffed;
+        }
+        @media (max-width: 940px) {
+            body.prd-layout { padding: 12px; }
+            .prd-container { flex-direction: column; align-items: center; gap: 16px; }
+            .comments { width: 100%; max-width: 390px; max-height: none; }
+            body.prd-layout .page-bg { margin: 0; }
+        }
+
+</style>
+</head>
+<body class="prd-layout">
+    <div class="prd-container">
+<!-- ===== PRD 左侧说明 ===== -->
+<div class="comments">
+  <div class="comments-title">
+    📋 发布项目页 — 产品需求说明（PRD）
+    <div class="prd-actions">
+      <button class="prd-btn prd-btn-edit" id="prdEditBtn" onclick="togglePrdEdit()">编辑</button>
+      <button class="prd-btn prd-btn-save" id="prdSaveBtn" onclick="savePrdContent()" style="display:none">确定</button>
+    </div>
+  </div>
+
+  <div class="comment-section">
+    <div class="comment-section-title">一、文档信息</div>
+    <div class="comment-text">
+      <p><strong>文档名称：</strong>B端商户发布项目页产品需求文档</p>
+      <p><strong>适用端：</strong>B端商户APP</p>
+      <p><strong>需求类型：</strong>功能管理</p>
+      <p><strong>关联页面：</strong>发布/编辑项目页</p>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">二、模块概述</div>
+    <div class="comment-text">
+      <p>发布项目页是商户创建和编辑服务项目的页面，支持填写项目基本信息、设置服务参数、定价和图文描述。</p>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">三、用户路径</div>
+    <div class="comment-text">
+      <p><strong>主路径：</strong></p>
+      <ul>
+        <li>项目管理页点击"添加" → 选择发布类型 → 进入发布项目页</li>
+        <li>项目管理页点击项目 → 进入编辑项目页</li>
+      </ul>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">四、功能需求</div>
+    <div class="comment-text">
+      <p><strong>4.1 基本信息</strong></p>
+      <ul>
+        <li>项目图片上传</li>
+        <li>项目名称、项目介绍</li>
+        <li>平台项目分类（一级+二级联动）</li>
+        <li>店铺项目分类选择或新建</li>
+        <li>项目库存、注意事项</li>
+      </ul>
+      <p><strong>4.2 服务设置</strong></p>
+      <ul>
+        <li>允许多次购买开关</li>
+        <li>限购设置</li>
+        <li>独立服务商挂靠开关及服务费设置</li>
+      </ul>
+      <p><strong>4.3 价格设置</strong></p>
+      <ul>
+        <li>规格名称、原价、折后价</li>
+        <li>服务时长</li>
+      </ul>
+      <p><strong>4.4 项目详情</strong></p>
+      <ul>
+        <li>图文描述</li>
+        <li>详情图片上传</li>
+      </ul>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-title">五、交互规则</div>
+    <div class="comment-text">
+      <ul>
+        <li>新建时显示服务类型Tab（单人/多人），编辑时隐藏</li>
+        <li>平台分类二级联动选择</li>
+        <li>店铺分类支持选择历史分类或输入新分类</li>
+        <li>底部按钮：删除、上架/下架、保存</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-bg">
+        <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+                <div class="phone-home-indicator"></div>
+                <div class="screen-content">
+                    <div class="app-body">
+                        <!-- 安卓状态栏 -->
+                        <div class="status-bar" aria-hidden="true">
+                            <span>9:56</span>
+                            <span>📶 📻 🔋</span>
+                        </div>
+
+                        <!-- 顶部标题栏 -->
+                        <header class="app-bar">
+                            <a href="project.html" class="app-bar-back" aria-label="返回">‹</a>
+                            <span class="app-bar-title" id="pageTitle">上传单次项目</span>
+                            <span style="width: 32px;"></span>
+                        </header>
+
+                        <!-- 服务类型Tab（新建时显示） -->
+                        <div class="service-tabs" id="serviceTabs">
+                            <button class="service-tab active">单人服务</button>
+                            <button class="service-tab">多人服务</button>
+                        </div>
+
+                        <!-- ===== 服务项目基本信息 ===== -->
+                        <div class="form-card">
+                            <div class="section-title">服务项目基本信息</div>
+                            
+                            <div class="image-upload-wrap">
+                                <div class="image-upload">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>上传图片</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <span class="form-label">项目名称</span>
+                                <input type="text" class="form-input" placeholder="请输入项目名称，如：剪发">
+                            </div>
+
+                            <div class="form-row">
+                                <span class="form-label">项目介绍</span>
+                                <input type="text" class="form-input" placeholder="请输入项目介绍">
+                            </div>
+
+                            <div class="form-row">
+                                <span class="form-label">平台项目分类</span>
+                                <div class="category-select-wrap">
+                                    <select class="form-select category-level1" onchange="updateCategoryLevel2(this)">
+                                        <option value="">请选择一级分类</option>
+                                        <option value="meifa">美发</option>
+                                        <option value="meirong">美容</option>
+                                        <option value="meijia">美甲</option>
+                                        <option value="meijie">美睫</option>
+                                    </select>
+                                    <span class="category-separator">—</span>
+                                    <select class="form-select category-level2">
+                                        <option value="">请选择二级分类</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <span class="form-label">店铺项目分类</span>
+                                <div class="shop-category-wrap">
+                                    <input type="text" class="form-input" id="shopCategoryInput" placeholder="请选择或输入分类" readonly onclick="openShopCategoryModal()">
+                                    <span class="category-arrow">›</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <span class="form-label">项目库存</span>
+                                <input type="text" class="form-input" value="9999" placeholder="请输入库存数量">
+                            </div>
+
+                            <div class="form-row">
+                                <span class="form-label">注意事项</span>
+                                <input type="text" class="form-input" placeholder="请输入注意事项（选填）">
+                            </div>
+                        </div>
+
+                        <!-- ===== 服务项目设置 ===== -->
+                        <div class="form-card">
+                            <div class="section-title">服务项目设置</div>
+                            
+                            <div class="switch-row">
+                                <div class="switch-info">
+                                    <span class="switch-label">允许多次购买</span>
+                                    <span class="switch-hint">允许用户多次购买该项目</span>
+                                </div>
+                                <div class="toggle-switch" onclick="this.classList.toggle('on')" role="switch"></div>
+                            </div>
+
+                            <div class="switch-row">
+                                <div class="switch-info">
+                                    <span class="switch-label">限购</span>
+                                    <span class="switch-hint">设置限制用户的购买次数</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 14px; color: #999;">无限制</span>
+                                    <div class="toggle-switch" onclick="this.classList.toggle('on')" role="switch"></div>
+                                </div>
+                            </div>
+
+                            <div class="switch-row">
+                                <div class="switch-info">
+                                    <span class="switch-label">允许独立服务商挂靠项目</span>
+                                    <span class="switch-hint">开启后独立服务商可挂靠该项目</span>
+                                </div>
+                                <div class="toggle-switch" id="providerToggle" onclick="toggleProviderSettings(this)" role="switch"></div>
+                            </div>
+
+                            <!-- 独立服务商服务费设置 -->
+                            <div class="provider-fee-settings" id="providerFeeSettings" style="display: none;">
+                                <div class="fee-section">
+                                    <div class="fee-title">VIP服务费设置</div>
+                                    <div class="fee-input-wrap">
+                                        <input type="number" class="fee-input" value="60" min="1" max="60">
+                                        <span class="fee-unit">%</span>
+                                    </div>
+                                    <div class="fee-hint">最低服务费1%，最高60%</div>
+                                </div>
+                                <div class="fee-section">
+                                    <div class="fee-title">普通用户服务费设置</div>
+                                    <div class="fee-input-wrap">
+                                        <input type="number" class="fee-input" value="60" min="10" max="60">
+                                        <span class="fee-unit">%</span>
+                                    </div>
+                                    <div class="fee-hint">最低服务费10%，最高60%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ===== 服务项目价格 ===== -->
+                        <div class="form-card">
+                            <div class="section-title">服务项目价格</div>
+                            
+                            <div class="price-row">
+                                <span class="price-label">规格名称</span>
+                                <input type="text" class="form-input" placeholder="请输入规格名称" style="flex: 1;">
+                            </div>
+
+                            <div class="price-row">
+                                <span class="price-label">原价</span>
+                                <div class="price-input-wrap">
+                                    <span class="price-prefix">¥</span>
+                                    <input type="text" class="price-input" placeholder="请输入原价">
+                                </div>
+                            </div>
+
+                            <div class="price-row">
+                                <span class="price-label">折后价</span>
+                                <div class="price-input-wrap">
+                                    <span class="price-prefix">¥</span>
+                                    <input type="text" class="price-input" placeholder="请输入折后价">
+                                </div>
+                            </div>
+
+                            <div class="price-row">
+                                <span class="price-label">时长</span>
+                                <div style="display: flex; align-items: center; flex: 1;">
+                                    <input type="text" class="form-input" value="60" style="width: 60px; text-align: center;">
+                                    <span class="price-unit">分钟</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ===== 项目详情 ===== -->
+                        <div class="form-card">
+                            <div class="section-title">项目详情</div>
+                            
+                            <div class="form-row">
+                                <span class="form-label">图文描述</span>
+                            </div>
+                            <textarea class="desc-textarea" placeholder="请输入图文描述"></textarea>
+                            
+                            <div class="image-upload-wrap">
+                                <div class="image-upload">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>上传图片</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 底部留白 -->
+                        <div style="height: 20px;"></div>
+
+                        <!-- ===== 底部按钮（在APP框内） ===== -->
+                        <div class="bottom-actions">
+                            <button class="btn btn-delete" onclick="alert('确认删除？')">删除</button>
+                            <button class="btn btn-status" onclick="alert('已上架')">上架</button>
+                            <button class="btn btn-save" onclick="alert('保存成功')">保存</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 根据URL参数判断是编辑模式还是新建模式
+        var params = new URLSearchParams(window.location.search);
+        var mode = params.get('mode');
+        
+        if (mode === 'edit') {
+            // 编辑模式
+            document.getElementById('pageTitle').textContent = '编辑项目';
+            document.getElementById('serviceTabs').style.display = 'none';
+        }
+        // 否则保持默认：新建模式
+
+        // 独立服务商挂靠开关切换
+        function toggleProviderSettings(toggle) {
+            toggle.classList.toggle('on');
+            var feeSettings = document.getElementById('providerFeeSettings');
+            if (toggle.classList.contains('on')) {
+                feeSettings.style.display = 'block';
+            } else {
+                feeSettings.style.display = 'none';
+            }
+        }
+        // 平台分类二级联动
+        var categoryData = {
+            meifa: ['剪发造型', '洗剪吹', '染发', '烫发', '接发', '护发'],
+            meirong: ['面部护理', '身体护理', '美白嫩肤', '祛痘祛斑', '抗衰紧致'],
+            meijia: ['纯色美甲', '彩绘美甲', '延长甲', '甲片', '卸甲'],
+            meijie: ['自然款', '浓密款', '彩色款', '下睫毛', '睫毛修补']
+        };
+
+        function updateCategoryLevel2(select) {
+            var level1 = select.value;
+            var level2Select = document.querySelector('.category-level2');
+            level2Select.innerHTML = '<option value="">请选择二级分类</option>';
+            if (level1 && categoryData[level1]) {
+                categoryData[level1].forEach(function(item) {
+                    var option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    level2Select.appendChild(option);
+                });
+            }
+        }
+
+        // 店铺分类弹窗
+        function openShopCategoryModal() {
+            document.getElementById('shopCategoryModal').classList.add('show');
+        }
+
+        function closeShopCategoryModal() {
+            document.getElementById('shopCategoryModal').classList.remove('show');
+        }
+
+        function selectShopCategory(tag) {
+            document.getElementById('shopCategoryInput').value = tag.textContent;
+            closeShopCategoryModal();
+        }
+
+        function confirmShopCategory() {
+            var input = document.getElementById('newCategoryInput');
+            var value = input.value.trim();
+            if (value) {
+                document.getElementById('shopCategoryInput').value = value;
+                input.value = '';
+                closeShopCategoryModal();
+            }
+        }
+    </script>
+
+    <!-- 店铺项目分类选择弹窗 -->
+    <div class="category-modal" id="shopCategoryModal">
+        <div class="category-modal-content">
+            <div class="category-modal-header">
+                <span class="category-modal-title">选择分类</span>
+                <button class="category-modal-close" onclick="closeShopCategoryModal()">✕</button>
+            </div>
+            <div class="category-input-wrap">
+                <input type="text" class="category-input" id="newCategoryInput" placeholder="请输入分类名称">
+                <button class="category-confirm-btn" onclick="confirmShopCategory()">确定</button>
+            </div>
+            <div class="category-history-title">历史分类</div>
+            <div class="category-tags">
+                <button class="category-tag" onclick="selectShopCategory(this)">剪发</button>
+                <button class="category-tag" onclick="selectShopCategory(this)">洗剪吹</button>
+                <button class="category-tag" onclick="selectShopCategory(this)">dd</button>
+                <button class="category-tag" onclick="selectShopCategory(this)">测试</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    <script>
+        // ===== PRD 编辑功能 =====
+        var prdEditMode = false;
+        var prdStorageKey = 'prd_project_edit_v1';
+
+        (function restorePrd() {
+            var saved = localStorage.getItem(prdStorageKey);
+            if (saved) {
+                try {
+                    var data = JSON.parse(saved);
+                    var texts = document.querySelectorAll('.comment-text');
+                    texts.forEach(function(el, idx) {
+                        if (data[idx] !== undefined) el.innerHTML = data[idx];
+                    });
+                } catch(e) {}
+            }
+        })();
+
+        function togglePrdEdit() {
+            prdEditMode = !prdEditMode;
+            var texts = document.querySelectorAll('.comment-text');
+            var editBtn = document.getElementById('prdEditBtn');
+            var saveBtn = document.getElementById('prdSaveBtn');
+            if (prdEditMode) {
+                texts.forEach(function(el) { el.setAttribute('contenteditable', 'true'); });
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-block';
+            } else {
+                texts.forEach(function(el) { el.setAttribute('contenteditable', 'false'); });
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+            }
+        }
+
+        function savePrdContent() {
+            var texts = document.querySelectorAll('.comment-text');
+            var data = [];
+            texts.forEach(function(el) { data.push(el.innerHTML); });
+            localStorage.setItem(prdStorageKey, JSON.stringify(data));
+            togglePrdEdit();
+            alert('PRD 已保存');
+        }
+    </script>
+
+</body>
+</html>

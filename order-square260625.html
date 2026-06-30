@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>商家端 - 订单广场（含注释）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#e8e8e8;min-height:100vh;padding:20px}
+
+.container{display:flex;gap:30px;justify-content:center;align-items:flex-start;max-width:1400px;margin:0 auto}
+.phone{width:375px;height:812px;background:#111;border-radius:44px;padding:10px;box-shadow:0 20px 60px rgba(0,0,0,.35);position:relative;flex-shrink:0}
+
+.comments{width:400px;background:#fff;border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.1);max-height:812px;overflow-y:auto}
+.comments-title{font-size:18px;font-weight:700;color:#333;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #00A86B}
+.comment-section{margin-bottom:20px}
+.comment-section-title{font-size:14px;font-weight:600;color:#00A86B;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.comment-section-title::before{content:'';width:4px;height:16px;background:#00A86B;border-radius:2px}
+.comment-text{font-size:13px;color:#666;line-height:1.8}
+.comment-text p{margin-bottom:8px}
+.comment-text ul{margin-left:16px;margin-bottom:8px}
+.comment-text li{margin-bottom:4px}
+.comment-highlight{background:#E8F5E9;padding:2px 6px;border-radius:4px;color:#00A86B;font-weight:500}
+
+/* ===== PRD 编辑功能 ===== */
+.comments-title{display:flex;align-items:center;justify-content:space-between}
+.comments-title .prd-actions{display:flex;gap:8px}
+.prd-btn{font-size:12px;padding:4px 12px;border-radius:12px;border:none;cursor:pointer;font-weight:600;transition:.2s}
+.prd-btn-edit{background:#00A86B;color:#fff}
+.prd-btn-edit:hover{background:#008F5B}
+.prd-btn-save{background:#1677ff;color:#fff}
+.prd-btn-save:hover{background:#0958d9}
+.comment-text[contenteditable="true"]{background:#fffbe6;border:1px dashed #ffd666;border-radius:8px;padding:8px 12px;outline:none}
+.comment-text[contenteditable="true"]:focus{border-color:#00A86B;background:#f6ffed}
+
+@media(max-width:900px){
+.container{flex-direction:column;align-items:center}
+.comments{width:100%;max-width:375px;max-height:none}
+}
+
+.phone{width:375px;height:812px;background:#111;border-radius:44px;padding:10px;box-shadow:0 20px 60px rgba(0,0,0,.35);position:relative}
+.screen{width:100%;height:100%;background:#f5f5f5;border-radius:36px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+.sbar{height:44px;background:#00A86B;display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#fff;font-size:12px;flex-shrink:0}
+.sbar .t{font-weight:600}
+.sbar .r{display:flex;gap:4px;align-items:center}
+
+.nav{height:44px;background:#00A86B;display:flex;align-items:center;justify-content:space-between;padding:0 16px;color:#fff;flex-shrink:0;position:relative}
+.nav .bk{font-size:22px;cursor:pointer;width:32px;display:flex;align-items:center}
+.nav .tt{position:absolute;left:50%;transform:translateX(-50%);font-size:16px;font-weight:600}
+.nav .ac{display:flex;gap:16px;font-size:18px}
+
+.pg-wrap{flex:1;overflow:hidden;position:relative}
+.pg{position:absolute;inset:0;background:#f5f5f5;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;transition:transform .32s cubic-bezier(.4,0,.2,1),opacity .32s}
+.pg.off{transform:translateX(100%);opacity:0;pointer-events:none;z-index:0}
+.pg:not(.off){z-index:1}
+.pg::-webkit-scrollbar{display:none}
+
+.tabs{display:flex;background:#fff;border-bottom:1px solid #f0f0f0;position:sticky;top:0;z-index:10}
+.tab{flex:1;text-align:center;padding:12px 0;font-size:14px;color:#999;cursor:pointer;position:relative}
+.tab.on{color:#00A86B;font-weight:600}
+.tab.on::after{content:'';position:absolute;bottom:0;left:30%;right:30%;height:2px;background:#00A86B;border-radius:1px}
+
+.order-card{background:#fff;border-radius:12px;margin:0 12px 12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06);cursor:pointer;transition:.2s;position:relative}
+.order-card:active{background:#f8f8f8}
+.order-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.order-info{margin-bottom:10px}
+.order-service{font-size:15px;font-weight:600;color:#333;margin-bottom:4px}
+.order-price{font-size:18px;font-weight:700;color:#F96167}
+.order-meta{font-size:12px;color:#999;margin-top:6px}
+.countdown{position:absolute;top:14px;right:14px;font-size:11px;color:#FF9800;background:#FFF3E0;padding:3px 8px;border-radius:10px}
+
+.order-actions{display:flex;gap:8px;margin-top:12px}
+.btn-small{flex:1;padding:10px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;border:none;text-align:center}
+.btn-primary{background:#00A86B;color:#fff}
+.btn-primary:active{background:#008F5B}
+.btn-secondary{background:#f5f5f5;color:#666}
+.btn-secondary:active{background:#e8e8e8}
+.btn-danger{background:#fff0f0;color:#F96167}
+.btn-danger:active{background:#ffe0e0}
+
+.bbar-float{position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:#fff;box-shadow:0 -2px 10px rgba(0,0,0,.06);z-index:50}
+.btn-publish{width:100%;padding:14px;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;transition:.2s;border:none;text-align:center;background:#00A86B;color:#fff}
+.btn-publish:active{background:#008F5B}
+
+/* ===== 商户项目页样式 ===== */
+.project-page{display:flex;flex:1;overflow:hidden}
+.cat-sidebar{width:88px;background:#f5f5f5;overflow-y:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
+.cat-sidebar::-webkit-scrollbar{display:none}
+.cat-item{padding:14px 10px;font-size:13px;color:#666;text-align:center;cursor:pointer;position:relative;transition:.2s;line-height:1.3}
+.cat-item.on{background:#fff;color:#333;font-weight:600}
+.cat-item.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:#00A86B;border-radius:0 2px 2px 0}
+
+.project-list{flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch}
+.project-list::-webkit-scrollbar{display:none}
+.project-list-title{font-size:15px;font-weight:600;color:#333;margin-bottom:12px}
+.proj-card{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;cursor:pointer;transition:.2s;border:2px solid transparent;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.proj-card:active{background:#f8f8f8}
+.proj-card.on{border-color:#00A86B;background:#f0faf5}
+.proj-name{font-size:14px;font-weight:600;color:#333;margin-bottom:4px}
+.proj-desc{font-size:12px;color:#999;margin-bottom:6px}
+.proj-bottom{display:flex;justify-content:space-between;align-items:center}
+.proj-price{font-size:15px;font-weight:700;color:#333}
+.proj-price small{font-size:11px;color:#999;text-decoration:line-through;font-weight:400;margin-left:4px}
+.proj-duration{font-size:11px;color:#999;background:#f5f5f5;padding:2px 8px;border-radius:8px}
+
+/* ===== 备注式要求设置 ===== */
+.note-section{margin-bottom:20px}
+.note-title{font-size:15px;font-weight:600;color:#333;margin-bottom:12px}
+.tag-wrap{display:flex;flex-wrap:wrap;gap:8px}
+.tag{padding:8px 14px;border-radius:16px;background:#f5f5f5;font-size:13px;color:#333;cursor:pointer;transition:.2s;border:2px solid transparent}
+.tag.on{background:#E8F5E9;border-color:#00A86B;color:#00A86B;font-weight:500}
+.note-textarea{width:100%;min-height:100px;padding:14px;background:#f5f5f5;border:none;border-radius:12px;font-size:14px;resize:none;line-height:1.6;color:#333}
+.note-textarea:focus{outline:none;background:#f0f0f0}
+.note-textarea::placeholder{color:#bbb}
+.note-char{font-size:11px;color:#bbb;text-align:right;margin-top:6px}
+
+/* ===== 支付方式 ===== */
+.pay-list{margin-top:12px}
+.pay-option{display:flex;align-items:center;padding:14px;border:1px solid #e5e5e5;border-radius:10px;margin-bottom:10px;cursor:pointer;transition:.2s}
+.pay-option.on{border-color:#00A86B;background:#f0faf5}
+.pay-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:12px}
+.pay-info{flex:1}
+.pay-name{font-size:14px;font-weight:600;color:#333}
+.pay-balance{font-size:12px;color:#999}
+.pay-check{width:22px;height:22px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center}
+.pay-option.on .pay-check{background:#00A86B;border-color:#00A86B}
+.pay-option.on .pay-check::after{content:'';width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
+
+.amount-box{background:#f0faf5;border-radius:12px;padding:16px;text-align:center;margin:16px 0}
+.amount-label{font-size:13px;color:#666;margin-bottom:8px}
+.amount-num{font-size:32px;font-weight:700;color:#00A86B}
+
+/* ===== 服务商列表 ===== */
+.tech-list-header{background:#fff;padding:12px 16px;border-bottom:1px solid #f0f0f0;position:sticky;top:0;z-index:10}
+.tech-list-info .service{font-size:16px;font-weight:600;color:#333;margin-bottom:4px}
+.tech-list-info .price{font-size:18px;font-weight:700;color:#F96167}
+.tech-list-info .time{font-size:12px;color:#999;margin-top:4px}
+
+.tech-card{background:#fff;border-radius:12px;margin:12px;padding:14px;display:flex;gap:12px;align-items:center;box-shadow:0 1px 6px rgba(0,0,0,.06);cursor:pointer;transition:.2s;border:2px solid transparent}
+.tech-card:active{background:#f8f8f8}
+.tech-card.selected{border-color:#00A86B;background:#f0faf5}
+.tech-select{width:24px;height:24px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tech-card.selected .tech-select{background:#00A86B;border-color:#00A86B}
+.tech-card.selected .tech-select::after{content:'';width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
+.tech-avatar{width:48px;height:48px;border-radius:50%;background:#e0e0e0;flex-shrink:0;overflow:hidden}
+.tech-avatar img{width:100%;height:100%;object-fit:cover}
+.tech-info{flex:1}
+.tech-name{font-size:15px;font-weight:600;color:#333;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.tech-tag{font-size:10px;color:#00A86B;background:#E8F5E9;padding:2px 8px;border-radius:10px}
+.tech-meta{font-size:12px;color:#999;margin-bottom:4px}
+.tech-rating{color:#FFB800;font-size:12px}
+.tech-skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.tech-skill{font-size:11px;color:#c4956a;background:#fdf3ec;padding:3px 10px;border-radius:999px;border:1px solid #f0d5c4}
+
+.bbar-select{position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:#fff;box-shadow:0 -2px 10px rgba(0,0,0,.06);z-index:50;display:flex;gap:10px}
+.btn-select{flex:1;padding:14px;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;transition:.2s;border:none;text-align:center;background:#ccc;color:#fff}
+.btn-select.active{background:#00A86B;color:#fff}
+.btn-select.active:active{background:#008F5B}
+
+/* 步骤条 */
+.steps{display:flex;justify-content:space-between;padding:20px 30px;position:relative}
+.steps::before{content:'';position:absolute;top:30px;left:50px;right:50px;height:2px;background:#e5e5e5;z-index:0}
+.step{position:relative;z-index:1;text-align:center}
+.step-dot{width:20px;height:20px;border-radius:50%;background:#e5e5e5;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+.step.on .step-dot{background:#00A86B}
+.step.completed .step-dot{background:#00A86B}
+.step-label{font-size:11px;color:#999}
+.step.on .step-label{color:#00A86B;font-weight:600}
+
+/* 详情信息 */
+.detail-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5}
+.detail-row:last-child{border-bottom:none}
+.detail-label{font-size:13px;color:#999}
+.detail-value{font-size:13px;color:#333;font-weight:500}
+.detail-value.price{color:#F96167;font-size:16px;font-weight:700}
+.detail-project-header{display:flex;align-items:center;gap:12px}
+.detail-project-img{width:56px;height:56px;border-radius:10px;overflow:hidden;background:#f5f5f5;flex-shrink:0}
+.detail-project-img img{width:100%;height:100%;object-fit:cover}
+.detail-project-meta{flex:1;min-width:0}
+.detail-project-name{font-size:15px;font-weight:600;color:#222;margin-bottom:4px}
+.detail-project-duration{font-size:12px;color:#999}
+.detail-project-price{font-size:18px;font-weight:700;color:#F96167;flex-shrink:0}
+
+.form-card{background:#fff;border-radius:12px;margin:12px;padding:16px}
+.form-title{font-size:16px;font-weight:700;color:#333;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+.form-item{margin-bottom:16px}
+.form-label{font-size:13px;color:#666;margin-bottom:8px;display:block}
+.form-input{width:100%;padding:12px;border:1px solid #e5e5e5;border-radius:10px;font-size:14px;transition:.2s}
+.form-input:focus{outline:none;border-color:#00A86B}
+.form-select{width:100%;padding:12px;border:1px solid #e5e5e5;border-radius:10px;font-size:14px;background:#fff}
+
+.bbar{position:sticky;bottom:0;padding:12px 16px;background:#fff;box-shadow:0 -2px 10px rgba(0,0,0,.06);display:flex;gap:10px}
+.btn{flex:1;padding:14px;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;transition:.2s;border:none;text-align:center}
+.btn-main{background:#00A86B;color:#fff}
+.btn-main:active{background:#008F5B}
+.btn-sub{background:#f5f5f5;color:#666}
+.btn-sub:active{background:#e8e8e8}
+
+.safe{height:70px;flex-shrink:0}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999}
+.modal.hide{display:none}
+.modal-c{width:300px;max-height:70vh;background:#fff;border-radius:16px;overflow:hidden;animation:pop .3s ease;display:flex;flex-direction:column}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-h{padding:16px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-size:16px;font-weight:600;color:#333}
+.modal-close{font-size:24px;color:#999;cursor:pointer;line-height:1}
+.modal-body{flex:1;overflow-y:auto;padding:16px}
+.modal-f{padding:16px;border-top:1px solid #f0f0f0;display:flex;gap:10px}
+.modal-btn{flex:1;padding:12px;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;border:none;text-align:center}
+.modal-btn-cancel{background:#f5f5f5;color:#666}
+.modal-btn-confirm{background:#00A86B;color:#fff}
+
+.sp-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:center;cursor:pointer;border:2px solid transparent;transition:.2s}
+.sp-card:active{background:#f8f8f8}
+.sp-card.on{border-color:#00A86B;background:#f0faf5}
+.sp-avatar{width:48px;height:48px;border-radius:50%;background:#e0e0e0;overflow:hidden;flex-shrink:0}
+.sp-avatar img{width:100%;height:100%;object-fit:cover}
+.sp-info{flex:1}
+.sp-name{font-size:14px;font-weight:600;color:#333;margin-bottom:4px}
+.sp-meta{font-size:12px;color:#999}
+.sp-check{width:22px;height:22px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sp-card.on .sp-check{background:#00A86B;border-color:#00A86B}
+.sp-card.on .sp-check::after{content:'';width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
+
+.confirm-text{font-size:14px;color:#333;text-align:center;line-height:1.6;padding:20px 0}
+
+/* 服务费设置样式 */
+.fee-card{background:#f7f7f7;border-radius:10px;padding:14px;margin-bottom:12px}
+.fee-card:last-child{margin-bottom:0}
+.fee-card-title{font-size:13px;color:#333;margin-bottom:10px}
+.fee-input-row{display:flex;align-items:center;justify-content:center;gap:4px}
+.fee-input{width:80px;padding:10px 12px;border:1px solid #e0e0e0;border-radius:8px;font-size:20px;font-weight:600;color:#333;text-align:center;background:#fff;transition:.2s}
+.fee-input:focus{outline:none;border-color:#00A86B}
+.fee-unit{font-size:18px;color:#333;font-weight:500}
+.fee-limit{font-size:11px;color:#999;margin-top:8px;text-align:center}
+
+/* 滑动选择器样式 */
+.slider-section{padding:8px 0}
+.slider-label{font-size:14px;color:#333;margin-bottom:16px}
+.slider-value{font-size:18px;font-weight:700;color:#00A86B}
+.slider{width:100%;height:6px;border-radius:3px;background:#e5e5e5;outline:none;-webkit-appearance:none;appearance:none;margin:12px 0}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:#00A86B;cursor:pointer;box-shadow:0 2px 8px rgba(0,168,107,.4);transition:.2s}
+.slider::-webkit-slider-thumb:active{transform:scale(1.1)}
+
+/* ===== 待处理订单详情样式 ===== */
+.pd-header{background:#fff;border-radius:14px;margin:0 12px 10px;padding:18px 16px 14px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.pd-header-top{display:flex;align-items:center;gap:12px}
+.pd-header-avatar{width:48px;height:48px;border-radius:50%;overflow:hidden;background:#e0e0e0;flex-shrink:0}
+.pd-header-avatar img{width:100%;height:100%;object-fit:cover}
+.pd-header-info{flex:1;min-width:0}
+.pd-header-nickname{font-size:17px;font-weight:600;color:#222;margin-bottom:4px}
+.pd-header-date{font-size:13px;color:#666;margin-top:2px}
+.pd-header-remark{display:flex;align-items:center;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0;font-size:13px;color:#888}
+.pd-remark-icon{font-size:14px}
+
+.pd-project-card{background:#fff;border-radius:14px;margin:0 12px 10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.pd-project-card-header{padding:14px 16px 0;font-size:14px;font-weight:600;color:#333}
+.pd-project-card-body{padding:12px 16px 16px}
+.pd-project-card-name{font-size:16px;font-weight:600;color:#222;margin-bottom:8px;line-height:1.4}
+.pd-project-card-detail{display:flex;gap:12px;margin-bottom:14px}
+.pd-project-card-duration{font-size:13px;color:#999;display:inline-flex;align-items:center;gap:4px}
+.pd-project-card-duration::before{content:'';width:4px;height:4px;border-radius:50%;background:#ddd;display:inline-block}
+.pd-project-card-price{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid #f5f5f5}
+.pd-price-label{font-size:13px;color:#999}
+.pd-price-value{font-size:20px;font-weight:700;color:#F96167}
+
+.pd-order-card{background:#fff;border-radius:14px;margin:0 12px;padding:6px 16px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.pd-order-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f5}
+.pd-order-row:last-child{border-bottom:none}
+.pd-order-label{font-size:13px;color:#999;width:64px;flex-shrink:0}
+.pd-order-value{flex:1;font-size:13px;color:#333;text-align:right;word-break:break-all}
+.pd-order-copy{font-size:12px;color:#2c5f4f;font-weight:500;margin-left:8px;flex-shrink:0;cursor:pointer;padding:2px 8px;border-radius:4px;background:#f0f7f3}
+
+/* ===== 商家发布订单详情样式 ===== */
+.dp-time-bar{background:#fff;border-radius:14px;margin:0 12px 10px;padding:14px 16px;display:flex;align-items:center;gap:8px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.dp-time-icon{font-size:16px}
+.dp-time-label{font-size:14px;color:#666;flex:1}
+.dp-time-value{font-size:14px;color:#F96167;font-weight:600}
+.dp-card{background:#fff;border-radius:14px;margin:0 12px 10px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.dp-card-title{font-size:14px;font-weight:600;color:#333;margin-bottom:10px}
+.dp-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f5}
+.dp-row:last-child{border-bottom:none}
+.dp-label{width:80px;font-size:14px;color:#999;flex-shrink:0}
+.dp-value{flex:1;font-size:14px;color:#333;text-align:right;word-break:break-all}
+.dp-price{color:#F96167;font-weight:700}
+.dp-project-header{display:flex;align-items:center;gap:12px}
+.dp-project-img{width:56px;height:56px;border-radius:10px;overflow:hidden;background:#f5f5f5;flex-shrink:0}
+.dp-project-img img{width:100%;height:100%;object-fit:cover}
+.dp-project-meta{flex:1;min-width:0}
+.dp-project-name{font-size:15px;font-weight:600;color:#222;margin-bottom:4px}
+.dp-project-duration{font-size:12px;color:#999}
+.dp-project-price-tag{flex-shrink:0;text-align:right}
+.dp-price-value{font-size:18px;font-weight:700;color:#F96167}
+.slider::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#00A86B;cursor:pointer;border:none;box-shadow:0 2px 8px rgba(0,168,107,.4)}
+
+/* 转单发布 - 禁用状态 */
+.form-input[readonly],.form-select[disabled]{background:#f5f5f5;color:#999;cursor:not-allowed;-webkit-appearance:none;appearance:none;opacity:.7}
+.form-card.disabled-card{opacity:.7}
+.form-card.disabled-card .form-title::after{content:'（已锁定）';font-size:11px;color:#999;font-weight:400;margin-left:6px}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- 注释面板 -->
+<div class="comments">
+  <div class="comments-title">
+    📋 商家端订单广场 — 产品需求说明
+    <div class="prd-actions">
+      <button class="prd-btn prd-btn-edit" id="prdEditBtn" onclick="togglePrdEdit()">编辑</button>
+      <button class="prd-btn prd-btn-save" id="prdSaveBtn" onclick="savePrdContent()" style="display:none">确定</button>
+    </div>
+  </div>
+  
+  <!-- ===== 一、模块概述 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">一、模块概述</div>
+    <div class="comment-text">
+      <p>商家端订单广场是商家管理订单、发布缺服务商订单、选用独立服务商的核心模块。</p>
+      <p>适用场景：商家接到线上订单但店内无可用服务商时，可将订单转单发布至订单广场，由独立服务商申请接单；或商家线下缺服务商时，直接发布新订单招募服务商。</p>
+    </div>
+  </div>
+
+  <!-- ===== 二、订单分类说明 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">二、订单分类说明</div>
+    <div class="comment-text">
+      <p><strong>1、全部</strong></p>
+      <ul>
+        <li>展示所有状态订单，按<span class="comment-highlight">距离服务时间倒序</span>排列（服务时间越近越靠前）</li>
+        <li>为空提示：<em>"暂无订单，可点击下方一键发布订单"</em></li>
+      </ul>
+      <p><strong>2、待处理</strong></p>
+      <ul>
+        <li>来源：商家接到的<span class="comment-highlight">线上订单</span>，且用户下单时勾选了<span class="comment-highlight">"接受调剂服务商"</span></li>
+        <li>操作：可将该单<span class="comment-highlight">转单发布</span>至订单广场</li>
+        <li>转单发布流程：点击"转单发布" → 跳转至发布订单的【设置要求】页面 → 已选项目和服务时间<span class="comment-highlight">固定不可修改</span> → 无需预付款 → 确认发布</li>
+      </ul>
+      <p><strong>3、进行中</strong></p>
+      <ul>
+        <li>来源：已发布到订单广场且仍在<span class="comment-highlight">订单有效时长</span>内的订单</li>
+        <li>订单卡片右上角展示<span class="comment-highlight">剩余有效时间</span>：少于24小时显示"剩余XX小时XX分"；超过24小时显示"剩余X天X小时"</li>
+        <li>可<span class="comment-highlight">取消转单/发布</span>，取消后线上订单退回待处理列表</li>
+        <li>可<span class="comment-highlight">查看申请服务商</span>列表，并选取指定服务商</li>
+        <li><span class="comment-highlight">无人申请时：</span>【查看申请服务商】按钮置灰不可点击</li>
+        <li><span class="comment-highlight">已选择服务商</span>但订单仍在有效时长内，也在此列表显示；可<span class="comment-highlight">撤单</span>，但不可再次选择服务商</li>
+        <li>点击"已选择服务商"可查看之前的申请列表（仅查看，不可重新选择）</li>
+      </ul>
+      <p><strong>4、已完结</strong></p>
+      <ul>
+        <li>来源：订单已完成服务、已过期（无人接单）、或已被取消</li>
+        <li>已完成订单：显示接单服务商信息</li>
+        <li>已过期/无人接单订单：可<span class="comment-highlight">删除</span>或<span class="comment-highlight">重新发布</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 三、发布订单流程 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">三、发布订单流程（线下缺服务商发单）</div>
+    <div class="comment-text">
+      <p>入口：首页底部【+ 发布订单】按钮</p>
+      <p><strong>步骤1 — 选择项目</strong></p>
+      <ul>
+        <li>左侧分类导航 + 右侧项目列表</li>
+        <li>仅可选择<span class="comment-highlight">店里已设置好的项目</span></li>
+        <li>选择后激活"下一步"按钮</li>
+      </ul>
+      <p><strong>步骤2 — 设置要求</strong></p>
+      <ul>
+        <li><strong>已选项目：</strong>展示步骤1选择的项目名称和价格</li>
+        <li><strong>服务时间：</strong>以30分钟为间隔，可选择一天内任意时间；<span class="comment-highlight">默认选中当前时间的下个时段</span></li>
+        <li><strong>从业年限要求：</strong>单选，可选"无年限要求"/1年以上/3年以上/5年以上</li>
+        <li><strong>快捷要求：</strong>固定通用标签池，可多选，如<span class="comment-highlight">服务态度好、沟通能力强、准时守约、形象整洁、耐心细致、主动反馈</span></li>
+        <li><strong>自定义要求：</strong>自由输入，字数<span class="comment-highlight">≤200字</span></li>
+        <li><strong>服务费设置：</strong>分VIP用户和普通用户两档，仅可填写规定范围内，默认填充<span class="comment-highlight">60%</span>；若数字不合规，弹窗提示：<em>"服务费设置错误"</em></li>
+        <li><strong>订单有效时长：</strong>以实际服务时间为参照，设置订单在订单广场的<span class="comment-highlight">可接取截止时间</span>（1/2/3/4/6/12/24小时）</li>
+      </ul>
+      <p><strong>步骤3 — 预付款</strong></p>
+      <ul>
+        <li>预付款金额 = <span class="comment-highlight">项目原价 × 服务费比例</span></li>
+        <li>支付方式：余额支付 / 微信支付 / 支付宝</li>
+        <li>预付款将在服务商完成服务后结算，若在订单有效时长内无人接单将自动退款至原支付账户</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 四、转单发布流程 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">四、转单发布流程（线上订单转单）</div>
+    <div class="comment-text">
+      <p>入口：待处理/全部列表中，点击订单的【转单发布】按钮</p>
+      <ul>
+        <li>点击后<span class="comment-highlight">直接跳转</span>至发布订单的【设置要求】页面（无二次确认弹窗）</li>
+        <li>步骤条变为2步：<span class="comment-highlight">订单信息 → 设置要求</span>（隐藏"预付款"步骤）</li>
+        <li>已选项目和服务时间<span class="comment-highlight">固定不可修改</span>，卡片显示"（已锁定）"标识</li>
+        <li>底部按钮改为"返回"和"确认发布"</li>
+        <li><span class="comment-highlight">无需预付款</span></li>
+        <li>发布成功提示：<em>"订单已发布，可以在订单有效时间内查看并选用服务商。"</em></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 五、服务商选用流程 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">五、服务商选用流程</div>
+    <div class="comment-text">
+      <p>入口：进行中列表，点击【查看申请服务商】或【已选择服务商】</p>
+      <ul>
+        <li>展示申请接单的服务商列表：头像、姓名、<span class="comment-highlight">技能标签</span>（如男士剪发、烫发、法式刘海等）</li>
+        <li>商家可选中一位服务商，点击"选择该服务商"进行确认</li>
+        <li>确认后订单进入服务中状态，服务商收到通知</li>
+        <li><span class="comment-highlight">已选择服务商状态：</span>进入列表页面时，已选服务商默认选中；所有服务商卡片不可点击</li>
+      </ul>
+      <p><strong>服务商取消申请后的处理：</strong></p>
+      <ul>
+        <li>若商家已选用服务商，但该服务商<span class="comment-highlight">取消了申请</span>，则订单重新回到进行中列表</li>
+        <li>商家可在其他已申请的服务商中<span class="comment-highlight">再次选择</span></li>
+        <li>订单状态变更为"待选用"，并通知其他申请服务商</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 六、校验规则 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">六、校验规则</div>
+    <div class="comment-text">
+      <p><strong>步骤1 — 选择项目</strong></p>
+      <ul>
+        <li>未选择任何项目时点击下一步，<span class="comment-highlight">toast提示：请选择至少一个服务项目</span></li>
+      </ul>
+
+      <p><strong>步骤2 — 设置要求</strong></p>
+      <ul>
+        <li>未设置服务日期时，<span class="comment-highlight">toast提示：请选择服务日期</span></li>
+        <li>服务日期早于今天时，<span class="comment-highlight">toast提示：服务日期不能早于今天</span></li>
+        <li>服务费设置超出范围时（VIP用户超出1%-60%，普通用户超出10%-60%），<span class="comment-highlight">弹窗提示：服务费设置不符合规范</span></li>
+        <li>自定义要求超过200字时，<span class="comment-highlight">toast提示：自定义要求不能超过200字</span></li>
+        <li>未设置订单有效时长时，<span class="comment-highlight">toast提示：请选择订单有效时长</span></li>
+      </ul>
+
+      <p><strong>步骤3 — 预付款</strong></p>
+      <ul>
+        <li>余额不足时，<span class="comment-highlight">弹窗提示：余额不足，请选择其他支付方式或充值</span></li>
+        <li>微信支付/支付宝调用失败时，<span class="comment-highlight">toast提示：支付失败，请重试</span></li>
+        <li>支付超时（15分钟内未完成），<span class="comment-highlight">弹窗提示：支付超时，请重新发起支付</span></li>
+      </ul>
+
+      <p><strong>通用异常</strong></p>
+      <ul>
+        <li>网络请求失败时，<span class="comment-highlight">toast提示：网络异常，请稍后重试</span></li>
+        <li>请求超时（超过10秒无响应）时，<span class="comment-highlight">toast提示：请求超时，请检查网络后重试</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 七、消息提醒 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">七、消息提醒</div>
+    <div class="comment-text">
+      <p><strong>1、用户取消订单</strong></p>
+      <ul>
+        <li>触发时机：用户在服务时间前取消预约</li>
+        <li>推送文案：<em>"【洗剪吹套餐】订单已被用户取消"</em></li>
+      </ul>
+      <p><strong>2、有服务商申请接单</strong></p>
+      <ul>
+        <li>触发时机：有服务商申请您发布的订单</li>
+        <li>推送文案：<em>"【染发（含护理）】订单有新的服务商申请！可点击查看"</em></li>
+      </ul>
+      <p><strong>3、订单有效时长到期且无人接单</strong></p>
+      <ul>
+        <li>触发时机：订单在订单广场的有效时长到期，且没有服务商申请</li>
+        <li>推送文案：<em>"【精剪造型】订单有效时长已到期，暂无服务商接单"</em></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 八、订单详情 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">八、订单详情</div>
+    <div class="comment-text">
+      <p>点击任意订单卡片进入订单详情页</p>
+      <p><strong>1、待处理订单详情页（标题：待服务）</strong></p>
+      <ul>
+        <li><strong>预约项目卡片（置顶）：</strong>带标题栏"预约项目"，显示项目名称、服务时长(前置小圆点)，底部分割线下展示"项目金额"和红色金额(20px加粗)</li>
+        <li><strong>用户信息区：</strong>左侧头像(48px)+昵称，昵称下方直接显示"预约时间：YYYY-MM-DD HH:mm"；下方带分割线的备注行</li>
+        <li><strong>订单信息区：</strong>紧凑排列"下单时间"和"订单号"(带背景色复制按钮)</li>
+        <li>无底部操作按钮</li>
+      </ul>
+      <p><strong>2、进行中 - 线上转单详情页（标题：订单详情）</strong></p>
+      <ul>
+        <li>线上转单（用户下单后商家转发的订单）复用待处理详情页结构</li>
+        <li>展示内容同待处理：预约项目、用户信息（头像+昵称+预约时间+备注）、订单信息（下单时间+订单号）</li>
+        <li>无底部操作按钮</li>
+      </ul>
+      <p><strong>3、进行中 - 商家发布详情页（标题：订单详情）</strong></p>
+      <ul>
+        <li>商家自己发布的订单，展示内容：</li>
+        <li><strong>剩余时间栏：</strong>顶部白色卡片展示"订单剩余时间"及倒计时（红色加粗）</li>
+        <li><strong>项目信息卡片：</strong>左侧项目图片(56px圆角)+项目名称+服务时长，右侧红色金额(18px加粗)；下方分隔线展示服务时间</li>
+        <li><strong>发布信息卡片：</strong>发布时间、接取要求、备注</li>
+        <li>无底部操作按钮</li>
+      </ul>
+      <p><strong>4、已完结订单详情页（标题：订单详情）</strong></p>
+      <ul>
+        <li><strong>订单信息卡片：</strong>订单类型（线上转单/线下发单）、订单状态、创建时间</li>
+        <li><strong>服务信息卡片：</strong>左侧项目图片(56px圆角)+项目名称+服务时长，右侧红色金额(18px加粗)；下方分隔线展示服务时间</li>
+        <li><strong>接单服务商卡片：</strong>服务商姓名、评分（去掉从业年限）</li>
+        <li>无底部操作按钮</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 八、异常与边界说明 ===== -->
+  <div class="comment-section">
+    <div class="comment-section-title">八、异常与边界说明</div>
+    <div class="comment-text">
+      <ul>
+        <li>服务费输入不合规时弹窗提示，不阻断发布流程</li>
+        <li>自定义要求超过200字时需限制输入</li>
+        <li>订单有效时长到期后自动移入已完结（已过期）</li>
+        <li>预付款超时未接单自动退款</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="phone">
+<div class="screen">
+
+<div class="sbar"><span class="t">09:13</span><span class="r">5G WiFi 30%</span></div>
+
+<div class="pg-wrap">
+
+<!-- ==================== 页面1: 订单广场首页 ==================== -->
+<div class="pg" id="pg-home">
+  <div class="nav">
+    <div class="bk" onclick="location.href='features.html'">&#8592;</div>
+    <div class="tt">订单广场</div>
+    <div class="ac"></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="switchTab(this,'tab-all')">全部</div>
+    <div class="tab" onclick="switchTab(this,'tab-pending')">待处理</div>
+    <div class="tab" onclick="switchTab(this,'tab-active')">进行中</div>
+    <div class="tab" onclick="switchTab(this,'tab-done')">已完结</div>
+  </div>
+
+  <!-- ===== 全部 ===== -->
+  <div id="tab-all">
+    <div class="order-card" data-type="pending" onclick="viewOrderDetail('online',0)">
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">洗剪吹套餐</div><div class="order-price">¥128</div><div class="order-meta">12月18日 14:00</div></div></div>
+      <div class="order-actions" onclick="event.stopPropagation()">
+        <button class="btn-small btn-primary" onclick="confirmTransfer(0)">转单发布</button>
+      </div>
+    </div>
+    <div class="order-card" data-type="pending" onclick="viewOrderDetail('online',1)">
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">头皮护理</div><div class="order-price">¥168</div><div class="order-meta">12月19日 10:00</div></div></div>
+      <div class="order-actions" onclick="event.stopPropagation()">
+        <button class="btn-small btn-primary" onclick="confirmTransfer(1)">转单发布</button>
+      </div>
+    </div>
+    <div class="order-card" data-type="active" onclick="viewOrderDetail('active',0)">
+      <div class="countdown" data-deadline="180000000">剩余 --</div>
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">染发（含护理）</div><div class="order-price">¥388</div><div class="order-meta">12月18日 16:00 · 3人申请</div></div></div>
+      <div class="order-actions" onclick="event.stopPropagation()">
+        <button class="btn-small btn-primary" onclick="viewTechList(0)">查看申请服务商</button>
+        <button class="btn-small btn-danger" onclick="cancelTransfer(0)">取消转单</button>
+      </div>
+    </div>
+    <div class="order-card" data-type="active" onclick="viewOrderDetail('active',1)">
+      <div class="countdown" data-deadline="66125000">剩余 --</div>
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">精剪造型</div><div class="order-price">¥68</div><div class="order-meta">12月18日 15:00 · 5人申请</div></div></div>
+      <div class="order-actions" onclick="event.stopPropagation()">
+        <button class="btn-small btn-primary" onclick="viewTechList(1)">查看申请服务商(5)</button>
+        <button class="btn-small btn-danger" onclick="cancelTransfer(1)">取消发布</button>
+      </div>
+    </div>
+    <div class="order-card" data-type="done" onclick="viewOrderDetail('done',0)">
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">烫发套餐</div><div class="order-price">¥588</div><div class="order-meta">12月17日 14:00</div></div></div>
+    </div>
+    <div class="order-card" data-type="done" onclick="viewOrderDetail('done',1)">
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">头皮护理</div><div class="order-price">¥128</div><div class="order-meta">12月15日 11:00 · 无人接单</div></div></div>
+      <div class="order-actions" onclick="event.stopPropagation()">
+        <button class="btn-small btn-danger" onclick="confirmDeleteOrder(1)">删除</button>
+        <button class="btn-small btn-primary" onclick="republishOrder()">重新发布</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 待处理 ===== -->
+  <div id="tab-pending" style="display:none">
+    <div class="order-card" data-type="pending" onclick="viewOrderDetail('online',0)">
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">洗剪吹套餐</div><div class="order-price">¥128</div><div class="order-meta">12月18日 14:00</div></div></div>
+      <div class="order-actions" onclick="event.stopPropagation()">
+        <button class="btn-small btn-primary" onclick="confirmTransfer(0)">转单发布</button>
+      </div>
+    </div>
+    <div class="order-card" data-type="pending" onclick="viewOrderDetail('online',1)">
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">头皮护理</div><div class="order-price">¥168</div><div class="order-meta">12月19日 10:00</div></div></div>
+      <div class="order-actions" onclick="event.stopPropagation()">
+        <button class="btn-small btn-primary" onclick="confirmTransfer(1)">转单发布</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 进行中 ===== -->
+  <div id="tab-active" style="display:none">
+    <div class="order-card" data-type="active" onclick="viewOrderDetail('active',0)">
+      <div class="countdown" data-deadline="180000000">剩余 --</div>
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">染发（含护理）</div><div class="order-price">¥388</div><div class="order-meta">12月18日 16:00 · 3人申请</div></div></div>
+      <div class="order-actions" onclick="event.stopPropagation()">
+        <button class="btn-small btn-primary" onclick="viewTechList(0)">查看申请服务商</button>
+        <button class="btn-small btn-danger" onclick="cancelTransfer(0)">取消转单</button>
+      </div>
+    </div>
+    <div class="order-card" data-type="active" onclick="viewOrderDetail('active',1)">
+      <div class="countdown" data-deadline="66125000">剩余 --</div>
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">精剪造型</div><div class="order-price">¥68</div><div class="order-meta">12月18日 15:00 · 5人申请</div></div></div>
+      <div class="order-actions" onclick="event.stopPropagation()">
+        <button class="btn-small btn-primary" onclick="viewTechList(1)">查看申请服务商(5)</button>
+        <button class="btn-small btn-danger" onclick="cancelTransfer(1)">取消发布</button>
+      </div>
+    </div>
+    <!-- 已选择服务商的订单卡片 -->
+    <div class="order-card" data-type="active" onclick="viewOrderDetail('active',2)">
+      <div class="countdown" data-deadline="19800000">剩余 --</div>
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">洗剪吹套餐</div><div class="order-price">¥128</div><div class="order-meta">12月18日 14:00 · 已选：陈师傅</div></div></div>
+      <div class="order-actions" onclick="event.stopPropagation()">
+        <button class="btn-small btn-primary" onclick="viewOnlyTechList(2)">已选择服务商</button>
+        <button class="btn-small btn-danger" onclick="cancelTransfer(2)">撤单</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 已完结 ===== -->
+  <div id="tab-done" style="display:none">
+    <div class="order-card" data-type="done" onclick="viewOrderDetail('done',0)">
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">烫发套餐</div><div class="order-price">¥588</div><div class="order-meta">12月17日 14:00</div></div></div>
+    </div>
+    <div class="order-card" data-type="done" onclick="viewOrderDetail('done',1)">
+      <div class="order-header"><div class="order-info" style="flex:1"><div class="order-service">头皮护理</div><div class="order-price">¥128</div><div class="order-meta">12月15日 11:00 · 无人接单</div></div></div>
+      <div class="order-actions" onclick="event.stopPropagation()">
+        <button class="btn-small btn-danger" onclick="confirmDeleteOrder(1)">删除</button>
+        <button class="btn-small btn-primary" onclick="republishOrder()">重新发布</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="safe"></div>
+  <div class="bbar-float">
+    <button class="btn-publish" onclick="goPublish()">+ 发布订单</button>
+  </div>
+</div>
+
+<!-- ==================== 页面2: 发布订单 ==================== -->
+<div class="pg off" id="pg-publish">
+  <div class="nav">
+    <div class="bk" onclick="nav('pg-home')">&#8592;</div>
+    <div class="tt">发布订单</div>
+    <div class="ac"></div>
+  </div>
+
+  <div class="steps" id="steps-bar">
+    <div class="step on"><div class="step-dot">1</div><div class="step-label" id="step-label-1">选择项目</div></div>
+    <div class="step"><div class="step-dot">2</div><div class="step-label" id="step-label-2">设置要求</div></div>
+    <div class="step"><div class="step-dot">3</div><div class="step-label" id="step-label-3">预付款</div></div>
+  </div>
+
+  <!-- 步骤1: 商户项目页 -->
+  <div id="step1" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="project-page">
+      <div class="cat-sidebar">
+        <div class="cat-item on" onclick="switchCat(this,'剪发')">剪发</div>
+        <div class="cat-item" onclick="switchCat(this,'洗剪吹')">洗剪吹</div>
+        <div class="cat-item" onclick="switchCat(this,'烫发')">烫发</div>
+        <div class="cat-item" onclick="switchCat(this,'染发')">染发</div>
+        <div class="cat-item" onclick="switchCat(this,'护理')">护理</div>
+        <div class="cat-item" onclick="switchCat(this,'造型')">造型</div>
+        <div class="cat-item" onclick="switchCat(this,'美甲美睫')">美甲美睫</div>
+        <div class="cat-item" onclick="switchCat(this,'身体护理')">身体护理</div>
+      </div>
+      <div class="project-list" id="project-list">
+        <div class="project-list-title">剪发</div>
+        <div class="proj-card" onclick="selectProject(this,'精剪造型','¥98','60分钟')">
+          <div class="proj-name">精剪造型</div>
+          <div class="proj-desc">资深服务商操刀，根据脸型定制</div>
+          <div class="proj-bottom"><span class="proj-price">¥98</span><span class="proj-duration">60分钟</span></div>
+        </div>
+        <div class="proj-card" onclick="selectProject(this,'男士商务剪','¥68','45分钟')">
+          <div class="proj-name">男士商务剪</div>
+          <div class="proj-desc">干剪造型，干净利落</div>
+          <div class="proj-bottom"><span class="proj-price">¥68</span><span class="proj-duration">45分钟</span></div>
+        </div>
+        <div class="proj-card" onclick="selectProject(this,'儿童理发','¥48','30分钟')">
+          <div class="proj-name">儿童理发</div>
+          <div class="proj-desc">耐心细致，儿童友好</div>
+          <div class="proj-bottom"><span class="proj-price">¥48</span><span class="proj-duration">30分钟</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="bbar">
+      <button class="btn btn-sub" onclick="nav('pg-home')">取消</button>
+      <button class="btn btn-main" id="btn-step1-next" onclick="goStep2()" style="opacity:.5" disabled>下一步</button>
+    </div>
+  </div>
+
+  <!-- 步骤2: 设置要求（备注式） -->
+  <div id="step2" style="display:none">
+    <div style="padding:12px 16px;flex:1;overflow-y:auto">
+      <!-- 已选项目 -->
+      <div class="form-card">
+        <div class="form-title">已选项目</div>
+        <div class="detail-row">
+          <span class="detail-label">服务项目</span>
+          <span class="detail-value" id="confirm-svc">精剪造型</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">项目价格</span>
+          <span class="detail-value price" id="confirm-price">¥98</span>
+        </div>
+      </div>
+
+      <!-- 服务时间 -->
+      <div class="form-card">
+        <div class="form-title">服务时间</div>
+        <div class="form-item">
+          <label class="form-label">服务日期</label>
+          <input type="date" class="form-input" id="svc-date" value="2024-12-18">
+        </div>
+        <div class="form-item">
+          <label class="form-label">服务时间</label>
+          <select class="form-select" id="svc-time">
+            <option>00:00</option><option>00:30</option><option>01:00</option><option>01:30</option>
+            <option>02:00</option><option>02:30</option><option>03:00</option><option>03:30</option>
+            <option>04:00</option><option>04:30</option><option>05:00</option><option>05:30</option>
+            <option>06:00</option><option>06:30</option><option>07:00</option><option>07:30</option>
+            <option>08:00</option><option>08:30</option><option>09:00</option><option>09:30</option>
+            <option>10:00</option><option>10:30</option><option>11:00</option><option>11:30</option>
+            <option>12:00</option><option>12:30</option><option>13:00</option><option>13:30</option>
+            <option>14:00</option><option>14:30</option><option>15:00</option><option>15:30</option>
+            <option>16:00</option><option>16:30</option><option>17:00</option><option>17:30</option>
+            <option>18:00</option><option>18:30</option><option>19:00</option><option>19:30</option>
+            <option>20:00</option><option>20:30</option><option>21:00</option><option>21:30</option>
+            <option>22:00</option><option>22:30</option><option>23:00</option><option>23:30</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 服务要求（备注式） -->
+      <div class="form-card">
+        <div class="form-title">服务要求</div>
+
+        <div class="note-section">
+          <div class="note-title">从业年限要求</div>
+          <div class="tag-wrap" id="year-tags">
+            <div class="tag on" onclick="toggleYearTag(this,0)">无年限要求</div>
+            <div class="tag" onclick="toggleYearTag(this,1)">1年以上</div>
+            <div class="tag" onclick="toggleYearTag(this,3)">3年以上</div>
+            <div class="tag" onclick="toggleYearTag(this,5)">5年以上</div>
+          </div>
+        </div>
+
+        <div class="note-section">
+          <div class="note-title">快捷要求</div>
+          <div class="tag-wrap" id="quick-tags">
+            <div class="tag" onclick="toggleQuickTag(this)">服务态度好</div>
+            <div class="tag" onclick="toggleQuickTag(this)">沟通能力强</div>
+            <div class="tag" onclick="toggleQuickTag(this)">准时守约</div>
+            <div class="tag" onclick="toggleQuickTag(this)">形象整洁</div>
+            <div class="tag" onclick="toggleQuickTag(this)">耐心细致</div>
+            <div class="tag" onclick="toggleQuickTag(this)">主动反馈</div>
+          </div>
+        </div>
+
+        <div class="note-section">
+          <div class="note-title">自定义要求</div>
+          <textarea class="note-textarea" id="custom-note" placeholder="请输入其他服务要求，如特殊发型偏好、过敏情况等~" oninput="updateCharCount()"></textarea>
+          <div class="note-char"><span id="char-count">0</span>/200</div>
+        </div>
+      </div>
+
+      <!-- 服务费设置 -->
+      <div class="form-card">
+        <div class="form-title">服务费设置</div>
+        <div class="fee-card">
+          <div class="fee-card-title">VIP服务费设置</div>
+          <div class="fee-input-row">
+            <input type="number" class="fee-input" id="vip-fee" value="60" min="1" max="60" onchange="validateFee('vip', 1, 60)">
+            <span class="fee-unit">%</span>
+          </div>
+          <div class="fee-limit">最低服务费1%，最高60%</div>
+        </div>
+        <div class="fee-card">
+          <div class="fee-card-title">普通用户服务费设置</div>
+          <div class="fee-input-row">
+            <input type="number" class="fee-input" id="normal-fee" value="60" min="10" max="60" onchange="validateFee('normal', 10, 60)">
+            <span class="fee-unit">%</span>
+          </div>
+          <div class="fee-limit">最低服务费10%，最高60%</div>
+        </div>
+      </div>
+
+      <!-- 订单有效时长 -->
+      <div class="form-card">
+        <div class="form-title">订单有效时长</div>
+        <div class="form-item">
+          <select class="form-select" id="validity-select" onchange="updateValidityDisplay()">
+            <option value="15">15分钟</option>
+            <option value="30">30分钟</option>
+            <option value="60" selected>60分钟</option>
+            <option value="120">120分钟</option>
+            <option value="custom">自定义</option>
+          </select>
+        </div>
+        <div class="form-item" id="custom-validity-box" style="display:none;margin-top:10px;">
+          <input type="number" class="form-input" id="custom-validity" placeholder="请输入分钟数" min="1" oninput="updateCustomValidity()">
+        </div>
+      </div>
+    </div>
+
+    <div class="bbar" id="step2-bbar">
+      <button class="btn btn-sub" id="step2-prev" onclick="goStep1()">上一步</button>
+      <button class="btn btn-main" id="step2-next" onclick="goStep3()">下一步</button>
+    </div>
+  </div>
+
+  <!-- 步骤3: 预付款 -->
+  <div id="step3" style="display:none">
+    <div style="padding:12px 16px;flex:1;overflow-y:auto">
+      <div class="form-card">
+        <div class="form-title">预付款支付</div>
+        <div class="amount-box">
+          <div class="amount-label">需支付预付款</div>
+          <div class="amount-num" id="pay-amount">¥98</div>
+        </div>
+        <p style="font-size:12px;color:#999;margin-bottom:16px;line-height:1.6">预付款将在服务商完成服务后结算，若在订单有效时长内无人接单将自动退款至原支付账户</p>
+      </div>
+      <div class="form-card">
+        <div class="form-title">选择支付方式</div>
+        <div class="pay-list">
+          <div class="pay-option on" onclick="selectPay(this,'balance')">
+            <div class="pay-icon" style="background:#E8F5E9;color:#00A86B">&#128176;</div>
+            <div class="pay-info"><div class="pay-name">余额支付</div><div class="pay-balance">可用余额 ¥1,280</div></div>
+            <div class="pay-check"></div>
+          </div>
+          <div class="pay-option" onclick="selectPay(this,'wechat')">
+            <div class="pay-icon" style="background:#E8F5E9;color:#07C160">&#128172;</div>
+            <div class="pay-info"><div class="pay-name">微信支付</div></div>
+            <div class="pay-check"></div>
+          </div>
+          <div class="pay-option" onclick="selectPay(this,'alipay')">
+            <div class="pay-icon" style="background:#E3F2FD;color:#1677FF">&#128179;</div>
+            <div class="pay-info"><div class="pay-name">支付宝</div></div>
+            <div class="pay-check"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bbar">
+      <button class="btn btn-sub" onclick="goStep2()">上一步</button>
+      <button class="btn btn-main" onclick="confirmPublish()">确认支付并发布</button>
+    </div>
+  </div>
+
+  <div class="safe"></div>
+</div>
+
+<!-- ==================== 页面3: 服务商申请列表 ==================== -->
+<div class="pg off" id="pg-techs">
+  <div class="nav">
+    <div class="bk" onclick="nav('pg-home')">&#8592;</div>
+    <div class="tt">申请接单服务商</div>
+    <div class="ac"></div>
+  </div>
+  <div class="tech-list-header">
+    <div class="tech-list-info">
+      <div class="service">染发（含护理）</div>
+      <div class="price">¥388</div>
+      <div class="time">12月18日 16:00 · <span class="countdown-inline" data-deadline="180000000">剩余 --</span></div>
+    </div>
+  </div>
+  <div style="padding:12px 16px;font-size:13px;color:#999">请选择一位服务商</div>
+  <div class="tech-card" onclick="selectTechCard(this,0)">
+    <div class="tech-select"></div>
+    <div class="tech-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23f0d9b5' width='80' height='80'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23d4a574'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='18' fill='%23d4a574'/%3E%3C/svg%3E"></div>
+    <div class="tech-info">
+      <div class="tech-name">张师傅</div>
+      <div class="tech-skills"><span class="tech-skill">男士剪发</span><span class="tech-skill">烫发</span><span class="tech-skill">法式刘海</span></div>
+    </div>
+  </div>
+  <div class="tech-card" onclick="selectTechCard(this,1)">
+    <div class="tech-select"></div>
+    <div class="tech-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23d5e8d4' width='80' height='80'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23a8c5a8'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='18' fill='%23a8c5a8'/%3E%3C/svg%3E"></div>
+    <div class="tech-info">
+      <div class="tech-name">刘服务商</div>
+      <div class="tech-skills"><span class="tech-skill">日式剪发</span><span class="tech-skill">染发</span><span class="tech-skill">空气刘海</span></div>
+    </div>
+  </div>
+  <div class="tech-card" onclick="selectTechCard(this,2)">
+    <div class="tech-select"></div>
+    <div class="tech-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23d5d5e8' width='80' height='80'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23a8a8c5'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='18' fill='%23a8a8c5'/%3E%3C/svg%3E"></div>
+    <div class="tech-info">
+      <div class="tech-name">赵师傅</div>
+      <div class="tech-skills"><span class="tech-skill">精剪造型</span><span class="tech-skill">女士剪发</span><span class="tech-skill">韩式刘海</span></div>
+    </div>
+  </div>
+  <div class="safe"></div>
+  <div class="bbar-select" id="tech-bbar-select">
+    <button class="btn-select" id="btn-select-tech" onclick="openConfirmSelectTech()">选择该服务商</button>
+  </div>
+  <div class="bbar-select view-only-hint" id="tech-view-only-hint" style="display:none">
+    <div style="text-align:center;font-size:13px;color:#999;padding:16px 0">仅可查看，不可重新选择</div>
+  </div>
+</div>
+
+<!-- ==================== 页面4: 订单详情 ==================== -->
+<div class="pg off" id="pg-detail">
+  <div class="nav">
+    <div class="bk" onclick="nav('pg-home')">&#8592;</div>
+    <div class="tt" id="detail-title">订单详情</div>
+    <div class="ac"></div>
+  </div>
+
+  <!-- ===== 待处理状态专用详情 ===== -->
+  <div id="detail-pending" style="display:none">
+    <!-- 预约项目 -->
+    <div class="pd-project-card" style="margin-top:12px">
+      <div class="pd-project-card-header">预约项目</div>
+      <div class="pd-project-card-body">
+        <div class="pd-project-card-name" id="pd-project-name">131店铺单次单规格-苹果</div>
+        <div class="pd-project-card-detail">
+          <span class="pd-project-card-duration" id="pd-project-time">约60分钟</span>
+        </div>
+        <div class="pd-project-card-price">
+          <span class="pd-price-label">项目金额</span>
+          <span class="pd-price-value" id="pd-project-amount">¥168</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 用户信息 -->
+    <div class="pd-header">
+      <div class="pd-header-top">
+        <div class="pd-header-avatar">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23e0e0e0' width='80' height='80'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23999'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='18' fill='%23999'/%3E%3C/svg%3E" alt="头像">
+        </div>
+        <div class="pd-header-info">
+          <div class="pd-header-nickname" id="pd-nickname">辣了</div>
+          <div class="pd-header-date" id="pd-appoint-time">预约时间：2026-06-19 12:00</div>
+        </div>
+      </div>
+      <div class="pd-header-remark" id="pd-remark">
+        <span class="pd-remark-icon">📝</span>
+        <span>备注：无</span>
+      </div>
+    </div>
+
+    <!-- 订单信息 -->
+    <div class="pd-order-card">
+      <div class="pd-order-row">
+        <span class="pd-order-label">下单时间</span>
+        <span class="pd-order-value" id="pd-order-time">2026-06-16 21:44</span>
+      </div>
+      <div class="pd-order-row">
+        <span class="pd-order-label">订单号</span>
+        <span class="pd-order-value" id="pd-order-no">MO202606161344516285</span>
+        <span class="pd-order-copy" onclick="copyText('pd-order-no')">复制</span>
+      </div>
+    </div>
+
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- ===== 进行中和已共用的原有详情 ===== -->
+  <div id="detail-legacy">
+    <div class="form-card" style="margin-top:12px">
+      <div class="form-title">订单信息</div>
+      <div class="detail-row">
+        <span class="detail-label">订单类型</span>
+        <span class="detail-value" id="detail-type">线上转单</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">订单状态</span>
+        <span class="detail-value" id="detail-status" style="color:#00A86B">待处理</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">创建时间</span>
+        <span class="detail-value">2024-12-18 09:13</span>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-title">服务信息</div>
+      <div class="detail-project-header">
+        <div class="detail-project-img">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23d4edda' width='100' height='100'/%3E%3Ctext x='50' y='55' text-anchor='middle' font-size='14' fill='%232c5f4f'%3E项目%3C/text%3E%3C/svg%3E" alt="项目">
+        </div>
+        <div class="detail-project-meta">
+          <div class="detail-project-name" id="detail-svc">洗剪吹套餐</div>
+          <div class="detail-project-duration">服务时长：约60分钟</div>
+        </div>
+        <div class="detail-project-price">
+          <span id="detail-price">¥128</span>
+        </div>
+      </div>
+      <div class="detail-row" style="border-top:1px solid #f0f0f0;margin-top:12px;padding-top:12px">
+        <span class="detail-label">服务时间</span>
+        <span class="detail-value" id="detail-time">12月18日 14:00</span>
+      </div>
+    </div>
+
+    <!-- 接单服务商信息（已完结时显示） -->
+    <div class="form-card" id="detail-provider-section" style="display:none">
+      <div class="form-title">接单服务商</div>
+      <div class="detail-row">
+        <span class="detail-label">服务商</span>
+        <span class="detail-value" id="detail-provider">陈师傅</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">评分</span>
+        <span class="detail-value" style="color:#FFB800" id="detail-rating">&#9733;&#9733;&#9733;&#9733;&#9733; 4.9分</span>
+      </div>
+    </div>
+
+    <div class="form-card" id="detail-customer-section">
+      <div class="form-title">客户信息</div>
+      <div class="detail-row">
+        <span class="detail-label">客户姓名</span>
+        <span class="detail-value">王先生</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">联系电话</span>
+        <span class="detail-value">138****8888</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">备注</span>
+        <span class="detail-value">无</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== 商家发布订单详情 ===== -->
+  <div id="detail-published" style="display:none">
+    <!-- 剩余时间 -->
+    <div class="dp-time-bar" style="margin-top:12px">
+      <span class="dp-time-icon">⏱</span>
+      <span class="dp-time-label">订单剩余时间</span>
+      <span class="dp-time-value countdown-inline" data-deadline="66125000">剩余 --</span>
+    </div>
+
+    <!-- 项目信息 -->
+    <div class="dp-card">
+      <div class="dp-card-title">项目信息</div>
+      <div class="dp-project-header">
+        <div class="dp-project-img">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23d4edda' width='100' height='100'/%3E%3Ctext x='50' y='55' text-anchor='middle' font-size='14' fill='%232c5f4f'%3E项目%3C/text%3E%3C/svg%3E" alt="项目">
+        </div>
+        <div class="dp-project-meta">
+          <div class="dp-project-name" id="dp-pub-name">精剪造型</div>
+          <div class="dp-project-duration" id="dp-pub-duration">服务时长：约45分钟</div>
+        </div>
+        <div class="dp-project-price-tag">
+          <span class="dp-price-value" id="dp-pub-price">¥68</span>
+        </div>
+      </div>
+      <div class="dp-row" style="border-top:1px solid #f5f5f5;margin-top:12px;padding-top:12px">
+        <span class="dp-label">服务时间</span>
+        <span class="dp-value" id="dp-pub-time">12月18日 15:00</span>
+      </div>
+    </div>
+
+    <!-- 发布信息 -->
+    <div class="dp-card">
+      <div class="dp-card-title">发布信息</div>
+      <div class="dp-row">
+        <span class="dp-label">发布时间</span>
+        <span class="dp-value" id="dp-pub-publish">2024-12-18 09:30</span>
+      </div>
+      <div class="dp-row">
+        <span class="dp-label">接取要求</span>
+        <span class="dp-value" id="dp-pub-require">3年以上经验，准时守约</span>
+      </div>
+      <div class="dp-row">
+        <span class="dp-label">备注</span>
+        <span class="dp-value" id="dp-pub-note">无</span>
+      </div>
+    </div>
+
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- ==================== 弹窗：选择店内挂靠服务商 ==================== -->
+<div class="modal hide" id="modal-provider">
+  <div class="modal-c">
+    <div class="modal-h">
+      <span class="modal-title">选择挂靠服务商</span>
+      <span class="modal-close" onclick="closeModalProvider()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="sp-card on" onclick="selectProvider(this,0)">
+        <div class="sp-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23f0d9b5' width='80' height='80'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23d4a574'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='18' fill='%23d4a574'/%3E%3C/svg%3E"></div>
+        <div class="sp-info"><div class="sp-name">陈师傅</div><div class="sp-meta">5年经验 · 评分 4.9</div></div>
+        <div class="sp-check"></div>
+      </div>
+      <div class="sp-card" onclick="selectProvider(this,1)">
+        <div class="sp-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23d5e8d4' width='80' height='80'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23a8c5a8'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='18' fill='%23a8c5a8'/%3E%3C/svg%3E"></div>
+        <div class="sp-info"><div class="sp-name">李服务商</div><div class="sp-meta">3年经验 · 评分 4.8</div></div>
+        <div class="sp-check"></div>
+      </div>
+      <div class="sp-card" onclick="selectProvider(this,2)">
+        <div class="sp-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23d5d5e8' width='80' height='80'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23a8a8c5'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='18' fill='%23a8a8c5'/%3E%3C/svg%3E"></div>
+        <div class="sp-info"><div class="sp-name">王师傅</div><div class="sp-meta">8年经验 · 评分 4.7</div></div>
+        <div class="sp-check"></div>
+      </div>
+      <div class="sp-card" onclick="selectProvider(this,3)">
+        <div class="sp-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect fill='%23e8d5f5' width='80' height='80'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23c5a8d4'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='18' fill='%23c5a8d4'/%3E%3C/svg%3E"></div>
+        <div class="sp-info"><div class="sp-name">张服务商</div><div class="sp-meta">4年经验 · 评分 4.6</div></div>
+        <div class="sp-check"></div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModalProvider()">取消</button>
+      <button class="modal-btn modal-btn-confirm" onclick="confirmProvider()">确认指定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 弹窗：确认转单 -->
+<div class="modal hide" id="modal-transfer">
+  <div class="modal-c">
+    <div class="modal-h"><span class="modal-title">确认转单</span><span class="modal-close" onclick="closeModalTransfer()">&times;</span></div>
+    <div class="modal-body"><div class="confirm-text">是否将该订单发布至订单广场？<br><br>发布后，独立服务商可申请接单，您可以在48小时内查看并选用服务商。</div></div>
+    <div class="modal-f">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModalTransfer()">取消</button>
+      <button class="modal-btn modal-btn-confirm" onclick="doTransfer()">确认发布</button>
+    </div>
+  </div>
+</div>
+
+<!-- 弹窗：确认选择服务商 -->
+<div class="modal hide" id="modal-confirm-tech">
+  <div class="modal-c">
+    <div class="modal-h"><span class="modal-title">确认选择</span><span class="modal-close" onclick="closeModalConfirmTech()">&times;</span></div>
+    <div class="modal-body"><div class="confirm-text" id="confirm-tech-text">是否选择该服务商接单？</div></div>
+    <div class="modal-f">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModalConfirmTech()">取消</button>
+      <button class="modal-btn modal-btn-confirm" onclick="doSelectTech()">确认选择</button>
+    </div>
+  </div>
+</div>
+
+<!-- 弹窗：确认删除 -->
+<div class="modal hide" id="modal-delete">
+  <div class="modal-c">
+    <div class="modal-h"><span class="modal-title">确认删除</span><span class="modal-close" onclick="closeModalDelete()">&times;</span></div>
+    <div class="modal-body"><div class="confirm-text">确定要删除该订单吗？<br><br>删除后订单将无法恢复。</div></div>
+    <div class="modal-f">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModalDelete()">取消</button>
+      <button class="modal-btn modal-btn-confirm" style="background:#F96167" onclick="doDeleteOrder()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 弹窗：成功 -->
+<div class="modal hide" id="modal-success">
+  <div class="modal-c" style="width:280px">
+    <div class="modal-body" style="padding:30px;text-align:center">
+      <div style="width:60px;height:60px;background:#E8F5E9;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:30px;color:#00A86B">&#10004;</div>
+      <div style="font-size:18px;font-weight:700;color:#333;margin-bottom:8px" id="success-title">操作成功</div>
+      <div style="font-size:13px;color:#666;line-height:1.6" id="success-msg"></div>
+    </div>
+    <div class="modal-f"><button class="modal-btn modal-btn-confirm" onclick="closeModalSuccess()" style="flex:1">确定</button></div>
+  </div>
+</div>
+
+<script>
+let currentOrder = { svc: '精剪造型', price: 98 };
+let selectedProviderId = 0;
+let selectedTechId = -1;
+
+// 设置默认服务时间：当前时间的下个30分钟时段
+(function initDefaultTime() {
+  var now = new Date();
+  var mins = now.getMinutes();
+  var nextSlot = mins < 30 ? 30 : 60;
+  var nextTime = new Date(now);
+  nextTime.setMinutes(nextSlot % 60, 0, 0);
+  if (nextSlot >= 60) nextTime.setHours(nextTime.getHours() + 1);
+  var h = String(nextTime.getHours()).padStart(2, '0');
+  var m = String(nextTime.getMinutes()).padStart(2, '0');
+  var defaultVal = h + ':' + m;
+  var sel = document.getElementById('svc-time');
+  for (var i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value === defaultVal) {
+      sel.selectedIndex = i;
+      break;
+    }
+  }
+})();
+const techNames = ['张师傅', '刘服务商', '赵师傅'];
+
+// 项目数据
+const projectData = {
+  '剪发': [
+    { name: '精剪造型', desc: '资深服务商操刀，根据脸型定制', price: '¥98', duration: '60分钟' },
+    { name: '男士商务剪', desc: '干剪造型，干净利落', price: '¥68', duration: '45分钟' },
+    { name: '儿童理发', desc: '耐心细致，儿童友好', price: '¥48', duration: '30分钟' }
+  ],
+  '洗剪吹': [
+    { name: '洗剪吹套餐', desc: '洗发+剪发+吹型全套', price: '¥128', duration: '90分钟' },
+    { name: '基础洗剪吹', desc: '经典洗剪吹服务', price: '¥68', duration: '60分钟' }
+  ],
+  '烫发': [
+    { name: '冷烫套餐', desc: '持久卷度，自然蓬松', price: '¥288', duration: '120分钟' },
+    { name: '热烫造型', desc: '时尚卷发，光泽弹性', price: '¥388', duration: '150分钟' }
+  ],
+  '染发': [
+    { name: '时尚染发', desc: '进口染剂，色彩持久', price: '¥188', duration: '120分钟' },
+    { name: '挑染/渐变染', desc: '个性定制，潮流色彩', price: '¥288', duration: '150分钟' }
+  ],
+  '护理': [
+    { name: '头皮护理', desc: '深层清洁，滋养头皮', price: '¥128', duration: '60分钟' },
+    { name: '发丝护理', desc: '修护受损，柔顺亮泽', price: '¥168', duration: '60分钟' }
+  ],
+  '造型': [
+    { name: '日常造型', desc: '快速出门，简约大方', price: '¥58', duration: '30分钟' },
+    { name: '宴会造型', desc: '精致盘发，气质出众', price: '¥128', duration: '60分钟' }
+  ],
+  '美甲美睫': [
+    { name: '基础美甲', desc: '纯色/跳色，简约时尚', price: '¥88', duration: '60分钟' },
+    { name: '美睫嫁接', desc: '自然浓密，放大双眼', price: '¥168', duration: '90分钟' }
+  ],
+  '身体护理': [
+    { name: '肩颈按摩', desc: '缓解疲劳，放松身心', price: '¥128', duration: '60分钟' },
+    { name: '全身SPA', desc: '精油按摩，身心舒缓', price: '¥298', duration: '120分钟' }
+  ]
+};
+
+function switchTab(el, id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  ['tab-all','tab-pending','tab-active','tab-done'].forEach(tid => {
+    document.getElementById(tid).style.display = tid === id ? 'block' : 'none';
+  });
+}
+
+function nav(id) {
+  const cur = document.querySelector('.pg:not(.off)');
+  const tgt = document.getElementById(id);
+  if (cur === tgt) return;
+  cur.style.zIndex = '0';
+  tgt.style.zIndex = '1';
+  cur.classList.add('off');
+  tgt.classList.remove('off');
+}
+
+// 切换分类
+function switchCat(el, cat) {
+  document.querySelectorAll('.cat-item').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  const list = document.getElementById('project-list');
+  const items = projectData[cat] || [];
+  let html = '<div class="project-list-title">' + cat + '</div>';
+  items.forEach(item => {
+    html += '<div class="proj-card" onclick="selectProject(this,\'' + item.name + '\',\'' + item.price + '\',\'' + item.duration + '\')">' +
+      '<div class="proj-name">' + item.name + '</div>' +
+      '<div class="proj-desc">' + item.desc + '</div>' +
+      '<div class="proj-bottom"><span class="proj-price">' + item.price + '</span><span class="proj-duration">' + item.duration + '</span></div></div>';
+  });
+  list.innerHTML = html;
+}
+
+// 选择项目
+function selectProject(el, name, price, duration) {
+  document.querySelectorAll('.proj-card').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  currentOrder.svc = name;
+  currentOrder.price = parseInt(price.replace('¥', ''));
+  // 激活下一步按钮
+  const btn = document.getElementById('btn-step1-next');
+  btn.style.opacity = '1';
+  btn.disabled = false;
+}
+
+function showProviderList(orderId) {
+  document.getElementById('modal-provider').classList.remove('hide');
+}
+
+function selectProvider(el, id) {
+  document.querySelectorAll('.sp-card').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  selectedProviderId = id;
+}
+
+function closeModalProvider() { document.getElementById('modal-provider').classList.add('hide'); }
+
+function confirmProvider() {
+  closeModalProvider();
+  const names = ['陈师傅', '李服务商', '王师傅', '张服务商'];
+  showSuccess('指定成功', '订单已指定给 ' + names[selectedProviderId] + '，服务完成后自动结算。');
+}
+
+function confirmTransfer(orderId) {
+  // 记录转单的订单信息
+  transferOrder = { svc: '洗剪吹套餐', price: 128, date: '2024-12-18', time: '15:00-17:00' };
+  // 直接跳转到发布订单页面，进入设置要求步骤（转单模式）
+  goTransferPublish();
+}
+
+let isTransferMode = false;
+let transferOrder = { svc: '', price: 0, date: '', time: '' };
+
+function goTransferPublish() {
+  isTransferMode = true;
+  nav('pg-publish');
+  // 直接进入步骤2
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'block';
+  document.getElementById('step3').style.display = 'none';
+  // 步骤条显示2步模式
+  document.getElementById('step-label-1').textContent = '订单信息';
+  document.getElementById('step-label-2').textContent = '设置要求';
+  document.getElementById('step-label-3').style.display = 'none';
+  document.querySelector('.steps .step:nth-child(3)').style.display = 'none';
+  updateSteps(2);
+  // 填充转单订单信息
+  document.getElementById('confirm-svc').textContent = transferOrder.svc;
+  document.getElementById('confirm-price').textContent = '¥' + transferOrder.price;
+  // 锁定已选项目卡片
+  document.querySelector('#step2 .form-card').classList.add('disabled-card');
+  // 锁定服务时间
+  document.getElementById('svc-date').value = transferOrder.date;
+  document.getElementById('svc-date').readOnly = true;
+  document.getElementById('svc-time').value = transferOrder.time;
+  document.getElementById('svc-time').disabled = true;
+  document.querySelector('#step2 .form-card:nth-child(2)').classList.add('disabled-card');
+  // 底部按钮改为：返回 + 确认发布
+  document.getElementById('step2-prev').textContent = '返回';
+  document.getElementById('step2-prev').setAttribute('onclick', 'cancelTransferPublish()');
+  document.getElementById('step2-next').textContent = '确认发布';
+  document.getElementById('step2-next').setAttribute('onclick', 'confirmTransferPublish()');
+}
+
+function cancelTransferPublish() {
+  // 恢复步骤2状态
+  restoreStep2();
+  isTransferMode = false;
+  nav('pg-home');
+}
+
+function confirmTransferPublish() {
+  restoreStep2();
+  isTransferMode = false;
+  showSuccess('发布成功', '订单已发布，可以在订单有效时间内查看并选用服务商。');
+}
+
+function restoreStep2() {
+  // 恢复步骤条
+  document.getElementById('step-label-1').textContent = '选择项目';
+  document.getElementById('step-label-2').textContent = '设置要求';
+  document.getElementById('step-label-3').textContent = '预付款';
+  document.getElementById('step-label-3').style.display = '';
+  document.querySelector('.steps .step:nth-child(3)').style.display = '';
+  // 恢复已选项目卡片
+  document.querySelector('#step2 .form-card').classList.remove('disabled-card');
+  // 恢复服务时间
+  document.getElementById('svc-date').readOnly = false;
+  document.getElementById('svc-time').disabled = false;
+  document.querySelector('#step2 .form-card:nth-child(2)').classList.remove('disabled-card');
+  // 恢复底部按钮
+  document.getElementById('step2-prev').textContent = '上一步';
+  document.getElementById('step2-prev').setAttribute('onclick', 'goStep1()');
+  document.getElementById('step2-next').textContent = '下一步';
+  document.getElementById('step2-next').setAttribute('onclick', 'goStep3()');
+}
+
+function selectTechCard(el, id) {
+  document.querySelectorAll('.tech-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTechId = id;
+  document.getElementById('btn-select-tech').classList.add('active');
+}
+
+function openConfirmSelectTech() {
+  if (selectedTechId === -1) return;
+  document.getElementById('confirm-tech-text').innerHTML = '是否选择 <b>' + techNames[selectedTechId] + '</b> 接单？<br><br>确认后订单将进入服务中状态，该服务商将收到通知。';
+  document.getElementById('modal-confirm-tech').classList.remove('hide');
+}
+
+function closeModalConfirmTech() { document.getElementById('modal-confirm-tech').classList.add('hide'); }
+function doSelectTech() { closeModalConfirmTech(); showSuccess('选用成功', '已通知 ' + techNames[selectedTechId] + ' 接单，订单进入服务中状态。'); }
+
+function confirmDeleteOrder(id) { document.getElementById('modal-delete').classList.remove('hide'); }
+function closeModalDelete() { document.getElementById('modal-delete').classList.add('hide'); }
+function doDeleteOrder() { closeModalDelete(); showSuccess('删除成功', '订单已删除。'); }
+
+function copyText(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var text = el.textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() {
+      showSuccess('复制成功', '内容已复制到剪贴板');
+    }, function() {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showSuccess('复制成功', '内容已复制到剪贴板'); }
+  catch(e) { showSuccess('复制失败', '请手动复制'); }
+  document.body.removeChild(ta);
+}
+
+function showSuccess(title, msg) {
+  document.getElementById('success-title').textContent = title;
+  document.getElementById('success-msg').textContent = msg;
+  document.getElementById('modal-success').classList.remove('hide');
+}
+
+function closeModalSuccess() { document.getElementById('modal-success').classList.add('hide'); nav('pg-home'); }
+
+function goPublish() {
+  isTransferMode = false;
+  restoreStep2();
+  nav('pg-publish');
+  goStep1();
+}
+
+function goStep1() {
+  document.getElementById('step1').style.display = 'flex';
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step3').style.display = 'none';
+  updateSteps(1);
+  // 重置选择
+  document.querySelectorAll('.proj-card').forEach(c => c.classList.remove('on'));
+  const btn = document.getElementById('btn-step1-next');
+  btn.style.opacity = '.5';
+  btn.disabled = true;
+}
+
+function goStep2() {
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'block';
+  document.getElementById('step3').style.display = 'none';
+  updateSteps(2);
+  document.getElementById('confirm-svc').textContent = currentOrder.svc;
+  document.getElementById('confirm-price').textContent = '¥' + currentOrder.price;
+}
+
+function goStep3() {
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step3').style.display = 'block';
+  updateSteps(3);
+  document.getElementById('pay-amount').textContent = '¥' + currentOrder.price;
+}
+
+function updateSteps(n) {
+  document.querySelectorAll('.step').forEach((s, i) => {
+    s.classList.remove('on', 'completed');
+    if (i < n - 1) s.classList.add('completed');
+    if (i === n - 1) s.classList.add('on');
+  });
+}
+
+function toggleYearTag(el, year) {
+  document.querySelectorAll('#year-tags .tag').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function toggleQuickTag(el) {
+  el.classList.toggle('on');
+}
+
+function updateCharCount() {
+  const len = document.getElementById('custom-note').value.length;
+  document.getElementById('char-count').textContent = len;
+}
+
+function selectPay(el) {
+  document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function confirmPublish() { showSuccess('发布成功', '您的订单已发布到订单广场，48小时内有效。在此期间可查看申请服务商并选用。'); }
+
+// 查看订单详情
+function viewOrderDetail(type, id) {
+  nav('pg-detail');
+  var legacy = document.getElementById('detail-legacy');
+  var pending = document.getElementById('detail-pending');
+  var published = document.getElementById('detail-published');
+  var title = document.getElementById('detail-title');
+
+  // 全部隐藏
+  legacy.style.display = 'none';
+  pending.style.display = 'none';
+  if (published) published.style.display = 'none';
+
+  if (type === 'online') {
+    // 待处理：显示用户下单详情
+    title.textContent = '待服务';
+    pending.style.display = 'block';
+  } else if (type === 'active') {
+    title.textContent = '订单详情';
+    if (id === 0) {
+      // 染发（含护理）- 线上转单，复用待处理详情结构
+      pending.style.display = 'block';
+    } else if (id === 1) {
+      // 精剪造型 - 商家自己发布
+      if (published) published.style.display = 'block';
+    }
+  } else if (type === 'done') {
+    // 已完结：显示原有详情页
+    title.textContent = '订单详情';
+    legacy.style.display = 'block';
+
+    var providerSection = document.getElementById('detail-provider-section');
+    var customerSection = document.getElementById('detail-customer-section');
+    providerSection.style.display = 'block';
+    customerSection.style.display = 'none';
+
+    if (id === 0) {
+      // 烫发套餐 - 已完成
+      document.getElementById('detail-type').textContent = '线上转单';
+      document.getElementById('detail-status').textContent = '已完成';
+      document.getElementById('detail-status').style.color = '#00A86B';
+      document.getElementById('detail-svc').textContent = '烫发套餐';
+      document.getElementById('detail-time').textContent = '12月17日 14:00';
+      document.getElementById('detail-price').textContent = '¥588';
+      document.getElementById('detail-provider').textContent = '陈师傅';
+      document.getElementById('detail-rating').innerHTML = '&#9733;&#9733;&#9733;&#9733;&#9733; 4.9分';
+    } else {
+      // 头皮护理 - 已过期
+      document.getElementById('detail-type').textContent = '线下发单';
+      document.getElementById('detail-status').textContent = '已过期';
+      document.getElementById('detail-status').style.color = '#999';
+      document.getElementById('detail-svc').textContent = '头皮护理';
+      document.getElementById('detail-time').textContent = '12月15日 11:00';
+      document.getElementById('detail-price').textContent = '¥128';
+      document.getElementById('detail-provider').textContent = '无（无人接单）';
+      document.getElementById('detail-rating').innerHTML = '-';
+    }
+  }
+}
+
+function cancelTransfer(id) { showSuccess('取消成功', '订单已取消发布，线上订单将退回待处理列表。'); }
+
+let viewOnlyMode = false;
+
+function viewTechList(id) {
+  viewOnlyMode = false;
+  nav('pg-techs');
+  selectedTechId = -1;
+  document.querySelectorAll('.tech-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('btn-select-tech').classList.remove('active');
+  document.getElementById('tech-bbar-select').style.display = '';
+  document.getElementById('tech-view-only-hint').style.display = 'none';
+  document.querySelectorAll('.tech-card').forEach(c => c.style.pointerEvents = '');
+}
+
+function viewOnlyTechList(id) {
+  viewOnlyMode = true;
+  nav('pg-techs');
+  selectedTechId = 0; // 默认选中第一个服务商
+  // 移除所有选中状态
+  document.querySelectorAll('.tech-card').forEach(c => c.classList.remove('selected'));
+  // 选中第一个服务商卡片（显示已选中的状态）
+  const firstTech = document.querySelector('.tech-card');
+  if (firstTech) {
+    firstTech.classList.add('selected');
+  }
+  document.getElementById('btn-select-tech').classList.remove('active');
+  // 隐藏选择按钮，显示查看提示
+  document.getElementById('tech-bbar-select').style.display = 'none';
+  document.getElementById('tech-view-only-hint').style.display = '';
+  // 禁用卡片点击（不可重新选择）
+  document.querySelectorAll('.tech-card').forEach(c => c.style.pointerEvents = 'none');
+}
+function republishOrder() { goPublish(); }
+
+// 验证服务费输入
+function validateFee(type, min, max) {
+  const input = document.getElementById(type + '-fee');
+  let value = parseInt(input.value);
+  if (isNaN(value) || value < min) value = min;
+  if (value > max) value = max;
+  input.value = value;
+}
+
+// 更新订单有效时长显示
+function updateValidityDisplay() {
+  const select = document.getElementById('validity-select');
+  const customBox = document.getElementById('custom-validity-box');
+  if (select.value === 'custom') {
+    customBox.style.display = 'block';
+  } else {
+    customBox.style.display = 'none';
+  }
+}
+
+// 自定义有效时长输入
+function updateCustomValidity() {
+  var input = document.getElementById('custom-validity');
+  var value = parseInt(input.value, 10);
+  if (isNaN(value) || value < 1) {
+    input.value = '';
+  }
+}
+// ===== PRD 编辑功能 =====
+var prdEditMode = false;
+var prdStorageKey = 'prd_order_square_v1';
+
+(function restorePrd() {
+    var saved = localStorage.getItem(prdStorageKey);
+    if (saved) {
+        try {
+            var data = JSON.parse(saved);
+            var texts = document.querySelectorAll('.comment-text');
+            texts.forEach(function(el, idx) {
+                if (data[idx] !== undefined) el.innerHTML = data[idx];
+            });
+        } catch(e) {}
+    }
+})();
+
+function togglePrdEdit() {
+    prdEditMode = !prdEditMode;
+    var texts = document.querySelectorAll('.comment-text');
+    var editBtn = document.getElementById('prdEditBtn');
+    var saveBtn = document.getElementById('prdSaveBtn');
+    if (prdEditMode) {
+        texts.forEach(function(el) { el.setAttribute('contenteditable', 'true'); });
+        editBtn.style.display = 'none';
+        saveBtn.style.display = 'inline-block';
+    } else {
+        texts.forEach(function(el) { el.setAttribute('contenteditable', 'false'); });
+        editBtn.style.display = 'inline-block';
+        saveBtn.style.display = 'none';
+    }
+}
+
+function savePrdContent() {
+    var texts = document.querySelectorAll('.comment-text');
+    var data = [];
+    texts.forEach(function(el) { data.push(el.innerHTML); });
+    localStorage.setItem(prdStorageKey, JSON.stringify(data));
+    togglePrdEdit();
+    alert('PRD 已保存');
+}
+
+// ===== 倒计时时间格式化 =====
+const COUNTDOWN_START = Date.now();
+
+function formatRemainingTime(ms) {
+  if (ms <= 0) return '已截止';
+  var totalHours = Math.floor(ms / 3600000);
+  var minutes = Math.floor((ms % 3600000) / 60000);
+  if (totalHours < 24) {
+    return '剩余 ' + totalHours + '小时' + minutes + '分';
+  } else {
+    var days = Math.floor(totalHours / 24);
+    var hours = totalHours % 24;
+    return '剩余 ' + days + '天' + hours + '小时';
+  }
+}
+
+function updateCountdowns() {
+  var elapsed = Date.now() - COUNTDOWN_START;
+  document.querySelectorAll('.countdown, .countdown-inline').forEach(function(el) {
+    var deadline = parseInt(el.getAttribute('data-deadline'), 10);
+    var remaining = deadline - elapsed;
+    el.textContent = formatRemainingTime(remaining);
+  });
+}
+
+updateCountdowns();
+setInterval(updateCountdowns, 60000);
+</script>
+
+</div><!-- end phone -->
+
+</div><!-- end container -->
+
+</body>
+</html>
