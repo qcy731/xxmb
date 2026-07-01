@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#07c160">
+    <meta name="theme-color" content="#0B574A">
     <title>美业管家 - 上传单次项目</title>
     <style>
         * {
@@ -89,7 +89,7 @@
 
         /* 安卓状态栏 */
         .status-bar {
-            background: #07c160;
+            background: #0B574A;
             height: 24px;
             display: flex;
             align-items: center;
@@ -156,7 +156,7 @@
         }
 
         .service-tab.active {
-            color: #07c160;
+            color: #0B574A;
             font-weight: 500;
         }
 
@@ -167,7 +167,7 @@
             left: 20%;
             right: 20%;
             height: 2px;
-            background: #07c160;
+            background: #0B574A;
             border-radius: 1px;
         }
 
@@ -193,7 +193,7 @@
             content: '';
             width: 3px;
             height: 16px;
-            background: #07c160;
+            background: #0B574A;
             border-radius: 2px;
         }
 
@@ -340,13 +340,13 @@
         }
 
         .category-input:focus {
-            border-color: #07c160;
+            border-color: #0B574A;
         }
 
         .category-confirm-btn {
             height: 44px;
             padding: 0 24px;
-            background: #2d8c6f;
+            background: #0B574A;
             color: #fff;
             border: none;
             border-radius: 22px;
@@ -379,8 +379,8 @@
         }
 
         .category-tag:hover {
-            background: #e8f5e9;
-            color: #07c160;
+            background: #e6f2ee;
+            color: #0B574A;
         }
 
         .form-input::placeholder {
@@ -466,7 +466,7 @@
         }
 
         .toggle-switch.on {
-            background: #07c160;
+            background: #0B574A;
         }
 
         .toggle-switch::after {
@@ -575,7 +575,7 @@
         }
 
         .fee-input:focus {
-            border-color: #07c160;
+            border-color: #0B574A;
         }
 
         .fee-unit {
@@ -651,7 +651,7 @@
         }
 
         .btn-status {
-            background: #07c160;
+            background: #0B574A;
             color: #fff;
         }
 
@@ -698,7 +698,7 @@
             color: #333;
             margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #00A86B;
+            border-bottom: 2px solid #0B574A;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -707,7 +707,7 @@
         .comment-section-title {
             font-size: 14px;
             font-weight: 600;
-            color: #00A86B;
+            color: #0B574A;
             margin-bottom: 10px;
             display: flex;
             align-items: center;
@@ -717,7 +717,7 @@
             content: '';
             width: 4px;
             height: 16px;
-            background: #00A86B;
+            background: #0B574A;
             border-radius: 2px;
         }
         .comment-text { font-size: 13px; color: #666; line-height: 1.8; }
@@ -725,10 +725,10 @@
         .comment-text ul { margin-left: 16px; margin-bottom: 8px; }
         .comment-text li { margin-bottom: 4px; }
         .comment-highlight {
-            background: #E8F5E9;
+            background: #e6f2ee;
             padding: 2px 6px;
             border-radius: 4px;
-            color: #00A86B;
+            color: #0B574A;
             font-weight: 500;
         }
         .prd-actions { display: flex; gap: 8px; }
@@ -741,8 +741,8 @@
             font-weight: 600;
             transition: .2s;
         }
-        .prd-btn-edit { background: #00A86B; color: #fff; }
-        .prd-btn-edit:hover { background: #008F5B; }
+        .prd-btn-edit { background: #0B574A; color: #fff; }
+        .prd-btn-edit:hover { background: #094a3f; }
         .prd-btn-save { background: #1677ff; color: #fff; }
         .prd-btn-save:hover { background: #0958d9; }
         .comment-text[contenteditable="true"] {
@@ -753,7 +753,7 @@
             outline: none;
         }
         .comment-text[contenteditable="true"]:focus {
-            border-color: #00A86B;
+            border-color: #0B574A;
             background: #f6ffed;
         }
         @media (max-width: 940px) {
@@ -956,27 +956,30 @@
                                     <span class="switch-label">允许独立服务商挂靠项目</span>
                                     <span class="switch-hint">开启后独立服务商可挂靠该项目</span>
                                 </div>
-                                <div class="toggle-switch" id="providerToggle" onclick="toggleProviderSettings(this)" role="switch"></div>
+                                <div class="toggle-switch" onclick="this.classList.toggle('on')" role="switch"></div>
                             </div>
 
                             <!-- 独立服务商服务费设置 -->
-                            <div class="provider-fee-settings" id="providerFeeSettings" style="display: none;">
-                                <div class="fee-section">
-                                    <div class="fee-title">VIP服务费设置</div>
-                                    <div class="fee-input-wrap">
-                                        <input type="number" class="fee-input" value="60" min="1" max="60">
-                                        <span class="fee-unit">%</span>
-                                    </div>
-                                    <div class="fee-hint">最低服务费1%，最高60%</div>
+                                                    </div>
+
+                        <!-- ===== 服务费设置（独立卡片，与订单广场一致） ===== -->
+                        <div class="form-card">
+                            <div class="section-title">服务费设置</div>
+                            <div class="fee-section">
+                                <div class="fee-title">VIP服务费设置</div>
+                                <div class="fee-input-wrap">
+                                    <input type="number" class="fee-input" id="vip-fee" value="60" min="1" max="60" onchange="validateFee('vip',1,60)">
+                                    <span class="fee-unit">%</span>
                                 </div>
-                                <div class="fee-section">
-                                    <div class="fee-title">普通用户服务费设置</div>
-                                    <div class="fee-input-wrap">
-                                        <input type="number" class="fee-input" value="60" min="10" max="60">
-                                        <span class="fee-unit">%</span>
-                                    </div>
-                                    <div class="fee-hint">最低服务费10%，最高60%</div>
+                                <div class="fee-hint">最低服务费1%，最高60%</div>
+                            </div>
+                            <div class="fee-section">
+                                <div class="fee-title">普通用户服务费设置</div>
+                                <div class="fee-input-wrap">
+                                    <input type="number" class="fee-input" id="normal-fee" value="60" min="10" max="60" onchange="validateFee('normal',10,60)">
+                                    <span class="fee-unit">%</span>
                                 </div>
+                                <div class="fee-hint">最低服务费10%，最高60%</div>
                             </div>
                         </div>
 
@@ -1057,15 +1060,7 @@
             document.getElementById('pageTitle').textContent = '编辑项目';
             document.getElementById('serviceTabs').style.display = 'none';
         }
-        // 否则保持默认：新建模式
-
-        // 独立服务商挂靠开关切换
-        function toggleProviderSettings(toggle) {
-            toggle.classList.toggle('on');
-            var feeSettings = document.getElementById('providerFeeSettings');
-            if (toggle.classList.contains('on')) {
-                feeSettings.style.display = 'block';
-            } else {
+        // 否则保持默认：新建模式 else {
                 feeSettings.style.display = 'none';
             }
         }
@@ -1113,6 +1108,14 @@
                 input.value = '';
                 closeShopCategoryModal();
             }
+        }
+    
+        function validateFee(type, min, max) {
+            var input = document.getElementById(type + '-fee');
+            var value = parseInt(input.value);
+            if (isNaN(value) || value < min) value = min;
+            if (value > max) value = max;
+            input.value = value;
         }
     </script>
 

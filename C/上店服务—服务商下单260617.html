@@ -13,15 +13,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
 
 /* 注释面板 */
 .comments { width: 400px; background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-height: 812px; overflow-y: auto; }
-.comments-title { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #00A86B; }
+.comments-title { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #0B574A; }
 .comment-section { margin-bottom: 20px; }
-.comment-section-title { font-size: 14px; font-weight: 600; color: #00A86B; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-.comment-section-title::before { content: ''; width: 4px; height: 16px; background: #00A86B; border-radius: 2px; }
+.comment-section-title { font-size: 14px; font-weight: 600; color: #0B574A; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.comment-section-title::before { content: ''; width: 4px; height: 16px; background: #0B574A; border-radius: 2px; }
 .comment-text { font-size: 13px; color: #666; line-height: 1.8; }
 .comment-text p { margin-bottom: 8px; }
 .comment-text ul { margin-left: 16px; margin-bottom: 8px; }
 .comment-text li { margin-bottom: 4px; }
-.comment-highlight { background: #E8F5E9; padding: 2px 6px; border-radius: 4px; color: #00A86B; font-weight: 500; }
+.comment-highlight { background: #e6f2ee; padding: 2px 6px; border-radius: 4px; color: #0B574A; font-weight: 500; }
 
 @media(max-width: 900px) {
   .container { flex-direction: column; align-items: center; }
@@ -38,14 +38,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
 
 /* 状态栏 */
 .status-bar {
-  height: 44px; background: #00A86B; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; color: white; font-size: 12px; flex-shrink: 0;
+  height: 44px; background: #0B574A; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; color: white; font-size: 12px; flex-shrink: 0;
 }
 .status-bar .time { font-weight: 600; }
 .status-bar .icons { display: flex; gap: 4px; align-items: center; }
 
 /* 导航栏 */
 .nav-bar {
-  height: 44px; background: #00A86B; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; color: white; flex-shrink: 0; position: relative;
+  height: 44px; background: #0B574A; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; color: white; flex-shrink: 0; position: relative;
 }
 .nav-bar .back { font-size: 20px; cursor: pointer; width: 32px; display: flex; align-items: center; }
 .nav-bar .title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 16px; font-weight: 600; }
@@ -79,25 +79,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
 .provider-status { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .status-tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 .status-tag.closed { background: #f0f0f0; color: #999; }
-.status-tag.open { background: #E8F5E9; color: #4CAF50; }
+.status-tag.open { background: #e6f2ee; color: #0B574A; }
 .status-hours { font-size: 12px; color: #999; }
 .provider-tags { display: flex; gap: 8px; margin-bottom: 8px; }
-.tag { display: inline-block; padding: 3px 10px; background: #E8F4F8; color: #00A86B; border-radius: 12px; font-size: 11px; }
+.tag { display: inline-block; padding: 3px 10px; background: #e6f2ee; color: #0B574A; border-radius: 12px; font-size: 11px; }
 .provider-address { font-size: 12px; color: #999; display: flex; align-items: center; gap: 4px; }
-.provider-address .distance { color: #00A86B; margin-left: auto; white-space: nowrap; }
+.provider-address .distance { color: #0B574A; margin-left: auto; white-space: nowrap; }
 
 /* Tab导航 */
 .tabs { display: flex; background: white; border-bottom: 1px solid #f0f0f0; margin-top: 12px; position: sticky; top: 0; z-index: 10; }
 .tab-item { flex: 1; text-align: center; padding: 12px 0; font-size: 14px; color: #999; cursor: pointer; position: relative; transition: color 0.2s; }
-.tab-item.active { color: #00A86B; font-weight: 600; }
-.tab-item.active::after { content: ''; position: absolute; bottom: 0; left: 30%; right: 30%; height: 2px; background: #00A86B; border-radius: 1px; }
+.tab-item.active { color: #0B574A; font-weight: 600; }
+.tab-item.active::after { content: ''; position: absolute; bottom: 0; left: 30%; right: 30%; height: 2px; background: #0B574A; border-radius: 1px; }
 
 /* 分类+项目列表 */
 .content-area { display: flex; min-height: 400px; }
 .category-sidebar { width: 80px; background: #f5f5f5; flex-shrink: 0; }
 .category-item { padding: 14px 8px; text-align: center; font-size: 12px; color: #666; cursor: pointer; position: relative; transition: all 0.2s; }
-.category-item.active { background: white; color: #00A86B; font-weight: 600; }
-.category-item.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 20px; background: #00A86B; border-radius: 0 2px 2px 0; }
+.category-item.active { background: white; color: #0B574A; font-weight: 600; }
+.category-item.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 20px; background: #0B574A; border-radius: 0 2px 2px 0; }
 .service-list { flex: 1; padding: 8px 12px; }
 .service-card {
   background: white; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; gap: 10px; cursor: pointer;
@@ -112,8 +112,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
 .price-current { font-size: 16px; font-weight: 700; color: #F96167; }
 .price-original { font-size: 11px; color: #ccc; text-decoration: line-through; }
 .price-discount { font-size: 10px; color: #F96167; background: #fff0f0; padding: 1px 4px; border-radius: 3px; }
-.service-add { width: 28px; height: 28px; background: #00A86B; border-radius: 50%; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; align-self: center; transition: background 0.2s; }
-.service-add:active { background: #008f5a; }
+.service-add { width: 28px; height: 28px; background: #0B574A; border-radius: 50%; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; align-self: center; transition: background 0.2s; }
+.service-add:active { background: #094a3f; }
 
 .safe-area { height: 20px; flex-shrink: 0; }
 .page::-webkit-scrollbar { display: none; }
@@ -259,7 +259,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
   border: 2px solid #e5e5e5;
 }
 .shop-card:active { transform: scale(0.98); }
-.shop-card.selected { border-color: #00A86B; background: #f0faf6; }
+.shop-card.selected { border-color: #0B574A; background: #e6f2ee; }
 .shop-card .shop-img {
   width: 100%;
   height: 80px;
@@ -290,7 +290,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
 }
 .shop-card .shop-stars { color: #FFB800; font-size: 10px; }
 .shop-card .shop-rating { font-size: 11px; color: #333; font-weight: 500; }
-.shop-card .shop-distance { font-size: 11px; color: #00A86B; font-weight: 500; }
+.shop-card .shop-distance { font-size: 11px; color: #0B574A; font-weight: 500; }
 .shop-card .shop-hours { font-size: 10px; color: #999; margin-bottom: 4px; }
 
 /* 技师挂靠标签 */
@@ -315,7 +315,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
   color: #999;
   margin-bottom: 8px;
 }
-.shop-count-hint strong { color: #00A86B; }
+.shop-count-hint strong { color: #0B574A; }
 
 /* 加载更多按钮 */
 .load-more-btn {
@@ -385,7 +385,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
 }
 .pay-icon.balance-icon { background: linear-gradient(135deg, #FFD700, #FFA500); color: white; font-size: 14px; font-weight: 700; }
 .pay-icon.redpack-icon { background: linear-gradient(135deg, #FF6B6B, #FF4757); color: white; font-size: 14px; }
-.pay-icon.wechat-icon { background: #07C160; color: white; font-size: 14px; }
+.pay-icon.wechat-icon { background: #0B574A; color: white; font-size: 14px; }
 .pay-icon.alipay-icon { background: #1677FF; color: white; font-size: 14px; }
 .pay-info { flex: 1; }
 .pay-name { font-size: 14px; color: #333; }
@@ -395,10 +395,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   transition: all 0.2s;
 }
-.payment-item.active .pay-radio { border-color: #07C160; }
+.payment-item.active .pay-radio { border-color: #0B574A; }
 .payment-item.active .pay-radio::after {
   content: ''; width: 10px; height: 10px; border-radius: 50%;
-  background: #07C160;
+  background: #0B574A;
 }
 
 /* 协议行 */
@@ -411,7 +411,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
   display: flex; align-items: center; justify-content: center; cursor: pointer;
   transition: all 0.2s; flex-shrink: 0;
 }
-.agree-checkbox.checked { background: #07C160; border-color: #07C160; }
+.agree-checkbox.checked { background: #0B574A; border-color: #0B574A; }
 .agree-checkbox.checked::after {
   content: ''; width: 4px; height: 7px; border: 1.5px solid white;
   border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px);
@@ -443,12 +443,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
 }
 .btn-pay-now:active { opacity: 0.9; }
 .btn-add-cart {
-  padding: 12px 14px; background: #00A86B; border: none;
+  padding: 12px 14px; background: #0B574A; border: none;
   border-radius: 22px; color: white; font-size: 13px; font-weight: 600;
   cursor: pointer; white-space: nowrap; display: none;
 }
 .btn-add-cart.show { display: block; }
-.btn-add-cart:active { background: #008f5a; }
+.btn-add-cart:active { background: #094a3f; }
 .btn-pay-now .invite-tag {
   position: absolute; top: -8px; right: -8px;
   background: linear-gradient(135deg, #FF8C00, #FFA500);
@@ -470,14 +470,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
 .detail-top-btn { width: 36px; height: 36px; background: rgba(0,0,0,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; cursor: pointer; }
 
 /* 绿色价格区域 */
-.detail-price-banner { background: linear-gradient(135deg, #00A86B, #008F5B); padding: 16px; color: white; }
+.detail-price-banner { background: linear-gradient(135deg, #0B574A, #094a3f); padding: 16px; color: white; }
 .detail-price-main { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
 .detail-price-big { font-size: 32px; font-weight: 700; }
 .detail-price-unit { font-size: 16px; }
 .detail-price-tag { font-size: 14px; opacity: 0.9; }
 .detail-price-tags { display: flex; gap: 10px; flex-wrap: wrap; }
 .detail-price-tag-item { display: flex; align-items: center; gap: 4px; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 16px; font-size: 12px; }
-.detail-price-tag-item.white { background: white; color: #00A86B; }
+.detail-price-tag-item.white { background: white; color: #0B574A; }
 
 /* 详情内容区域 */
 .detail-content-area { padding: 16px; background: white; }
@@ -495,7 +495,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
 .detail-provider-item { min-width: 80px; text-align: center; cursor: pointer; }
 .detail-provider-avatar { width: 64px; height: 64px; border-radius: 12px; background: #e0e0e0; margin: 0 auto 8px; overflow: hidden; position: relative; }
 .detail-provider-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.detail-provider-check { position: absolute; bottom: 4px; right: 4px; width: 18px; height: 18px; background: #00A86B; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; }
+.detail-provider-check { position: absolute; bottom: 4px; right: 4px; width: 18px; height: 18px; background: #0B574A; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; }
 .detail-provider-name { font-size: 13px; color: #333; }
 
 /* 底部预约栏 */

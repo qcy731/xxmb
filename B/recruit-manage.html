@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0B574A">
+    <title>美业管家 - 招工管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 页面背景 */
+        .page-bg {
+            min-height: 100vh;
+            background: #e8e8e8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        /* 手机框架 */
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 
+                0 50px 100px rgba(0,0,0,0.3),
+                inset 0 0 0 2px #333,
+                inset 0 0 0 4px #1a1a1a;
+            position: relative;
+        }
+
+        /* 手机顶部刘海 */
+        .phone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        /* 手机屏幕 */
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 屏幕内容区 */
+        .screen-content {
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        .screen-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ===== APP内容样式 ===== */
+        .app-body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            min-height: 100%;
+            padding-bottom: 100px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* 安卓状态栏 */
+        .status-bar {
+            background: #0B574A;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .status-time {
+            font-weight: 500;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        /* 顶部标题栏 */
+        .app-bar {
+            background: #0B574A;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        /* 返回按钮 */
+        .app-bar-back {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-decoration: none;
+            font-size: 22px;
+            border-radius: 50%;
+        }
+
+        .app-bar-back:active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        /* ===== 招工状态区域 ===== */
+        .recruit-status-section {
+            background: #fff;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .recruit-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .recruit-status-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .recruit-status-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: #0B574A;
+            margin-left: 8px;
+        }
+
+        .recruit-status-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 开关组件 */
+        .toggle-switch {
+            width: 48px;
+            height: 28px;
+            background: #ddd;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.on {
+            background: #0B574A;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.on::after {
+            transform: translateX(20px);
+        }
+
+        /* ===== 职位卡片 ===== */
+        .job-cards-section {
+            padding: 0 16px;
+        }
+
+        .job-card {
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: visible;
+        }
+
+        /* 删除按钮 */
+        .job-card-delete {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 28px;
+            height: 28px;
+            background: #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            line-height: 1;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .job-card-delete:hover {
+            background: #222;
+        }
+
+        /* 卡片行 */
+        .job-card-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            min-height: 48px;
+        }
+
+        .job-card-row + .job-card-row {
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .job-card-label {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+            width: 72px;
+            flex-shrink: 0;
+        }
+
+        .job-card-value {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+            text-align: right;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .job-card-arrow {
+            margin-left: 8px;
+            color: #ccc;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        /* 性别标签 */
+        .gender-tags {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .gender-tag {
+            padding: 4px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            border: 1px solid #ddd;
+            color: #888;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .gender-tag.active {
+            border-color: #0B574A;
+            color: #0B574A;
+            background: #e6f2ee;
+        }
+
+        /* ===== 悬浮新增按钮 ===== */
+        .fab-button {
+            position: absolute;
+            bottom: 24px;
+            right: 16px;
+            background: #0B574A;
+            color: #fff;
+            border: none;
+            border-radius: 24px;
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 16px rgba(11,87,74,0.35);
+            z-index: 50;
+            transition: all 0.2s;
+        }
+
+        .fab-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(11,87,74,0.4);
+        }
+
+        .fab-button:active {
+            transform: translateY(0);
+        }
+
+        .fab-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-bg">
+        <div class="phone-frame">
+            <!-- 刘海 -->
+            <div class="phone-notch"></div>
+
+            <!-- 屏幕 -->
+            <div class="phone-screen">
+                <!-- 屏幕内容 -->
+                <div class="screen-content">
+                    <div class="app-body">
+                        <!-- 安卓状态栏 -->
+                        <div class="status-bar" aria-hidden="true">
+                            <span class="status-time">9:56</span>
+                            <span class="status-icons">📶 📻 🔋</span>
+                        </div>
+
+                        <!-- 顶部标题栏 -->
+                        <header class="app-bar">
+                            <a href="features.html" class="app-bar-back">←</a>
+                            <h1 style="font-size: inherit; font-weight: inherit; color: inherit;">招工管理</h1>
+                        </header>
+
+                        <!-- ===== 招工状态 ===== -->
+                        <section class="recruit-status-section" aria-label="招工状态">
+                            <div class="recruit-status-row">
+                                <div style="display:flex;align-items:center;">
+                                    <span class="recruit-status-label">招工状态</span>
+                                    <span class="recruit-status-value" id="statusText">招工中</span>
+                                </div>
+                                <div class="toggle-switch on" id="recruitSwitch" onclick="toggleRecruitStatus()"></div>
+                            </div>
+                        </section>
+
+                        <!-- ===== 职位卡片列表 ===== -->
+                        <section class="job-cards-section" id="jobCardsContainer">
+                            <!-- 卡片1 -->
+                            <div class="job-card" data-index="0">
+                                <button class="job-card-delete" onclick="deleteJob(this)" aria-label="删除">×</button>
+                                <div class="job-card-row" onclick="editJob(0)">
+                                    <span class="job-card-label">招工职位</span>
+                                    <span class="job-card-value">测试职业</span>
+                                    <span class="job-card-arrow">›</span>
+                                </div>
+                                <div class="job-card-row">
+                                    <span class="job-card-label">招工性别</span>
+                                    <div class="gender-tags" data-card="0">
+                                        <span class="gender-tag active" onclick="selectGender(0, this)">不限</span>
+                                        <span class="gender-tag" onclick="selectGender(0, this)">男</span>
+                                        <span class="gender-tag" onclick="selectGender(0, this)">女</span>
+                                    </div>
+                                </div>
+                                <div class="job-card-row" onclick="editJob(0)">
+                                    <span class="job-card-label">招聘要求</span>
+                                    <span class="job-card-value">1111</span>
+                                    <span class="job-card-arrow">›</span>
+                                </div>
+                            </div>
+
+                            <!-- 卡片2 -->
+                            <div class="job-card" data-index="1">
+                                <button class="job-card-delete" onclick="deleteJob(this)" aria-label="删除">×</button>
+                                <div class="job-card-row" onclick="editJob(1)">
+                                    <span class="job-card-label">招工职位</span>
+                                    <span class="job-card-value">高级总监</span>
+                                    <span class="job-card-arrow">›</span>
+                                </div>
+                                <div class="job-card-row">
+                                    <span class="job-card-label">招工性别</span>
+                                    <div class="gender-tags" data-card="1">
+                                        <span class="gender-tag" onclick="selectGender(1, this)">不限</span>
+                                        <span class="gender-tag active" onclick="selectGender(1, this)">男</span>
+                                        <span class="gender-tag" onclick="selectGender(1, this)">女</span>
+                                    </div>
+                                </div>
+                                <div class="job-card-row" onclick="editJob(1)">
+                                    <span class="job-card-label">招聘要求</span>
+                                    <span class="job-card-value">经验丰富</span>
+                                    <span class="job-card-arrow">›</span>
+                                </div>
+                            </div>
+
+                            <!-- 卡片3 -->
+                            <div class="job-card" data-index="2">
+                                <button class="job-card-delete" onclick="deleteJob(this)" aria-label="删除">×</button>
+                                <div class="job-card-row" onclick="editJob(2)">
+                                    <span class="job-card-label">招工职位</span>
+                                    <span class="job-card-value">美容师</span>
+                                    <span class="job-card-arrow">›</span>
+                                </div>
+                                <div class="job-card-row">
+                                    <span class="job-card-label">招工性别</span>
+                                    <div class="gender-tags" data-card="2">
+                                        <span class="gender-tag" onclick="selectGender(2, this)">不限</span>
+                                        <span class="gender-tag" onclick="selectGender(2, this)">男</span>
+                                        <span class="gender-tag active" onclick="selectGender(2, this)">女</span>
+                                    </div>
+                                </div>
+                                <div class="job-card-row" onclick="editJob(2)">
+                                    <span class="job-card-label">招聘要求</span>
+                                    <span class="job-card-value">肤白貌美</span>
+                                    <span class="job-card-arrow">›</span>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+                </div>
+
+                <!-- ===== 悬浮新增按钮（在手机框内） ===== -->
+                <button class="fab-button" onclick="addJob()">
+                    <span class="fab-icon">+</span>
+                    <span>新增职位</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 招工状态切换
+        function toggleRecruitStatus() {
+            var sw = document.getElementById('recruitSwitch');
+            var txt = document.getElementById('statusText');
+            sw.classList.toggle('on');
+            if (sw.classList.contains('on')) {
+                txt.textContent = '招工中';
+                txt.style.color = '#0B574A';
+            } else {
+                txt.textContent = '已暂停';
+                txt.style.color = '#888';
+            }
+        }
+
+        // 性别标签选择（单选互斥）
+        function selectGender(cardIndex, el) {
+            var tags = el.parentElement.querySelectorAll('.gender-tag');
+            tags.forEach(function(tag) {
+                tag.classList.remove('active');
+            });
+            el.classList.add('active');
+        }
+
+        // 删除职位卡片
+        function deleteJob(btn) {
+            var card = btn.closest('.job-card');
+            if (confirm('确定删除该职位？')) {
+                card.style.transition = 'all 0.3s';
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(100%)';
+                card.style.marginBottom = '0';
+                card.style.padding = '0';
+                card.style.height = '0';
+                card.style.overflow = 'hidden';
+                setTimeout(function() {
+                    card.remove();
+                }, 300);
+            }
+        }
+
+        // 编辑职位（占位）
+        function editJob(index) {
+            alert('编辑职位 #' + (index + 1));
+        }
+
+        // 新增职位（占位）
+        function addJob() {
+            alert('新增职位');
+        }
+    </script>
+</body>
+</html>
