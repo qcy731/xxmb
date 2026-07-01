@@ -1651,6 +1651,36 @@ body.prd-layout .phone-frame {
   body.prd-layout .phone-frame { margin: 0; }
 }
 </style>
+<style>
+/* 抢单订单卡片样式（照搬参考文件） */
+.grab-card{background:#fff;border-radius:12px;margin:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06);position:relative}
+.grab-card:active{background:#f8f8f8}
+.grab-countdown{position:absolute;top:14px;right:14px;font-size:11px;color:#FF9800;background:#FFF3E0;padding:3px 8px;border-radius:10px}
+.grab-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.grab-service{font-size:16px;font-weight:600;color:#333;margin-bottom:4px}
+.grab-price-wrap{display:flex;align-items:baseline;gap:6px;margin-top:4px}
+.grab-price{font-size:20px;font-weight:700;color:#F96167}
+.grab-price-label{font-size:10px;color:#fff;background:#F96167;padding:2px 6px;border-radius:4px;font-weight:500}
+.grab-meta{font-size:12px;color:#999;margin-top:6px;display:flex;flex-wrap:wrap;gap:8px}
+.grab-meta span{display:flex;align-items:center;gap:3px}
+.grab-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.grab-tag{font-size:11px;padding:4px 10px;border-radius:10px;background:#f5f5f5;color:#666}
+.grab-tag.green{background:#e6f2ee;color:#0B574A}
+.grab-status-tag{font-size:12px;padding:4px 10px;border-radius:10px;font-weight:500;flex-shrink:0;margin-top:4px}
+.grab-status-tag.green{background:#e6f2ee;color:#0B574A}
+.grab-status-tag.orange{background:#FFF3E0;color:#FF9800}
+.grab-status-tag.red{background:#fff0f0;color:#F96167}
+.grab-status-tag.default{background:#f5f5f5;color:#666}
+.grab-actions{margin-top:12px;display:flex;gap:8px}
+.grab-btn{flex:1;padding:10px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-align:center;transition:.2s}
+.grab-btn-primary{background:#0B574A;color:#fff}
+.grab-btn-primary:active{background:#094a3f}
+.grab-btn-secondary{background:#f5f5f5;color:#666}
+.grab-btn-secondary:active{background:#e8e8e8}
+.grab-btn-danger{background:#fff0f0;color:#F96167}
+.grab-btn-danger:active{background:#ffe0e0}
+.grab-card[data-status="applied"]{opacity:1}
+</style>
 </head>
 <body class="prd-layout">
 <div class="prd-container">
@@ -1846,6 +1876,114 @@ body.prd-layout .phone-frame {
         </div>
 
       </div>
+
+      <!-- 抢单订单卡片（照搬参考文件样式） -->
+      <div class="ol2-orders-grab" style="display:none">
+        <!-- 状态：等待商家确认（已申请） -->
+        <div class="grab-card animate-in" data-status="applied">
+          <div class="grab-countdown">等待商家确认...</div>
+          <div class="grab-header">
+            <div>
+              <div class="grab-service">精剪造型</div>
+              <div class="grab-price-wrap"><span class="grab-price-label">到手价</span><span class="grab-price">¥98</span></div>
+            </div>
+            <span class="grab-status-tag orange">已申请</span>
+          </div>
+          <div class="grab-meta">
+            <span>&#128205; 距您 2.5km</span>
+            <span>&#128347; 今天 15:00</span>
+          </div>
+          <div class="grab-tags">
+            <span class="grab-tag">商家：星剪造型</span>
+          </div>
+          <div class="grab-actions">
+            <button class="grab-btn grab-btn-danger" onclick="confirmCancelGrab()">取消申请</button>
+          </div>
+        </div>
+
+        <!-- 状态：申请失败（已申请） -->
+        <div class="grab-card animate-in" data-status="applied">
+          <div class="grab-header">
+            <div>
+              <div class="grab-service">染发套餐</div>
+              <div class="grab-price-wrap"><span class="grab-price-label">到手价</span><span class="grab-price">¥288</span></div>
+            </div>
+            <span class="grab-status-tag red">申请失败</span>
+          </div>
+          <div class="grab-meta">
+            <span>&#128205; 距您 1.5km</span>
+            <span>&#128347; 昨天 16:00</span>
+          </div>
+          <div class="grab-tags">
+            <span class="grab-tag">商家：时尚造型</span>
+          </div>
+          <div class="grab-actions">
+            <button class="grab-btn grab-btn-danger" style="flex:0 0 60px" onclick="confirmDeleteGrab()">删除</button>
+          </div>
+        </div>
+
+        <!-- 状态：订单已取消（已申请） -->
+        <div class="grab-card animate-in" data-status="applied">
+          <div class="grab-header">
+            <div>
+              <div class="grab-service">烫发套餐</div>
+              <div class="grab-price-wrap"><span class="grab-price-label">到手价</span><span class="grab-price">¥388</span></div>
+            </div>
+            <span class="grab-status-tag red">订单已取消</span>
+          </div>
+          <div class="grab-meta">
+            <span>&#128205; 距您 3.2km</span>
+            <span>&#128347; 明天 10:00</span>
+          </div>
+          <div class="grab-tags">
+            <span class="grab-tag">商家：美发沙龙</span>
+          </div>
+          <div class="grab-actions">
+            <button class="grab-btn grab-btn-danger" style="flex:0 0 60px" onclick="confirmDeleteGrab()">删除</button>
+          </div>
+        </div>
+
+        <!-- 状态：待服务 -->
+        <div class="grab-card animate-in" data-status="service">
+          <div class="grab-header">
+            <div>
+              <div class="grab-service">洗剪吹套餐</div>
+              <div class="grab-price-wrap"><span class="grab-price-label">到手价</span><span class="grab-price">¥128</span></div>
+            </div>
+            <span class="grab-status-tag green">待服务</span>
+          </div>
+          <div class="grab-meta">
+            <span>&#128205; 距您 0.8km</span>
+            <span>&#128347; 今天 14:00</span>
+          </div>
+          <div class="grab-tags">
+            <span class="grab-tag">商家：星剪造型</span>
+          </div>
+          <div class="grab-actions">
+            <button class="grab-btn grab-btn-danger" onclick="confirmCancelGrab()">取消接单</button>
+          </div>
+        </div>
+
+        <!-- 状态：已完成 -->
+        <div class="grab-card animate-in" data-status="completed">
+          <div class="grab-header">
+            <div>
+              <div class="grab-service">洗剪吹套餐</div>
+              <div class="grab-price-wrap"><span class="grab-price-label">到手价</span><span class="grab-price">¥128</span></div>
+            </div>
+            <span class="grab-status-tag default">已完成</span>
+          </div>
+          <div class="grab-meta">
+            <span>&#128347; 昨天 14:00</span>
+            <span>&#128205; 距您 0.8km</span>
+          </div>
+          <div class="grab-tags">
+            <span class="grab-tag">商家：星剪造型</span>
+            <span class="grab-tag green">已结算</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
   <div class="bottom-tab-bar">
@@ -1897,6 +2035,9 @@ const pageMap = {
 
     // Update status tabs based on pill type
     const statusTabs = document.querySelector('.ol2-status-tabs');
+    const normalOrders = document.querySelector('.ol2-orders');
+    const grabOrders = document.querySelector('.ol2-orders-grab');
+
     if (type === 'grab') {
       // 抢单订单: 全部、已申请、待服务、已完成
       statusTabs.innerHTML = `
@@ -1905,6 +2046,9 @@ const pageMap = {
         <div class="ol2-status-tab" onclick="switchOrderStatusTab(this, 'service')">待服务</div>
         <div class="ol2-status-tab" onclick="switchOrderStatusTab(this, 'completed')">已完成</div>
       `;
+      // 显示抢单卡片，隐藏普通卡片
+      if (normalOrders) normalOrders.style.display = 'none';
+      if (grabOrders) { grabOrders.style.display = 'block'; filterGrabOrders('all'); }
     } else {
       // 其他订单: 全部、待付款、待服务、已完成
       statusTabs.innerHTML = `
@@ -1913,12 +2057,45 @@ const pageMap = {
         <div class="ol2-status-tab" onclick="switchOrderStatusTab(this, 'service')">待服务</div>
         <div class="ol2-status-tab" onclick="switchOrderStatusTab(this, 'completed')">已完成</div>
       `;
+      // 显示普通卡片，隐藏抢单卡片
+      if (normalOrders) normalOrders.style.display = 'block';
+      if (grabOrders) grabOrders.style.display = 'none';
     }
   }
-  // Secondary status tabs
+
+  // 抢单订单状态筛选
+  function filterGrabOrders(status) {
+    const cards = document.querySelectorAll('.ol2-orders-grab .grab-card');
+    cards.forEach(card => {
+      if (status === 'all') {
+        card.style.display = '';
+      } else {
+        card.style.display = card.getAttribute('data-status') === status ? '' : 'none';
+      }
+    });
+  }
+
+  // Secondary status tabs (enhanced for grab orders)
   function switchOrderStatusTab(el, type) {
     el.parentElement.querySelectorAll('.ol2-status-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
+    // If grab orders visible, filter by status
+    const grabOrders = document.querySelector('.ol2-orders-grab');
+    if (grabOrders && grabOrders.style.display !== 'none') {
+      filterGrabOrders(type);
+    }
+  }
+
+  // 抢单订单取消/删除确认
+  function confirmCancelGrab() {
+    if (confirm('确定要取消该订单吗？\n频繁取消接单可能影响您的接单权限。')) {
+      alert('取消成功');
+    }
+  }
+  function confirmDeleteGrab() {
+    if (confirm('确定要删除该订单记录吗？\n删除后该记录将无法恢复。')) {
+      alert('删除成功');
+    }
   }
 
   // ===== Time Filter =====
