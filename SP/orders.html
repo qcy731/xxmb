@@ -1749,7 +1749,8 @@ body.prd-layout .phone-frame {
               <span class="tag">会染发</span>
             </div>
             <div class="order-card-actions">
-              <button class="btn-small btn-primary" onclick="confirmGrabOrder()">立即抢单</button>
+              <button class="btn-small btn-secondary" onclick="window.location.href = 'order-detail.html'">查看详情</button>
+              <button class="btn-small btn-primary">立即抢单</button>
             </div>
           </div>
           <div class="order-card animate-in">
@@ -1770,7 +1771,8 @@ body.prd-layout .phone-frame {
               <span class="tag">沟通能力强</span>
             </div>
             <div class="order-card-actions">
-              <button class="btn-small btn-primary" onclick="confirmGrabOrder()">立即抢单</button>
+              <button class="btn-small btn-secondary" onclick="window.location.href = 'order-detail.html'">查看详情</button>
+              <button class="btn-small btn-primary">立即抢单</button>
             </div>
           </div>
           <div class="order-card animate-in">
@@ -1791,7 +1793,8 @@ body.prd-layout .phone-frame {
               <span class="tag">会剪男士发型</span>
             </div>
             <div class="order-card-actions">
-              <button class="btn-small btn-primary" onclick="confirmGrabOrder()">立即抢单</button>
+              <button class="btn-small btn-secondary" onclick="window.location.href = 'order-detail.html'">查看详情</button>
+              <button class="btn-small btn-primary">立即抢单</button>
             </div>
           </div>
           <div class="order-card animate-in">
@@ -1812,7 +1815,8 @@ body.prd-layout .phone-frame {
               <span class="tag orange">热门</span>
             </div>
             <div class="order-card-actions">
-              <button class="btn-small btn-primary" onclick="confirmGrabOrder()">立即抢单</button>
+              <button class="btn-small btn-secondary" onclick="window.location.href = 'order-detail.html'">查看详情</button>
+              <button class="btn-small btn-primary">立即抢单</button>
             </div>
           </div>
         </div>
@@ -1837,6 +1841,7 @@ body.prd-layout .phone-frame {
               <span class="tag">商家：星剪造型</span>
             </div>
             <div class="order-card-actions">
+              <button class="btn-small btn-secondary" onclick="window.location.href = 'order-detail.html'">查看详情</button>
               <button class="btn-small btn-danger">取消接单</button>
             </div>
           </div>
@@ -1855,7 +1860,9 @@ body.prd-layout .phone-frame {
             <div class="order-tags">
               <span class="tag">商家：养发馆</span>
             </div>
-            
+            <div class="order-card-actions">
+              <button class="btn-small btn-secondary" style="flex:1">查看详情</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1880,6 +1887,7 @@ body.prd-layout .phone-frame {
               <span class="tag">商家：星剪造型</span>
             </div>
             <div class="order-card-actions">
+              <button class="btn-small btn-secondary" onclick="window.location.href = 'order-detail.html'">查看详情</button>
               <button class="btn-small btn-danger">取消申请</button>
             </div>
           </div>
@@ -1900,6 +1908,7 @@ body.prd-layout .phone-frame {
             </div>
             <div class="order-card-actions">
               <button class="btn-small btn-danger" style="flex:0 0 60px">删除</button>
+              <button class="btn-small btn-secondary" onclick="window.location.href = 'order-detail.html'">查看详情</button>
             </div>
           </div>
           <div class="order-card animate-in">
@@ -1919,6 +1928,7 @@ body.prd-layout .phone-frame {
             </div>
             <div class="order-card-actions">
               <button class="btn-small btn-danger" style="flex:0 0 60px">删除</button>
+              <button class="btn-small btn-secondary" onclick="window.location.href = 'order-detail.html'">查看详情</button>
             </div>
           </div>
         </div>
@@ -1943,7 +1953,9 @@ body.prd-layout .phone-frame {
               <span class="tag">商家：星剪造型</span>
               <span class="tag green">已结算</span>
             </div>
-            
+            <div class="order-card-actions">
+              <button class="btn-small btn-secondary" onclick="window.location.href = 'order-detail.html'">查看详情</button>
+            </div>
           </div>
         </div>
       </div>
@@ -2653,59 +2665,8 @@ window.location.href = 'login.html';
     alert('PRD 已保存');
   }
 
-
-
 </script>
 
 </div>
-
-<script>
-function confirmGrabOrder() {
-  var m = document.getElementById('grab-confirm-modal');
-  m.style.display = 'flex';
-}
-function closeGrabModal() {
-  document.getElementById('grab-confirm-modal').style.display = 'none';
-}
-function doGrabOrder() {
-  closeGrabModal();
-  document.getElementById('grab-success-modal').style.display = 'flex';
-}
-function closeGrabSuccess() {
-  document.getElementById('grab-success-modal').style.display = 'none';
-}
-</script>
-<!-- 抢单确认弹窗 -->
-<div id="grab-confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:none;align-items:center;justify-content:center;">
-  <div style="width:300px;background:#fff;border-radius:16px;overflow:hidden;animation:popIn .3s ease">
-    <div style="padding:24px 20px;text-align:center">
-      <div style="font-size:16px;font-weight:600;color:#333;margin-bottom:8px">是否申请接取该订单？</div>
-    </div>
-    <div style="display:flex;border-top:1px solid #f0f0f0">
-      <button onclick="closeGrabModal()" style="flex:1;padding:14px;font-size:15px;color:#666;background:none;border:none;border-right:1px solid #f0f0f0;cursor:pointer">取消</button>
-      <button onclick="doGrabOrder()" style="flex:1;padding:14px;font-size:15px;color:#0B574A;font-weight:600;background:none;border:none;cursor:pointer">确认</button>
-    </div>
-  </div>
-</div>
-
-<!-- 抢单成功弹窗 -->
-<div id="grab-success-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
-  <div style="width:300px;background:#fff;border-radius:16px;overflow:hidden;animation:popIn .3s ease">
-    <div style="padding:30px 20px;text-align:center">
-      <div style="width:56px;height:56px;background:#e6f2ee;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#0B574A">&#10004;</div>
-      <div style="font-size:16px;font-weight:600;color:#333;margin-bottom:8px">申请成功</div>
-      <div style="font-size:13px;color:#666;line-height:1.6">需等待商家确认</div>
-    </div>
-    <div style="border-top:1px solid #f0f0f0">
-      <button onclick="closeGrabSuccess()" style="width:100%;padding:14px;font-size:15px;color:#0B574A;font-weight:600;background:none;border:none;cursor:pointer">确定</button>
-    </div>
-  </div>
-</div>
-
-<style>
-@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
-</style>
-
-
 </body>
 </html>

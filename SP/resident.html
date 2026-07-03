@@ -1205,13 +1205,20 @@
   .resident-page.hidden { display: none; }
   .profile-edit-page.hidden { display: none; }
 
-  .resident-top { background: linear-gradient(160deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 48px 20px 22px; border-radius: 0 0 24px 24px; box-shadow: 0 12px 28px rgba(11,87,74,.18); }
-  .resident-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .resident-top { background: linear-gradient(160deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 32px 20px 24px; border-radius: 0 0 24px 24px; box-shadow: 0 12px 28px rgba(11,87,74,.18); }
+  .resident-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .resident-role-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.18); font-size: 12px; font-weight: 500; }
   .resident-switch { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,.16); color: rgba(255,255,255,.95); cursor: pointer; transition: .2s; }
   .resident-switch:active { transform: scale(.94); background: rgba(255,255,255,.24); }
   .resident-switch svg { width: 18px; height: 18px; }
-  .resident-profile { display: flex; align-items: center; gap: 14px; }
+  .resident-profile { display: flex; align-items: center; gap: 14px; justify-content: space-between; }
+  .resident-profile-left { display: flex; align-items: center; gap: 14px; }
+  .resident-status-switch { display: flex; align-items: center; gap: 6px; }
+  .resident-status-label { font-size: 11px; color: rgba(255,255,255,0.9); font-weight: 500; }
+  .resident-status-toggle { width: 40px; height: 22px; background: rgba(255,255,255,0.3); border-radius: 11px; position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
+  .resident-status-toggle.active { background: var(--success); }
+  .resident-status-toggle::after { content: ''; position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+  .resident-status-toggle.active::after { transform: translateX(18px); }
   .resident-avatar { width: 58px; height: 58px; border-radius: 18px; background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.35); object-fit: cover; }
   .resident-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
   .resident-store { font-size: 13px; color: rgba(255,255,255,.82); }
@@ -1810,10 +1817,16 @@ body.prd-layout .phone-frame {
             </button>
           </div>
           <div class="resident-profile">
-            <img class="resident-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=resident-stylist&backgroundColor=b6e3f4" alt="">
-            <div>
-              <div class="resident-name">林老师</div>
-              <div class="resident-store">驻店：小小造型·万象城店</div>
+            <div class="resident-profile-left">
+              <img class="resident-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=resident-stylist&backgroundColor=b6e3f4" alt="">
+              <div>
+                <div class="resident-name">林老师</div>
+                <div class="resident-store">驻店：小小造型·万象城店</div>
+              </div>
+            </div>
+            <div class="resident-status-switch">
+              <span class="resident-status-label" id="residentStatusLabel">营业中</span>
+              <div class="resident-status-toggle active" id="residentStatusToggle" onclick="toggleResidentWorkStatus()"></div>
             </div>
           </div>
         </div>
@@ -1877,36 +1890,6 @@ body.prd-layout .phone-frame {
                   </div>
                 </div>
                 <div class="todo-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polyline points="9 18 15 12 9 6"/></svg></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="resident-card">
-            <div class="resident-card-title">今日预约 <span class="resident-muted">2026-06-10</span></div>
-            <div class="resident-schedule">
-              <div class="resident-shift">
-                <div class="resident-shift-time">10:00</div>
-                <div class="resident-shift-info">
-                  <div class="resident-shift-name">精剪造型</div>
-                  <div class="resident-shift-desc">王女士 · 预计60分钟</div>
-                </div>
-                <div class="resident-status">已预约</div>
-              </div>
-              <div class="resident-shift">
-                <div class="resident-shift-time">14:30</div>
-                <div class="resident-shift-info">
-                  <div class="resident-shift-name">染发护理</div>
-                  <div class="resident-shift-desc">李先生 · 预计120分钟</div>
-                </div>
-                <div class="resident-status">待到店</div>
-              </div>
-              <div class="resident-shift">
-                <div class="resident-shift-time">18:00</div>
-                <div class="resident-shift-info">
-                  <div class="resident-shift-name">洗护造型</div>
-                  <div class="resident-shift-desc">赵女士 · 预计45分钟</div>
-                </div>
-                <div class="resident-status">待到店</div>
               </div>
             </div>
           </div>
@@ -2702,6 +2685,13 @@ window.location.href = 'login.html';
     localStorage.setItem(prdStorageKey, JSON.stringify(data));
     togglePrdEdit();
     alert('PRD 已保存');
+  }
+
+  function toggleResidentWorkStatus() {
+    var toggle = document.getElementById('residentStatusToggle');
+    var label = document.getElementById('residentStatusLabel');
+    toggle.classList.toggle('active');
+    label.textContent = toggle.classList.contains('active') ? '营业中' : '休息中';
   }
 
 </script>

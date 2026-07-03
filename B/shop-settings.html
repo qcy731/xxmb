@@ -1107,7 +1107,21 @@
         @media(max-width:900px){
             .comments{width:100%;max-width:375px;max-height:none}
         }
-    </style>
+    
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed; top: 40px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.75); color: #fff; padding: 10px 24px; border-radius: 20px;
+            font-size: 13px; z-index: 99999; pointer-events: none; opacity: 0; transition: opacity .3s;
+        }
+        .toast.show { opacity: 1; }
+        /* ===== 开关说明 ===== */
+        .toggle-desc {
+            font-size: 11px; color: #999; line-height: 1.5;
+            padding: 6px 0 0; margin-top: 8px; border-top: 1px dashed #f0f0f0;
+        }
+
+</style>
 </head>
 <body>
     <div class="page-bg">
@@ -1339,6 +1353,7 @@
                             <div class="setting-row">
                                 <span class="setting-label">是否允许独立服务商上店服务</span>
                                 <div class="toggle-switch" id="serviceToggle" onclick="toggleServiceToggle(this)" role="switch" aria-checked="true"></div>
+                                <div class="toggle-desc">开启后，独立服务商可申请上店服务，SP端将匹配该店铺。关闭后将隐藏上店设置。</div>
                             </div>
                             <div class="setting-row clickable" id="serviceCategoryRow" onclick="openServicePopup()">
                                 <span class="setting-label">选取上店服务分类</span>
@@ -1538,23 +1553,27 @@
         }
 
         function toggleServiceToggle(el) {
-            el.classList.toggle('off');
-            var on = !el.classList.contains('off');
-            var row = document.getElementById('serviceCategoryRow');
-            var panel = document.getElementById('servicePricePanel');
-            if (on) {
-                row.style.display = '';
-                panel.style.display = '';
+            if (el.classList.contains('off')) {
+                // Turning ON: just enable
+                el.classList.remove('off');
+                document.getElementById('serviceCategoryRow').style.display = '';
+                document.getElementById('servicePricePanel').style.display = '';
+                showToast('上店服务已开启');
             } else {
-                row.style.display = 'none';
-                panel.style.display = 'none';
+                // Turning OFF: confirm first
+                if (confirm('关闭后店铺将退出上店服务匹配，已设置的价格范围将被隐藏。确认关闭？')) {
+                    el.classList.add('off');
+                    document.getElementById('serviceCategoryRow').style.display = 'none';
+                    document.getElementById('servicePricePanel').style.display = 'none';
+                    showToast('上店服务已关闭');
+                }
             }
         }
 
         function openServicePopup() {
             var toggle = document.getElementById('serviceToggle');
             if (toggle.classList.contains('off')) {
-                alert('请选择上店服务分类');
+                showToast('请先开启上店服务开关后再选择分类');
                 return;
             }
             openPopup('servicePopup');
@@ -1716,6 +1735,7 @@
             value.innerHTML = (allItems.length ? allItems.join('、') : '请选择') + ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>';
             renderPriceRanges(selectedServiceCategories);
             closePopup();
+            showToast('上店服务分类已保存');
         }
 
         function renderPriceRanges(categories) {
@@ -1742,11 +1762,12 @@
         }
 
         function resetPriceRanges() {
-            var list = document.getElementById('priceRangeList');
-            var inputs = list.querySelectorAll('input[type="number"]');
-            inputs.forEach(function(input) {
-                input.value = '';
-            });
+            if (confirm('确认重置所有价格范围？重置后需要重新设置各分类价格。')) {
+                var list = document.getElementById('priceRangeList');
+                var inputs = list.querySelectorAll('input[type="number"]');
+                inputs.forEach(function(input) { input.value = ''; });
+                showToast('价格范围已重置');
+            }
         }
 
         function savePriceRanges() {
@@ -1760,20 +1781,20 @@
                 if (isNaN(min) || isNaN(max) || inputs[0].value === '' || inputs[1].value === '') {
                     valid = false;
                 } else if (min < 0 || max < 0) {
-                    alert('价格不能小于0');
+                    showToast('价格不能小于0');
                     valid = false;
                     return;
                 } else if (min > max) {
-                    alert('最低价不得高于最高价');
+                    showToast('最低价不得高于最高价');
                     valid = false;
                     return;
                 }
             });
             if (valid) {
                 priceRangesSaved = true;
-                alert('保存成功');
+                showToast('价格范围已保存');
             } else {
-                alert('请填写完整的分类价格范围');
+                showToast('请填写完整的分类价格范围');
             }
         }
 
@@ -1913,8 +1934,21 @@
             });
             localStorage.setItem(prdStorageKey, JSON.stringify(data));
             togglePrdEdit();
-            alert('PRD 已保存');
+            showToast('PRD 已保存');
+        }
+
+        var toastTimer = null;
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            if (!t) return;
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function() { t.classList.remove('show'); }, 1800);
         }
     </script>
+<div class="toast" id="toast">
+  
+</div>
 </body>
 </html>

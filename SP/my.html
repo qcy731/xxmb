@@ -610,7 +610,7 @@
 
   /* ===== My Page ===== */
   .my-header {
-    padding: 20px 24px 24px;
+    padding: 28px 24px 32px;
     background: linear-gradient(135deg, var(--primary), var(--accent));
     position: relative;
     overflow: hidden;
@@ -625,26 +625,36 @@
     border-radius: 50%;
     background: rgba(255,255,255,0.1);
   }
-  .my-profile { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+  .my-profile { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; justify-content: space-between; }
+  .my-header-row { display: flex; align-items: stretch; justify-content: space-between; position: relative; z-index: 1; }
+  .my-header-left { display: flex; align-items: center; gap: 14px; }
+  .my-header-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 10px; }
+  .my-status-switch { display: flex; align-items: center; gap: 6px; }
+  .my-status-label { font-size: 11px; color: rgba(255,255,255,0.9); font-weight: 500; }
+  .my-status-toggle { width: 40px; height: 22px; background: rgba(255,255,255,0.3); border-radius: 11px; position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
+  .my-status-toggle.active { background: var(--success); }
+  .my-status-toggle::after { content: ''; position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+  .my-status-toggle.active::after { transform: translateX(18px); }
   .my-avatar { width: 56px; height: 56px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.4); object-fit: cover; }
   .my-name { font-size: 18px; font-weight: 700; color: white; }
   .my-role { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 2px; }
   .my-edit {
-    position: absolute;
-    top: 20px;
-    right: 24px;
-    z-index: 1;
     background: rgba(255,255,255,0.2);
     border: none;
     color: white;
-    padding: 6px 14px;
+    padding: 5px 12px;
     border-radius: 8px;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
-    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    transition: background 0.2s;
   }
-  .my-edit:active { background: rgba(255,255,255,0.3); }
+  .my-edit:hover { background: rgba(255,255,255,0.3); }
+  .my-edit svg { width: 12px; height: 12px; }
 
   .income-card {
     margin: -12px 20px 0;
@@ -1742,17 +1752,25 @@ body.prd-layout .phone-frame {
   <div class="page" id="page-my">
       <!-- Header -->
       <div class="my-header">
-        <div class="my-profile">
-          <img class="my-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=beauty-tech&backgroundColor=ffd5dc" alt="">
-          <div>
-            <div class="my-name">陈师傅</div>
-            <div class="my-role">独立服务商</div>
+        <div class="my-header-row">
+          <div class="my-header-left">
+            <img class="my-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=beauty-tech&backgroundColor=ffd5dc" alt="">
+            <div>
+              <div class="my-name">陈师傅</div>
+              <div class="my-role">独立服务商</div>
+            </div>
+          </div>
+          <div class="my-header-right">
+            <button class="my-edit" onclick="openProfileEdit()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              编辑信息
+            </button>
+            <div class="my-status-switch">
+              <span class="my-status-label" id="statusLabel">营业中</span>
+              <div class="my-status-toggle active" id="statusToggle" onclick="toggleWorkStatus()"></div>
+            </div>
           </div>
         </div>
-        <button class="my-edit" onclick="openProfileEdit()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="display:inline;vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          编辑信息
-        </button>
       </div>
 
       <!-- Income Card -->
@@ -1914,7 +1932,7 @@ body.prd-layout .phone-frame {
         <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:12px; border-radius:var(--radius-sm); font-size:13px; font-weight:500; color:var(--text-secondary); background:var(--bg-warm); cursor:pointer; border: 1px solid var(--border);" onclick="openSwitchAccount()">
           切换账号
         </div>
-        <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:12px; border-radius:var(--radius-sm); font-size:13px; font-weight:500; color:var(--danger); background:var(--danger-bg); cursor:pointer;" onclick="alert('退出登录')">
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:12px; border-radius:var(--radius-sm); font-size:13px; font-weight:500; color:var(--danger); background:var(--danger-bg); cursor:pointer;" onclick="window.location.href='login.html'">
           退出登录
         </div>
       </div>
@@ -2622,6 +2640,13 @@ window.location.href = 'login.html';
     localStorage.setItem(prdStorageKey, JSON.stringify(data));
     togglePrdEdit();
     alert('PRD 已保存');
+  }
+
+  function toggleWorkStatus() {
+    var toggle = document.getElementById('statusToggle');
+    var label = document.getElementById('statusLabel');
+    toggle.classList.toggle('active');
+    label.textContent = toggle.classList.contains('active') ? '营业中' : '休息中';
   }
 
 </script>

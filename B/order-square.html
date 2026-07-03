@@ -1162,6 +1162,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
   </div>
 </div>
 
+<!-- 弹窗：确认取消/撤单 -->
+<div class="modal hide" id="modal-cancel">
+  <div class="modal-c">
+    <div class="modal-h"><span class="modal-title" id="modal-cancel-title">确认</span><span class="modal-close" onclick="closeModalCancel()">&times;</span></div>
+    <div class="modal-body"><div class="confirm-text" id="modal-cancel-msg"></div></div>
+    <div class="modal-f">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModalCancel()">取消</button>
+      <button class="modal-btn modal-btn-confirm" style="background:#F96167" id="modal-cancel-btn">确认</button>
+    </div>
+  </div>
+</div>
+<!-- 弹窗：确认发布 -->
+<div class="modal hide" id="modal-publish">
+  <div class="modal-c">
+    <div class="modal-h"><span class="modal-title" id="modal-publish-title">确认发布</span><span class="modal-close" onclick="closeModalPublish()">&times;</span></div>
+    <div class="modal-body"><div class="confirm-text" id="modal-publish-msg"></div></div>
+    <div class="modal-f">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModalPublish()">取消</button>
+      <button class="modal-btn modal-btn-confirm" onclick="doConfirmPublish()">确认发布</button>
+    </div>
+  </div>
+</div>
+<!-- 弹窗：确认重新发布 -->
+<div class="modal hide" id="modal-republish">
+  <div class="modal-c">
+    <div class="modal-h"><span class="modal-title" id="modal-republish-title">确认重新发布</span><span class="modal-close" onclick="closeModalRepublish()">&times;</span></div>
+    <div class="modal-body"><div class="confirm-text" id="modal-republish-msg"></div></div>
+    <div class="modal-f">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModalRepublish()">取消</button>
+      <button class="modal-btn modal-btn-confirm" onclick="doRepublish()">确认发布</button>
+    </div>
+  </div>
+</div>
 <!-- 弹窗：确认删除 -->
 <div class="modal hide" id="modal-delete">
   <div class="modal-c">
@@ -1441,6 +1474,8 @@ function showSuccess(title, msg) {
 }
 
 function closeModalSuccess() { document.getElementById('modal-success').classList.add('hide'); nav('pg-home'); }
+function closeModalTransfer() { document.getElementById('modal-transfer').classList.add('hide'); }
+function doTransfer() { closeModalTransfer(); goTransferPublish(); }
 
 function goPublish() {
   isTransferMode = false;
@@ -1505,7 +1540,13 @@ function selectPay(el) {
   el.classList.add('on');
 }
 
-function confirmPublish() { showSuccess('发布成功', '您的订单已发布到订单广场，48小时内有效。在此期间可查看申请服务商并选用。'); }
+function confirmPublish() {
+  document.getElementById('modal-publish-title').textContent = '确认发布';
+  document.getElementById('modal-publish-msg').textContent = '发布后订单将展示在订单广场，独立服务商可申请接单。确认支付并发布？';
+  document.getElementById('modal-publish').classList.remove('hide');
+}
+function closeModalPublish() { document.getElementById('modal-publish').classList.add('hide'); }
+function doConfirmPublish() { closeModalPublish(); showSuccess('发布成功', '您的订单已发布到订单广场，48小时内有效。在此期间可查看申请服务商并选用。'); }
 
 // 查看订单详情
 function viewOrderDetail(type, id) {
@@ -1567,7 +1608,25 @@ function viewOrderDetail(type, id) {
   }
 }
 
-function cancelTransfer(id) { showSuccess('取消成功', '订单已取消发布，线上订单将退回待处理列表。'); }
+function cancelTransfer(id) {
+  if (id === 0) {
+    // 取消转单
+    document.getElementById('modal-cancel-title').textContent = '确认取消转单';
+    document.getElementById('modal-cancel-msg').textContent = '取消后该订单将退回待处理列表，不影响原始订单。';
+    document.getElementById('modal-cancel-btn').setAttribute('onclick', 'doCancelTransfer()');
+  } else if (id === 1) {
+    // 取消发布
+    document.getElementById('modal-cancel-title').textContent = '确认取消发布';
+    document.getElementById('modal-cancel-msg').textContent = '取消发布后该订单将从订单广场下架，已申请的独立服务商将收到通知。';
+    document.getElementById('modal-cancel-btn').setAttribute('onclick', 'doCancelPublish()');
+  } else if (id === 2) {
+    // 撤单
+    document.getElementById('modal-cancel-title').textContent = '确认撤单';
+    document.getElementById('modal-cancel-msg').textContent = '撤单后该订单将关闭，已选用的服务商会收到通知。确定撤单？';
+    document.getElementById('modal-cancel-btn').setAttribute('onclick', 'doWithdraw()');
+  }
+  document.getElementById('modal-cancel').classList.remove('hide');
+}
 
 let viewOnlyMode = false;
 
@@ -1600,7 +1659,13 @@ function viewOnlyTechList(id) {
   // 禁用卡片点击（不可重新选择）
   document.querySelectorAll('.tech-card').forEach(c => c.style.pointerEvents = 'none');
 }
-function republishOrder() { goPublish(); }
+function republishOrder() {
+  document.getElementById('modal-republish-title').textContent = '确认重新发布';
+  document.getElementById('modal-republish-msg').textContent = '将重新发布该订单到订单广场，订单有效期将重新计算。确认重新发布？';
+  document.getElementById('modal-republish').classList.remove('hide');
+}
+function closeModalRepublish() { document.getElementById('modal-republish').classList.add('hide'); }
+function doRepublish() { closeModalRepublish(); goPublish(); }
 
 // 验证服务费输入
 function validateFee(type, min, max) {
@@ -1703,6 +1768,8 @@ setInterval(updateCountdowns, 60000);
 
 </div><!-- end phone -->
 
+
+  
 </div><!-- end container -->
 
 </body>

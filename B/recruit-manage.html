@@ -343,9 +343,194 @@
             font-size: 16px;
             line-height: 1;
         }
+
+        /* ===== PRD 文档样式 ===== */
+        .prd-doc {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.10);
+        }
+
+        .prd-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #0B574A;
+        }
+
+        .prd-title .prd-tag {
+            background: #0B574A;
+            color: #fff;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prd-section { margin-bottom: 20px; }
+
+        .prd-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0B574A;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prd-section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: #0B574A;
+            border-radius: 2px;
+        }
+
+        .prd-text { font-size: 13px; color: #666; line-height: 1.8; }
+        .prd-text p { margin-bottom: 8px; }
+        .prd-text ul { margin-left: 16px; margin-bottom: 8px; }
+        .prd-text li { margin-bottom: 4px; }
+        .prd-highlight { background: #e6f2ee; padding: 2px 6px; border-radius: 4px; color: #0B574A; font-weight: 500; }
+    
+        /* PRD layout */
+        body { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 40px; padding: 40px; background: #f0f0f0; }
+        .page-bg { flex-shrink: 0; }
+
     </style>
 </head>
 <body>
+    <section class="prd-doc">
+  <div class="prd-title">
+    <h2 style="font-size: inherit; font-weight: inherit; color: inherit; display: inline;">招工管理 — 产品需求文档<span class="prd-tag">PRD</span></h2>
+  </div>
+  <div class="prd-section">
+    <div class="prd-section-title">一、文档信息</div>
+    <div class="prd-text">
+      <p><strong>文档名称：</strong>B端商户招工管理产品需求文档</p>
+      <p><strong>适用端：</strong>B端商户APP</p>
+      <p><strong>需求类型：</strong>功能迭代</p>
+      <p><strong>关联页面：</strong>招工管理页，从功能聚合页进入</p>
+    </div>
+  </div>
+
+  <div class="prd-section">
+    <div class="prd-section-title">二、模块概述</div>
+    <div class="prd-text">
+      <p>招工管理是B端商户用于发布和管理招聘职位的功能模块。商户可通过该模块设置招工状态、维护职位信息（职位名称、性别要求、招聘要求），并支持新增和删除职位操作。</p>
+    </div>
+  </div>
+
+  <div class="prd-section">
+    <div class="prd-section-title">三、用户路径</div>
+    <div class="prd-text">
+      <p><strong>主路径：</strong></p>
+      <ul>
+        <li>商户登录 → 进入功能聚合页 → 点击"招工管理" → 进入招工管理页</li>
+      </ul>
+      <p><strong>页面流转说明：</strong></p>
+      <ul>
+        <li><strong>招工管理页：</strong>展示招工状态开关和职位卡片列表</li>
+        <li><strong>职位编辑：</strong>点击职位卡片行可进入编辑（占位）</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="prd-section">
+    <div class="prd-section-title">四、功能需求</div>
+    <div class="prd-text">
+      <p><strong>4.1 招工状态</strong></p>
+      <ul>
+        <li>页面顶部展示招工状态区域，包含状态标签和开关控件</li>
+        <li>支持<span class="prd-highlight">招工中 / 已暂停</span>两种状态切换</li>
+        <li>开关开启时状态文字为"招工中"，颜色为品牌绿（#0B574A）</li>
+        <li>开关关闭时状态文字为"已暂停"，颜色为灰色（#888）</li>
+        <li>状态切换即时生效，无二次确认</li>
+      </ul>
+
+      <p><strong>4.2 职位卡片</strong></p>
+      <ul>
+        <li>以卡片形式展示每个职位，包含三行信息：招工职位、招工性别、招聘要求</li>
+        <li><strong>招工职位：</strong>展示职位名称，点击可进入编辑流程</li>
+        <li><strong>招工性别：</strong>以标签单选形式展示，选项为<span class="prd-highlight">不限 / 男 / 女</span></li>
+        <li>性别标签为互斥单选，选中项高亮显示（品牌绿边框+背景色）</li>
+        <li><strong>招聘要求：</strong>展示招聘要求文本，点击可进入编辑流程</li>
+        <li>职位和招聘要求行右侧展示箭头图标，提示可点击进入编辑</li>
+      </ul>
+
+      <p><strong>4.3 删除职位</strong></p>
+      <ul>
+        <li>每个职位卡片右上角展示删除按钮（圆形×图标）</li>
+        <li>点击删除按钮弹出确认弹窗，文案为<span class="prd-highlight">"确定删除该职位？"</span></li>
+        <li>用户确认后，卡片以动画形式滑出并移除（透明度渐变 + 向右滑出）</li>
+        <li>取消删除则保持原状，无提示</li>
+      </ul>
+
+      <p><strong>4.4 新增职位</strong></p>
+      <ul>
+        <li>页面底部展示悬浮新增职位按钮（FAB样式）</li>
+        <li>按钮文案为"新增职位"，左侧带+号图标</li>
+        <li>按钮固定定位在手机屏幕右下角，带阴影效果</li>
+        <li>点击后触发新增职位流程（当前为占位弹窗提示）</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="prd-section">
+    <div class="prd-section-title">五、交互规则</div>
+    <div class="prd-text">
+      <p><strong>5.1 招工状态切换</strong></p>
+      <ul>
+        <li>点击开关组件即时切换招工状态</li>
+        <li>切换时状态文字和颜色同步更新</li>
+        <li>状态变更应同步至服务端，断网时本地先变更，恢复后补同步</li>
+      </ul>
+
+      <p><strong>5.2 性别标签选择</strong></p>
+      <ul>
+        <li>点击任一性别标签，该标签变为选中状态，同组其他标签取消选中</li>
+        <li>选中效果：边框变为品牌绿，文字变为品牌绿，背景变为浅绿色</li>
+        <li>性别选择即时生效，无需额外确认</li>
+      </ul>
+
+      <p><strong>5.3 职位卡片操作</strong></p>
+      <ul>
+        <li>点击职位名称行或招聘要求行，触发编辑流程</li>
+        <li>点击删除按钮需二次确认，防止误操作</li>
+        <li>删除动画时长约300ms，动画结束后从DOM移除卡片</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="prd-section">
+    <div class="prd-section-title">六、规则与边界</div>
+    <div class="prd-text">
+      <ul>
+        <li><strong>无职位数据：</strong>职位列表区域展示空状态提示"暂无职位，点击右下角新增"</li>
+        <li><strong>状态联动：</strong>招工状态为"已暂停"时，用户端不再展示该商户的招工信息</li>
+        <li><strong>删除不可逆：</strong>职位删除后不可恢复，请商户谨慎操作</li>
+        <li><strong>数据校验：</strong>新增/编辑职位时，职位名称和招聘要求不能为空</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="prd-section">
+    <div class="prd-section-title">七、数据影响</div>
+    <div class="prd-text">
+      <ul>
+        <li><strong>招工状态：</strong>影响用户端是否展示该商户的招工信息</li>
+        <li><strong>职位数据：</strong>新增、编辑、删除操作实时同步至服务端</li>
+        <li><strong>性别要求：</strong>作为用户端筛选和展示的参考条件</li>
+      </ul>
+    </div>
+  </div>
+</section>
     <div class="page-bg">
         <div class="phone-frame">
             <!-- 刘海 -->
@@ -514,5 +699,8 @@
             alert('新增职位');
         }
     </script>
+
+
+
 </body>
 </html>
